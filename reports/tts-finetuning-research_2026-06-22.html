@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-Narrator / Multilingual Parler-TTS Fine-Tune — Data & Strategy</title>
+<style>
+  :root{--ink:#1a1d24;--muted:#5b6470;--line:#e3e7ee;--bg:#f7f8fb;--card:#fff;
+    --accent:#1c5fd8;--accent2:#d9480f;--good:#2b8a3e;--warn:#e8590c;--bad:#c92a2a;--code:#0b1021;--codeink:#d7e0ff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px 80px;}
+  header.hero{background:linear-gradient(135deg,#0b2a6b,#1c5fd8);color:#fff;padding:46px 0 38px;margin-bottom:8px;}
+  header.hero .wrap{padding-bottom:0}
+  header.hero h1{margin:0 0 8px;font-size:29px;line-height:1.2;letter-spacing:-.3px}
+  header.hero p{margin:6px 0 0;color:#d7e3ff;font-size:15px}
+  .pill{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:3px 11px;font-size:12px;margin:10px 6px 0 0}
+  nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:22px 0;columns:2;column-gap:30px;font-size:14.5px}
+  nav.toc a{color:var(--accent);text-decoration:none;display:block;padding:3px 0;break-inside:avoid}
+  nav.toc a:hover{text-decoration:underline}
+  h2{font-size:22px;margin:42px 0 6px;padding-top:10px;border-top:2px solid var(--line);letter-spacing:-.2px}
+  h2 .n{color:var(--accent);font-weight:800;margin-right:8px}
+  h3{font-size:17px;margin:22px 0 6px;color:#22305a}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 26px 22px;margin:18px 0;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+  .verdict{background:#eef4ff;border-left:4px solid var(--accent);padding:12px 16px;border-radius:8px;margin:14px 0;font-size:15px}
+  .verdict b{color:#0b2a6b}
+  .callout{border-left:4px solid var(--warn);background:#fff7ed;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .callout.bad{border-color:var(--bad);background:#fff0f0}
+  .callout.good{border-color:var(--good);background:#ebfbee}
+  .callout .tag{font-weight:700;font-size:12px;letter-spacing:.4px;text-transform:uppercase;display:block;margin-bottom:3px;color:var(--warn)}
+  .callout.bad .tag{color:var(--bad)} .callout.good .tag{color:var(--good)}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f4f9;font-weight:700}
+  tr:nth-child(even) td{background:#fafbfd}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.total td{background:#eef4ff;font-weight:700}
+  code{background:#eef1f6;border-radius:5px;padding:1px 6px;font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace}
+  pre{background:var(--code);color:var(--codeink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px ui-monospace,Menlo,monospace;line-height:1.55}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  figure{margin:18px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:14px}
+  figcaption{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
+  .ref{font-size:13px;color:var(--muted)} .ref a{color:var(--accent)}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+  .kpi .box{flex:1;min-width:120px;background:#f1f4f9;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .box .v{font-size:22px;font-weight:800;color:#0b2a6b}
+  .kpi .box .l{font-size:12px;color:var(--muted)}
+  .badge{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700}
+  .badge.g{background:#ebfbee;color:var(--good)} .badge.r{background:#fff0f0;color:var(--bad)} .badge.y{background:#fff7ed;color:var(--warn)}
+  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
+  @media (max-width:760px){nav.toc{columns:1}.grid2{grid-template-columns:1fr}}
+  @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}header.hero{background:#0b2a6b !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>Multi-Narrator / Multilingual Parler-TTS Fine-Tune — Data &amp; Strategy</h1>
+    <p>Measured data inventory, speaker-naming decision, epochs, language balance, hyperparameters, and a benchmark plan vs Gemini / IndicF5 / pretrained Parler.</p>
+    <div>
+      <span class="pill">Base: ai4bharat/indic-parler-tts</span>
+      <span class="pill">Generated 2026-06-22</span>
+      <span class="pill">Data measured from disk</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <a href="#tldr">★ Executive summary &amp; decisions</a>
+  <a href="#data">1 · Measured data inventory</a>
+  <a href="#names">2 · Speaker naming — fresh vs reuse</a>
+  <a href="#epochs">3 · How many epochs</a>
+  <a href="#enough">4 · Is 27.5 h sufficient / too much?</a>
+  <a href="#balance">5 · Hindi + Marathi language balance</a>
+  <a href="#params">6 · Parameter tuning</a>
+  <a href="#metrics">7 · Benchmark metrics &amp; baselines</a>
+</nav>
+
+<section id="tldr">
+<h2><span class="n">★</span>Executive summary &amp; decisions</h2>
+<div class="kpi">
+  <div class="box"><div class="v">27.5 h</div><div class="l">total audio</div></div>
+  <div class="box"><div class="v">25.0 h</div><div class="l">Marathi</div></div>
+  <div class="box"><div class="v">2.5 h</div><div class="l">Hindi</div></div>
+  <div class="box"><div class="v">22,789</div><div class="l">clips (2–20 s)</div></div>
+  <div class="box"><div class="v">2–3</div><div class="l">epochs (large set)</div></div>
+</div>
+<ul>
+<li><b>Use fresh speaker names (A/B/C), not Sunita/Radha/Isha.</b> Those names carry no special capability — reusing them overwrites the pretrained voices for no gain. Fresh names keep the originals and give each narrator a clean slot.</li>
+<li><b>One name = one consistent voice.</b> The mixed-quality bedtime-stories set (echo + multiple voices) must be triaged before it's labelled, or it muddies whatever name it's under.</li>
+<li><b>27.5 h is generous, not excessive</b> — but only because it's spread across ~4–5 narrators + 2 languages. Quality beats quantity: drop the echoey clips.</li>
+<li><b>Hindi is starved (10:1).</b> A single Hindi+Marathi model needs rebalancing (more Hindi, or oversampling) for comparable quality.</li>
+<li><b>Benchmark</b> the fine-tune vs Gemini / IndicF5 / pretrained Parler on identical texts with SQUIM + UTMOS + WER. The local SQUIM run wedged on a CPU/torch IO issue → run it on the RunPod GPU.</li>
+</ul>
+</section>
+
+<!-- 1 DATA -->
+<section id="data">
+<h2><span class="n">1</span>Measured data inventory</h2>
+<p>Durations computed directly from the segmented WAV chunks on disk (44.1 kHz mono), not estimated.</p>
+<table>
+<tr><th>Dataset</th><th class="num">Clips</th><th class="num">Hours</th><th>Narrator / quality</th></tr>
+<tr><td>Marathi Panchtantra (new)</td><td class="num">7,798</td><td class="num">11.01</td><td>1 narrator (Chhan Chhan Goshti) <span class="badge g">clean-ish</span></td></tr>
+<tr><td>Marathi Bedtime Stories (new)</td><td class="num">9,104</td><td class="num">9.48</td><td>echo + clear, possibly multiple voices <span class="badge r">mixed</span></td></tr>
+<tr><td>Marathi v2 (Sunita source)</td><td class="num">3,939</td><td class="num">4.25</td><td>clean single narrator <span class="badge g">clean</span></td></tr>
+<tr><td>Hindi Panchtantra</td><td class="num">1,708</td><td class="num">2.51</td><td>Hindi narrator</td></tr>
+<tr><td>Marathi v1</td><td class="num">240</td><td class="num">0.27</td><td>different narrator</td></tr>
+<tr class="total"><td>TOTAL</td><td class="num">22,789</td><td class="num">27.51</td><td>Marathi 25.0 h · Hindi 2.5 h</td></tr>
+</table>
+<p class="ref">Source: <code>soundfile</code> frame counts over <code>marathi_panchtantra_dataset/</code>, <code>marathi_bedtime_stories_dataset/</code>, <code>marathi_dataset_v2/</code>, <code>hindi_panchtantra_dataset/</code>, <code>marathi_dataset_v1/</code> (each <code>/audio/chunk_*.wav</code>).</p>
+</section>
+
+<!-- 2 NAMES -->
+<section id="names">
+<h2><span class="n">2</span>Speaker naming — fresh names vs reusing Sunita/Radha/Isha</h2>
+<div class="verdict"><b>Decision — use fresh, distinct names (A/B/C).</b> Deep research on the model card confirms the named speakers are <i>consistency anchors</i>, not specialized voices: the Marathi list is Sanjay, Sunita, Nikhil, Radha, Varun, Isha — and <b>only Sanjay &amp; Sunita are even "recommended."</b> There is <b>no per-name functional specialization</b> (no "news reader" vs "poetry" tuning); pitch/pace/emotion are controlled by the description caption, not baked into the name.</div>
+
+<div class="grid2">
+<div>
+<h3>If you fine-tune <i>under</i> Sunita/Radha/Isha</h3>
+<ul>
+<li>Names are learned labels, not protected slots — training <b>overwrites/shifts</b> those pretrained voices toward your recordings.</li>
+<li>You <b>lose them as baselines/fallbacks</b>, and risk a hybrid identity.</li>
+<li>Parler maintainer (@ylacombe) notes reused names already don't reproduce reliably even before fine-tuning.</li>
+<li><b>No upside</b> — the names give you nothing a fresh name wouldn't.</li>
+</ul>
+</div>
+<div>
+<h3>Benefit of fresh names (A/B/C)</h3>
+<ul>
+<li>Pretrained voices stay intact.</li>
+<li>Each narrator gets a <b>clean, dedicated slot</b> built entirely from your multi-hour data — more than enough to establish a new name.</li>
+<li>No collision, no blending.</li>
+</ul>
+</div>
+</div>
+<div class="callout bad"><span class="tag">Critical caveat for your data — one name = one voice</span>
+The mechanism averages everything under a name into a single voice. So map clean, consistent audio to each name:
+<b>Panchtantra → name A · v2 (Sunita's clean voice) → name B · v1 → name C.</b>
+The <b>bedtime-stories set is the problem</b> — 9.5 h of echo + possibly multiple narrators. Labelling it all one name yields a muddy voice. <b>Triage first:</b> delete echoey clips; if there are genuinely 2+ voices, split them into separate names (or set it aside).</div>
+<p class="ref">Sources: indic-parler-tts model card; Parler-TTS HF discussion (@ylacombe on speaker consistency); Parler-TTS training README; AI4Bharat IndicVoices-R.</p>
+</section>
+
+<!-- 3 EPOCHS -->
+<section id="epochs">
+<h2><span class="n">3</span>How many epochs</h2>
+<div class="verdict"><b>Start at 2–3 epochs with early stopping on <code>eval/loss</code>.</b> 25 h is a <i>large</i> fine-tune set, so it needs far fewer passes than the old 20-min run (which used 6). More data → fewer epochs. Stop at the eval-loss elbow; think in <b>total steps</b> (effective batch × steps), not epochs.</div>
+<ul>
+<li>Watch for the overfitting signal: <code>train/loss</code> falling while <code>eval/loss</code> rises → stop.</li>
+<li>Pair the loss curve with logged audio samples each eval — trust your ears over the CE number.</li>
+<li>Checkpoints every 200 steps + <code>save_total_limit: 3</code> let you roll back to the best step.</li>
+</ul>
+</section>
+
+<!-- 4 ENOUGH -->
+<section id="enough">
+<h2><span class="n">4</span>Is 27.5 h sufficient — or too much?</h2>
+<div class="verdict"><b>Sufficient, generously so — and not harmfully "too much."</b> 27.5 h is on par with LJSpeech (~24 h). It is only reasonable <i>because</i> it's spread across ~4–5 narrators + 2 languages (~4–11 h each Marathi, 2.5 h Hindi). For a <i>single</i> clean voice, 5–6 h is plenty and 25 h of one voice would be overkill.</div>
+<div class="callout"><span class="tag">Quality &gt; quantity</span>
+The echoey / mixed bedtime hours can <b>lower</b> output quality. You will likely get a better model from <b>~18–20 h of clean, consistent audio</b> than from 27 h that includes muddy clips. Curate before you train.</div>
+</section>
+
+<!-- 5 BALANCE -->
+<section id="balance">
+<h2><span class="n">5</span>Hindi + Marathi in one model — balance</h2>
+<div class="verdict"><b>Yes, balance matters — and you're at ~10:1 (25 h Marathi : 2.5 h Hindi).</b> A joint model on that ratio will be strong in Marathi and under-adapted in Hindi.</div>
+<table>
+<tr><th>Option</th><th>Effect</th><th>Verdict</th></tr>
+<tr><td>Add Hindi data → ~1:2–1:3 (≈ 8–12 h)</td><td>Comparable quality both languages</td><td><span class="badge g">best for parity</span></td></tr>
+<tr><td>Oversample / upweight the 2.5 h Hindi</td><td>Cheap rebalance, risk of Hindi overfit</td><td><span class="badge y">quick fix</span></td></tr>
+<tr><td>Accept Marathi-dominant</td><td>Hindi remains weaker/secondary</td><td><span class="badge y">if Hindi is low-priority</span></td></tr>
+<tr><td>Separate per-language fine-tunes</td><td>No cross-language interference; cleanest quality</td><td><span class="badge g">if you don't need one model</span></td></tr>
+</table>
+<p>The base already knows Hindi, so 2.5 h <i>will</i> shift it somewhat — but it won't match the Marathi quality without rebalancing. Keeping the same narrator's voice consistent <i>across</i> languages requires that narrator recorded in both.</p>
+</section>
+
+<!-- 6 PARAMS -->
+<section id="params">
+<h2><span class="n">6</span>Parameter tuning (for this ~25 h scale)</h2>
+<table>
+<tr><th>Parameter</th><th>Suggested</th><th>Why</th></tr>
+<tr><td><code>learning_rate</code></td><td>5e-5 – 1e-4</td><td>slightly higher OK at this data scale</td></tr>
+<tr><td><code>num_train_epochs</code></td><td>2–3</td><td>early-stop on eval/loss</td></tr>
+<tr><td>effective batch</td><td>16–64</td><td><code>per_device × grad_accum × gpus</code>; bigger data → bigger batch</td></tr>
+<tr><td><code>warmup_steps</code></td><td>~3–8% of total steps</td><td>scale to step count, not 20 000</td></tr>
+<tr><td><code>lr_scheduler_type</code></td><td>cosine</td><td>longer run → cosine</td></tr>
+<tr><td><code>freeze_text_encoder</code></td><td>true</td><td>keep Flan-T5 frozen</td></tr>
+<tr><td><code>gradient_checkpointing</code> / <code>bf16</code></td><td>true / true</td><td>VRAM + numerical stability</td></tr>
+<tr><td>min / max duration</td><td>2 / 20 s</td><td>4–12 s sweet spot</td></tr>
+<tr><td><b>LoRA / PEFT</b></td><td>consider</td><td><b>reduces catastrophic forgetting — valuable for the multilingual case</b></td></tr>
+<tr><td><code>group_by_length</code></td><td>true</td><td>throughput</td></tr>
+</table>
+</section>
+
+<!-- 7 METRICS -->
+<section id="metrics">
+<h2><span class="n">7</span>Benchmark metrics &amp; baselines</h2>
+<p>Score the <b>same held-out texts</b> across models, reference-free, then tabulate:</p>
+<table>
+<tr><th>Metric</th><th class="num">Range</th><th>"Good" target</th></tr>
+<tr><td>STOI (SQUIM)</td><td class="num">0–1</td><td>≥ 0.90</td></tr>
+<tr><td>PESQ (SQUIM)</td><td class="num">−0.5–4.5</td><td>≥ 3.0 (4+ excellent)</td></tr>
+<tr><td>SI-SDR (SQUIM)</td><td class="num">dB</td><td>≥ 15–20</td></tr>
+<tr><td>UTMOS / DNSMOS / SQUIM-MOS</td><td class="num">1–5</td><td>≥ 4.0</td></tr>
+<tr><td>WER / CER (ASR)</td><td class="num">%</td><td>as low as possible</td></tr>
+<tr><td>Speaker cosine</td><td class="num">0–1</td><td>higher = closer to target</td></tr>
+</table>
+
+<h3>Baseline targets (expected — confirm with the live GPU run)</h3>
+<table>
+<tr><th>Model</th><th class="num">Expected MOS (1–5)</th><th>Notes</th></tr>
+<tr><td>Gemini-TTS</td><td class="num">~4.0–4.4</td><td>top reference target</td></tr>
+<tr><td>IndicF5 (AI4Bharat)</td><td class="num">~3.9–4.3</td><td>strong on Indian languages</td></tr>
+<tr><td>Pretrained indic-parler</td><td class="num">~3.5–4.0</td><td>good, V1 voice-consistency wobble</td></tr>
+<tr><td>MMS Marathi (Meta)</td><td class="num">~3.0–3.5</td><td>more robotic baseline</td></tr>
+<tr><td><b>Your fine-tune (goal)</b></td><td class="num">within ~0.2–0.3 of Gemini</td><td>the success bar on your Marathi target</td></tr>
+</table>
+
+<div class="callout"><span class="tag">Live SQUIM run — pending</span>
+You already have generated audio for all five baselines in <code>model_outputs_v1/</code>
+(<code>gemini</code>, <code>indic_f5</code>, <code>pretrained_indic_parler</code>, <code>finetuned_parler</code>, <code>mms_marathi</code> — 17 clips).
+<code>scripts/narrate/compare_squim.py</code> works, but the SQUIM model <b>wedged in IO during load on the local CPU/torch build</b>.
+<b>Run it on the RunPod GPU</b> (added to the runbook) to fill in the real STOI/PESQ/SI-SDR table. Note: SQUIM is reference-free and was trained for enhancement assessment — treat it as a <i>relative</i> comparator across models on identical texts, and pair it with UTMOS + WER.</div>
+<p class="ref">Tooling: <code>scripts/narrate/compare_squim.py</code> (SQUIM STOI/PESQ/SI-SDR), <code>narrate_gemini.py</code>, <code>narrate_indicf5.py</code>, <code>narrate_mms.py</code>. Refs: TorchAudio-SQUIM; UTMOS; DNSMOS P.835; Gemini-TTS docs; indic-parler-tts model card.</p>
+</section>
+
+<footer>
+Generated by the <b>tts-research</b> agent · data measured 2026-06-22 from the segmented datasets · re-run after a real fine-tune to fold in live W&amp;B loss curves and the GPU SQUIM table.
+</footer>
+
+</div>
+</body>
+</html>

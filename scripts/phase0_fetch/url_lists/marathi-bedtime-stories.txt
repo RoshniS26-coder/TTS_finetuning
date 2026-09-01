@@ -1,0 +1,9 @@
+# Marathi Bedtime Stories — "Bedtime stories in Marathi - Season 1"
+# Channel: छान छान गोष्टी (Chhan Chhan Goshti) kids stories.
+# Kids cartoons with sung intros/jingles -> RUN WITH demucs (default --separate), --denoise light.
+# Watch for music bleed on the opening seconds of each clip.
+#
+# NOTE: KEEP marathi-bedtime-stories and marathi-panchtantra as SEPARATE FOLDERS (per user).
+# Do NOT merge the two genres' audio. Even though it's likely the same Chhan Chhan Goshti
+# narrator, treat them as distinct datasets/folders end-to-end (download, separate, final, build).
+https://music.youtube.com/playlist?list=PLoFuCvXOZ2UrKvJt3lJnuOEPLu2s4kY9j

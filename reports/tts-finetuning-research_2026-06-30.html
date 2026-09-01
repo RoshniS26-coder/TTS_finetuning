@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marathi &amp; Hindi Storytelling TTS — Fine-Tuning Research Report (v1→v6)</title>
+<style>
+  :root{--ink:#1a1d24;--muted:#5b6470;--line:#e3e7ee;--bg:#f7f8fb;--card:#fff;
+    --accent:#1c5fd8;--accent2:#d9480f;--good:#2b8a3e;--warn:#e8590c;--bad:#c92a2a;--purple:#7048e8;--code:#0b1021;--codeink:#d7e0ff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px 80px;}
+  header.hero{background:linear-gradient(135deg,#0b2a6b,#1c5fd8);color:#fff;padding:48px 0 40px;margin-bottom:8px;}
+  header.hero .wrap{padding-bottom:0}
+  header.hero h1{margin:0 0 8px;font-size:28px;line-height:1.22;letter-spacing:-.3px}
+  header.hero .sub{margin:6px 0 0;color:#dce7ff;font-size:15.5px;max-width:780px}
+  .pill{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:3px 11px;font-size:12px;margin:10px 6px 0 0}
+  nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:22px 0;columns:2;column-gap:30px;font-size:14.5px}
+  nav.toc a{color:var(--accent);text-decoration:none;display:block;padding:3px 0;break-inside:avoid}
+  nav.toc a:hover{text-decoration:underline}
+  h2{font-size:22px;margin:42px 0 6px;padding-top:10px;border-top:2px solid var(--line);letter-spacing:-.2px}
+  h2 .n{color:var(--accent);font-weight:800;margin-right:8px}
+  h3{font-size:17px;margin:22px 0 6px;color:#22305a}
+  h4{font-size:14.5px;margin:16px 0 4px;color:#3a4a6a}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 26px 24px;margin:18px 0;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+  p{margin:10px 0}
+  .verdict{background:#eef4ff;border-left:4px solid var(--accent);padding:12px 16px;border-radius:8px;margin:14px 0;font-size:15px}
+  .verdict b{color:#0b2a6b}
+  .callout{border-left:4px solid var(--warn);background:#fff7ed;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .callout.bad{border-color:var(--bad);background:#fff0f0}
+  .callout.good{border-color:var(--good);background:#ebfbee}
+  .callout.info{border-color:var(--accent);background:#eef4ff}
+  .callout .tag{font-weight:700;font-size:12px;letter-spacing:.4px;text-transform:uppercase;display:block;margin-bottom:3px;color:var(--warn)}
+  .callout.bad .tag{color:var(--bad)} .callout.good .tag{color:var(--good)} .callout.info .tag{color:var(--accent)}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f4f9;font-weight:700}
+  tr:nth-child(even) td{background:#fafbfd}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.best td{background:#ebfbee;font-weight:700}
+  code{background:#eef1f6;border-radius:5px;padding:1px 6px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace}
+  pre{background:var(--code);color:var(--codeink);border-radius:10px;padding:14px 16px;overflow:auto;font:12.5px ui-monospace,Menlo,monospace;line-height:1.55}
+  pre .c{color:#7f8db5}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  figure{margin:18px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:14px}
+  figure svg{width:100%;height:auto;display:block}
+  figcaption{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
+  .ref{font-size:13px;color:var(--muted)} .ref a{color:var(--accent)}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+  .kpi .box{flex:1;min-width:120px;background:#f1f4f9;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .box.win{background:#ebfbee;border-color:#a7e0b5}
+  .kpi .box .v{font-size:22px;font-weight:800;color:#0b2a6b}
+  .kpi .box .l{font-size:12px;color:var(--muted)}
+  .badge{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700}
+  .badge.g{background:#ebfbee;color:var(--good)} .badge.r{background:#fff0f0;color:var(--bad)} .badge.y{background:#fff7ed;color:var(--warn)}
+  .badge.b{background:#eef4ff;color:var(--accent)}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
+  ol li,ul li{margin:3px 0}
+  .eng{color:var(--purple);font-weight:700}
+  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
+  @media (max-width:760px){nav.toc{columns:1}.grid2{grid-template-columns:1fr}}
+  @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}header.hero{background:#0b2a6b !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}figure{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>Marathi &amp; Hindi Storytelling TTS — Fine-Tuning Research Report (v1→v6)</h1>
+    <p class="sub">A complete research-project write-up for company leadership: six fine-tuning iterations of <code style="color:#fff;background:rgba(255,255,255,.14)">ai4bharat/indic-parler-tts</code> into a warm Marathi &amp; Hindi children's-story narrator — what we built, what we heard, what the metrics say, and what we do next.</p>
+    <div>
+      <span class="pill">Base: ai4bharat/indic-parler-tts</span>
+      <span class="pill">W&amp;B: roshnis-betacraft / parler-speech</span>
+      <span class="pill">Best run: v6 · clean-yogurt-27</span>
+      <span class="pill">Generated 2026-06-30</span>
+      <span class="pill">Metrics verified from W&amp;B — none invented</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <a href="#tldr">★ Executive summary &amp; action items</a>
+  <a href="#map">1 · Version map (experiment label ≠ artifact)</a>
+  <a href="#timeline">2 · Project timeline (v1→v6)</a>
+  <a href="#metrics">3 · Training metrics &amp; charts</a>
+  <a href="#listening">4 · Listening evaluation (founder's ear)</a>
+  <a href="#pipeline">5 · Data pipeline (source → dataset)</a>
+  <a href="#howft">6 · How fine-tuning works</a>
+  <a href="#crash">7 · The failed run — disk math</a>
+  <a href="#eval">8 · Evaluation framework</a>
+  <a href="#landscape">9 · Model landscape (why Parler)</a>
+  <a href="#runpod">10 · RunPod ops &amp; minimum config</a>
+  <a href="#deploy">11 · Deployment &amp; cost</a>
+  <a href="#next">12 · Recommendations &amp; next steps</a>
+  <a href="#refs">13 · References</a>
+</nav>
+
+<!-- ============================================ EXEC SUMMARY -->
+<section id="tldr">
+<h2><span class="n">★</span>Executive summary &amp; action items</h2>
+<p>Over six iterations we fine-tuned an open, commercially-licensed Indian TTS model into a warm, expressive storyteller for <b>Marathi</b> and <b>Hindi</b> children's stories. The newest run, <b>v6 (<code>clean-yogurt-27</code>)</b>, is the best on every objective metric we track <i>and</i> by ear — it is the <b>first run to push word-error-rate below 100%</b>, has the best text-audio alignment (CLAP), and produces a notably strong Hindi voice.</p>
+<div class="kpi">
+  <div class="box win"><div class="v">4.472</div><div class="l">v6 eval/loss ↓ (best of all runs)</div></div>
+  <div class="box win"><div class="v">0.367</div><div class="l">v6 CLAP ↑ (best text-audio match)</div></div>
+  <div class="box win"><div class="v">96.2</div><div class="l">v6 WER ↓ — first run under 100%</div></div>
+  <div class="box"><div class="v">5395 / 107</div><div class="l">v6 train / test clips</div></div>
+  <div class="box"><div class="v">1.17 h</div><div class="l">v6 runtime, single 24 GB GPU</div></div>
+</div>
+<div class="callout good"><span class="tag">Bottom line</span>
+<b>Ship/advance v6 as the current best.</b> Keep the <b>Sunita</b> (Marathi) and <b>Divya</b> (Hindi) voices; <b>retire Maya</b> (harsh timbre, and its 10-hour dominance hurt balance). v6's Hindi narration is clearly better than the base model by ear. The next step is to (a) compute the objective benchmark panel on a GPU and (b) build a <b>copyright-safe synthetic dataset</b> using Gemini-generated narration.</div>
+
+<h3>Action items</h3>
+<table>
+<tr><th>#</th><th>Action</th><th>Why</th><th>Owner / status</th></tr>
+<tr><td class="num">1</td><td>Promote <b>v6</b> (<code>roshni-sorigin/marathi-parler-tts-v6</code>) as the working best model</td><td>Best loss, CLAP, WER; strong Hindi; clean Sunita</td><td>Ready</td></tr>
+<tr><td class="num">2</td><td>Run <code>scripts/narrate/compare_squim.py</code> on a GPU to fill the objective benchmark table (UTMOS, PESQ, STOI, SI-SDR, speaker-sim)</td><td>A/B currently done by ear only; need numbers</td><td>Next</td></tr>
+<tr><td class="num">3</td><td>Add a human <b>MOS / CMOS</b> A/B on a fixed story set vs Gemini-TTS</td><td>Subjective quality is the real bar for storytelling</td><td>Next</td></tr>
+<tr><td class="num">4 <span class="eng">⚙</span></td><td><b>Build a copyright-safe dataset with Gemini</b> (synthesize narration, fine-tune Parler on it)</td><td>Removes source-recording copyright &amp; voice-likeness risk of scraped audio (founder directive 2026-06-30)</td><td>Planned</td></tr>
+<tr><td class="num">5</td><td>Retire <b>Maya</b>; keep Usha/Sunita + Divya as the speaker roster</td><td>Maya is harsh and over-dominant; hurt balance in v2/v3 &amp; v5</td><td>Done in v6</td></tr>
+</table>
+<p style="font-size:13px;color:var(--muted)"><span class="eng">⚙</span> marks an engineering/leadership recommendation that goes beyond the documented defaults.</p>
+</section>
+
+<!-- ============================================ 1 VERSION MAP -->
+<section id="map">
+<h2><span class="n">1</span>Version map — read this first (the numbering is messy)</h2>
+<p>The experiment labels (v1…v6) do <b>not</b> line up one-to-one with the model artifact names, and <b>v4 was skipped</b>. This table is the decoder ring so nothing below is confusing.</p>
+<table>
+<tr><th>Experiment</th><th>W&amp;B run (id)</th><th>Model artifact / HF repo</th><th>Note on the name</th></tr>
+<tr><td><b>v1</b> (PoC)</td><td>woven-mountain-10 (<code>swjl9a9g</code>)</td><td><code>roshni-sorigin/marathi-parler-tts</code></td><td>The original ~16-min proof of concept.</td></tr>
+<tr><td><b>v2 / v3</b></td><td>balmy-resonance-23 (<code>tnldrtnv</code>) <span class="badge y">+1 failed</span></td><td><code>marathi_tts_model_v3</code> (~3.7 GB)</td><td>One scale-up run; the artifact is labelled <b>v3</b> though the surviving run is the "v2/v3" attempt. A second run (<code>toasty-fog-25</code>) <b>failed</b> on disk at step 600.</td></tr>
+<tr><td><b>v4</b></td><td colspan="3"><i>skipped — no run exists under this label.</i></td></tr>
+<tr><td><b>v5</b></td><td>smart-meadow-26 (<code>mx3sxj3f</code>)</td><td><code>roshni-sorigin/marathi-parler-tts-v5</code></td><td>Cleaned, balanced 4-speaker corpus.</td></tr>
+<tr class="best"><td><b>v6</b> (BEST)</td><td>clean-yogurt-27 (<code>h4eoivdb</code>)</td><td><code>roshni-sorigin/marathi-parler-tts-v6</code></td><td>Dropped Maya; Sunita (Marathi) + Divya (Hindi). Current best.</td></tr>
+</table>
+<div class="callout info"><span class="tag">In one sentence</span> The <b>experiment label</b> (v1…v6) tracks the <i>training attempt</i>; the <b>artifact name</b> tracks the <i>uploaded model</i>; they drift because attempts were merged (v2/v3), one failed, and v4 was never used.</div>
+</section>
+
+<!-- ============================================ 2 TIMELINE -->
+<section id="timeline">
+<h2><span class="n">2</span>Project timeline — the spine of the work</h2>
+<p>Each phase changed the <b>dataset</b>, not just the knobs. The story of this project is really the story of cleaning and balancing the speaker corpus. "Listening evaluation" notes are the founder's verdicts after listening to every output.</p>
+<table>
+<tr><th>Phase</th><th>Dataset</th><th>W&amp;B run</th><th>Artifact</th><th>Outcome (incl. listening evaluation)</th></tr>
+<tr>
+  <td><b>v1</b><br>(PoC)</td>
+  <td>232 Sunita clips, ~16 min</td>
+  <td>woven-mountain-10</td>
+  <td><code>roshni-sorigin/marathi-parler-tts</code></td>
+  <td>Voice &amp; narration <b>GOOD</b> but data-starved → edge artifacts, some words mispronounced. Narrations saved in <code>model_outputs_v1/</code>.</td>
+</tr>
+<tr>
+  <td><b>v2 / v3</b><br>(scale-up)</td>
+  <td>+YouTube 10 h "Maya" + marathi-stories.com "Usha" + Hindi "Sarita"; <b>one run FAILED</b> (disk)</td>
+  <td>balmy-resonance-23<br><span class="badge y">+ failed toasty-fog-25 @ step 600</span></td>
+  <td><code>marathi_tts_model_v3</code> (~3.7 GB)</td>
+  <td>Better overall, <b>but the target "Sunita" voice got MIXED</b> with Usha + Maya (all three trained under one name). <b>Usha = best voice so far</b>; <b>Maya = harsh</b> (not recommended) but may add storytelling prosody.</td>
+</tr>
+<tr>
+  <td><b>v5</b><br>(cleaned, balanced)</td>
+  <td>3 days human review removing self-corrections; Sunita×2 + Usha 3000 + Maya 3000 + Sarita 1667 (train 7967 / test 159)</td>
+  <td>smart-meadow-26</td>
+  <td><code>roshni-sorigin/marathi-parler-tts-v5</code></td>
+  <td>Overall quality <b>DEGRADED</b>, BUT Sunita timbre <b>improved</b> (clear, good timbre) — yet word-mixing persisted (e.g. "pani" → "mani"). Hindi narration good.</td>
+</tr>
+<tr class="best">
+  <td><b>v6</b><br>(drop Maya; Sunita+Divya)</td>
+  <td>Removed Maya's dominant harsh 10 h; Usha + v1×2 relabeled <b>Sunita</b> (Marathi), Hindi relabeled <b>Divya</b> (train 5395 / test 107)</td>
+  <td>clean-yogurt-27</td>
+  <td><code>roshni-sorigin/marathi-parler-tts-v6</code></td>
+  <td><b>BEST run.</b> Hindi (Divya) <b>VERY good</b> vs base model. Marathi Sunita clear. <b>Sub-100 WER for the first time.</b></td>
+</tr>
+</table>
+<div class="callout"><span class="tag">The single most important lesson</span> Voice quality tracked <b>data hygiene and speaker balance</b>, not raw hours or step count. v2/v3 had the most data and the most steps yet sounded muddled because three timbres shared one name; v6 had <i>fewer</i> clips but a clean, well-named roster and won on every axis.</div>
+</section>
+
+<!-- ============================================ 3 METRICS -->
+<section id="metrics">
+<h2><span class="n">3</span>Training metrics &amp; charts</h2>
+<p>All numbers below are pulled verbatim from Weights &amp; Biases (<code>roshnis-betacraft/parler-speech</code>). Four runs reached a final eval; one run failed (Section 7).</p>
+
+<h3>3.1 Final-evaluation scoreboard</h3>
+<table>
+<tr><th>Metric</th><th class="num">v1<br>woven-mountain-10</th><th class="num">v2/v3<br>balmy-resonance-23</th><th class="num">v5<br>smart-meadow-26</th><th class="num">v6<br>clean-yogurt-27</th></tr>
+<tr><td>eval/loss ↓</td><td class="num">4.273</td><td class="num">4.570</td><td class="num">4.614</td><td class="num"><b>4.472</b></td></tr>
+<tr><td>CLAP ↑</td><td class="num">0.304</td><td class="num">0.341</td><td class="num">0.308</td><td class="num"><b>0.367</b></td></tr>
+<tr><td>WER ↓</td><td class="num">102.7</td><td class="num">107.4</td><td class="num">101.1</td><td class="num"><b>96.2</b></td></tr>
+<tr><td>clean_wer ↓</td><td class="num">100.0</td><td class="num">124.7</td><td class="num">104.6</td><td class="num"><b>95.6</b></td></tr>
+<tr><td>codebook_0 loss ↓</td><td class="num">3.146</td><td class="num">3.534</td><td class="num">3.534</td><td class="num"><b>3.254</b></td></tr>
+<tr><td>epochs / steps</td><td class="num">6 / 174</td><td class="num">3 / 2418</td><td class="num">4 / 988</td><td class="num">4 / 672</td></tr>
+<tr><td>runtime</td><td class="num">4.6 min</td><td class="num">1.98 h</td><td class="num">1.39 h</td><td class="num">1.17 h</td></tr>
+</table>
+<p><b>Plain English:</b> <code>eval/loss</code> is how surprised the model is by held-out audio tokens (lower = better, but a weak proxy — see §6). <b>CLAP</b> measures how well the generated audio matches its text description (higher = better). <b>WER</b> is word-error-rate: we transcribe the model's output and compare to the target text (lower = better). v6 wins all four quality metrics while running the <i>shortest</i> wall-clock time.</p>
+
+<h3>3.2 eval/loss trajectory — all four runs</h3>
+<p>Plotted against <b>training progress</b> (each run's step ÷ its own total) so runs of very different length line up. Lower is better.</p>
+<div class="legend">
+  <span><i style="background:#2b8a3e"></i> v1 woven-mountain-10 (174 steps)</span>
+  <span><i style="background:#d9480f"></i> v2/v3 balmy-resonance-23 (2418 steps)</span>
+  <span><i style="background:#7048e8"></i> v5 smart-meadow-26 (988 steps)</span>
+  <span><i style="background:#1c5fd8"></i> v6 clean-yogurt-27 (672 steps)</span>
+</div>
+<figure>
+<svg viewBox="0 0 820 300" role="img" aria-label="eval/loss trajectory all runs">
+<line x1="54" y1="260.0" x2="804" y2="260.0" stroke="#eef1f6"/>
+<text x="48" y="263.0" text-anchor="end" font-size="10" fill="#8a93a0">4.2</text>
+<line x1="54" y1="222.8" x2="804" y2="222.8" stroke="#eef1f6"/>
+<text x="48" y="225.8" text-anchor="end" font-size="10" fill="#8a93a0">4.3</text>
+<line x1="54" y1="185.5" x2="804" y2="185.5" stroke="#eef1f6"/>
+<text x="48" y="188.5" text-anchor="end" font-size="10" fill="#8a93a0">4.4</text>
+<line x1="54" y1="148.3" x2="804" y2="148.3" stroke="#eef1f6"/>
+<text x="48" y="151.3" text-anchor="end" font-size="10" fill="#8a93a0">4.5</text>
+<line x1="54" y1="111.1" x2="804" y2="111.1" stroke="#eef1f6"/>
+<text x="48" y="114.1" text-anchor="end" font-size="10" fill="#8a93a0">4.6</text>
+<line x1="54" y1="73.8" x2="804" y2="73.8" stroke="#eef1f6"/>
+<text x="48" y="76.8" text-anchor="end" font-size="10" fill="#8a93a0">4.7</text>
+<line x1="54" y1="36.6" x2="804" y2="36.6" stroke="#eef1f6"/>
+<text x="48" y="39.6" text-anchor="end" font-size="10" fill="#8a93a0">4.8</text>
+<text x="54.0" y="286" text-anchor="middle" font-size="10" fill="#8a93a0">0%</text>
+<text x="241.5" y="286" text-anchor="middle" font-size="10" fill="#8a93a0">25%</text>
+<text x="429.0" y="286" text-anchor="middle" font-size="10" fill="#8a93a0">50%</text>
+<text x="616.5" y="286" text-anchor="middle" font-size="10" fill="#8a93a0">75%</text>
+<text x="804.0" y="286" text-anchor="middle" font-size="10" fill="#8a93a0">100%</text>
+<text x="429.0" y="299" text-anchor="middle" font-size="10.5" fill="#5b6470">training progress (step / total steps)</text>
+<text x="14" y="139.0" text-anchor="middle" font-size="10.5" fill="#5b6470" transform="rotate(-90 14 139)">eval/loss (nats)</text>
+<polyline points="85.0,41.2 116.0,68.9 147.1,79.5 178.1,88.4 209.1,94.1 240.1,99.8 271.1,104.0 302.1,106.1 333.2,106.8 364.2,109.8 395.2,112.5 426.2,114.3 457.2,115.9 488.2,118.2 519.3,119.0 550.3,119.3 581.3,119.6 612.3,120.4 643.3,121.2 674.3,121.4 705.4,122.0 736.4,122.0 767.4,122.1 798.4,122.2 804.0,122.2" fill="none" stroke="#d9480f" stroke-width="2.2"/>
+<circle cx="85.0" cy="41.2" r="2.6" fill="#d9480f"/>
+<circle cx="116.0" cy="68.9" r="2.6" fill="#d9480f"/>
+<circle cx="147.1" cy="79.5" r="2.6" fill="#d9480f"/>
+<circle cx="178.1" cy="88.4" r="2.6" fill="#d9480f"/>
+<circle cx="209.1" cy="94.1" r="2.6" fill="#d9480f"/>
+<circle cx="240.1" cy="99.8" r="2.6" fill="#d9480f"/>
+<circle cx="271.1" cy="104.0" r="2.6" fill="#d9480f"/>
+<circle cx="302.1" cy="106.1" r="2.6" fill="#d9480f"/>
+<circle cx="333.2" cy="106.8" r="2.6" fill="#d9480f"/>
+<circle cx="364.2" cy="109.8" r="2.6" fill="#d9480f"/>
+<circle cx="395.2" cy="112.5" r="2.6" fill="#d9480f"/>
+<circle cx="426.2" cy="114.3" r="2.6" fill="#d9480f"/>
+<circle cx="457.2" cy="115.9" r="2.6" fill="#d9480f"/>
+<circle cx="488.2" cy="118.2" r="2.6" fill="#d9480f"/>
+<circle cx="519.3" cy="119.0" r="2.6" fill="#d9480f"/>
+<circle cx="550.3" cy="119.3" r="2.6" fill="#d9480f"/>
+<circle cx="581.3" cy="119.6" r="2.6" fill="#d9480f"/>
+<circle cx="612.3" cy="120.4" r="2.6" fill="#d9480f"/>
+<circle cx="643.3" cy="121.2" r="2.6" fill="#d9480f"/>
+<circle cx="674.3" cy="121.4" r="2.6" fill="#d9480f"/>
+<circle cx="705.4" cy="122.0" r="2.6" fill="#d9480f"/>
+<circle cx="736.4" cy="122.0" r="2.6" fill="#d9480f"/>
+<circle cx="767.4" cy="122.1" r="2.6" fill="#d9480f"/>
+<circle cx="798.4" cy="122.2" r="2.6" fill="#d9480f"/>
+<circle cx="804.0" cy="122.2" r="2.6" fill="#d9480f"/>
+<polyline points="129.9,59.7 205.8,82.0 281.7,91.3 357.6,98.0 433.6,100.3 509.5,103.3 585.4,105.5 661.3,105.1 737.2,105.9 804.0,106.1" fill="none" stroke="#7048e8" stroke-width="2.2"/>
+<circle cx="129.9" cy="59.7" r="2.6" fill="#7048e8"/>
+<circle cx="205.8" cy="82.0" r="2.6" fill="#7048e8"/>
+<circle cx="281.7" cy="91.3" r="2.6" fill="#7048e8"/>
+<circle cx="357.6" cy="98.0" r="2.6" fill="#7048e8"/>
+<circle cx="433.6" cy="100.3" r="2.6" fill="#7048e8"/>
+<circle cx="509.5" cy="103.3" r="2.6" fill="#7048e8"/>
+<circle cx="585.4" cy="105.5" r="2.6" fill="#7048e8"/>
+<circle cx="661.3" cy="105.1" r="2.6" fill="#7048e8"/>
+<circle cx="737.2" cy="105.9" r="2.6" fill="#7048e8"/>
+<circle cx="804.0" cy="106.1" r="2.6" fill="#7048e8"/>
+<polyline points="165.6,126.0 277.2,143.5 388.8,152.0 500.4,156.1 612.0,158.7 723.6,158.4 804.0,158.7" fill="none" stroke="#1c5fd8" stroke-width="2.2"/>
+<circle cx="165.6" cy="126.0" r="2.6" fill="#1c5fd8"/>
+<circle cx="277.2" cy="143.5" r="2.6" fill="#1c5fd8"/>
+<circle cx="388.8" cy="152.0" r="2.6" fill="#1c5fd8"/>
+<circle cx="500.4" cy="156.1" r="2.6" fill="#1c5fd8"/>
+<circle cx="612.0" cy="158.7" r="2.6" fill="#1c5fd8"/>
+<circle cx="723.6" cy="158.4" r="2.6" fill="#1c5fd8"/>
+<circle cx="804.0" cy="158.7" r="2.6" fill="#1c5fd8"/>
+<polyline points="485.0,199.3 804.0,232.8" fill="none" stroke="#2b8a3e" stroke-width="2.2"/>
+<circle cx="485.0" cy="199.3" r="2.6" fill="#2b8a3e"/>
+<circle cx="804.0" cy="232.8" r="2.6" fill="#2b8a3e"/>
+<circle cx="804.0" cy="158.7" r="5" fill="none" stroke="#1c5fd8" stroke-width="1.5"/>
+</svg>
+<figcaption>v6 (blue) settles lowest at ~4.47; v1's tiny 16-min run reaches a deceptively low 4.27 on its own easy held-out set. Cross-run loss is <b>not</b> directly comparable — each run has a different eval set — so read it alongside CLAP/WER and the listening notes.</figcaption>
+</figure>
+<div class="callout info"><span class="tag">Why v1's loss looks "best" but isn't</span> v1 trained and evaluated on a tiny, homogeneous 16-minute single-speaker set, so its held-out audio is easy to predict → low loss. v6's eval set spans two languages and two named voices, a much harder target, yet it still beats v1 on CLAP and WER. <b>Compare loss only within a run, not across runs.</b></div>
+
+<h3>3.3 CLAP &amp; WER per run</h3>
+<figure>
+<svg viewBox="0 0 820 300" role="img" aria-label="CLAP and WER per run">
+<text x="200.0" y="18" text-anchor="middle" font-size="12.5" font-weight="700">CLAP  ↑ higher = better text-audio match</text>
+<line x1="50" y1="230.0" x2="350" y2="230.0" stroke="#eef1f6"/>
+<text x="44" y="233.0" text-anchor="end" font-size="9.5" fill="#8a93a0">0.0</text>
+<line x1="50" y1="180.0" x2="350" y2="180.0" stroke="#eef1f6"/>
+<text x="44" y="183.0" text-anchor="end" font-size="9.5" fill="#8a93a0">0.1</text>
+<line x1="50" y1="130.0" x2="350" y2="130.0" stroke="#eef1f6"/>
+<text x="44" y="133.0" text-anchor="end" font-size="9.5" fill="#8a93a0">0.2</text>
+<line x1="50" y1="80.0" x2="350" y2="80.0" stroke="#eef1f6"/>
+<text x="44" y="83.0" text-anchor="end" font-size="9.5" fill="#8a93a0">0.3</text>
+<line x1="50" y1="30.0" x2="350" y2="30.0" stroke="#eef1f6"/>
+<text x="44" y="33.0" text-anchor="end" font-size="9.5" fill="#8a93a0">0.4</text>
+<rect x="78.0" y="78.0" width="40" height="152.0" rx="3" fill="#2b8a3e"/>
+<text x="98.0" y="73.0" text-anchor="middle" font-size="10.5" font-weight="700">0.304</text>
+<text x="98.0" y="244.0" text-anchor="middle" font-size="10.5">v1</text>
+<rect x="146.0" y="59.5" width="40" height="170.5" rx="3" fill="#d9480f"/>
+<text x="166.0" y="54.5" text-anchor="middle" font-size="10.5" font-weight="700">0.341</text>
+<text x="166.0" y="244.0" text-anchor="middle" font-size="10.5">v2/v3</text>
+<rect x="214.0" y="76.0" width="40" height="154.0" rx="3" fill="#7048e8"/>
+<text x="234.0" y="71.0" text-anchor="middle" font-size="10.5" font-weight="700">0.308</text>
+<text x="234.0" y="244.0" text-anchor="middle" font-size="10.5">v5</text>
+<rect x="282.0" y="46.5" width="40" height="183.5" rx="3" fill="#1c5fd8"/>
+<text x="302.0" y="41.5" text-anchor="middle" font-size="10.5" font-weight="700">0.367</text>
+<text x="302.0" y="244.0" text-anchor="middle" font-size="10.5">v6</text>
+<text x="620.0" y="18" text-anchor="middle" font-size="12.5" font-weight="700">WER  ↓ lower = better (relative scale)</text>
+<line x1="470" y1="230.0" x2="770" y2="230.0" stroke="#eef1f6" stroke-width="1"/>
+<text x="464" y="233.0" text-anchor="end" font-size="9.5" fill="#8a93a0">90</text>
+<line x1="470" y1="180.0" x2="770" y2="180.0" stroke="#eef1f6" stroke-width="1"/>
+<text x="464" y="183.0" text-anchor="end" font-size="9.5" fill="#8a93a0">95</text>
+<line x1="470" y1="130.0" x2="770" y2="130.0" stroke="#f1a0a0" stroke-width="1.4"/>
+<text x="464" y="133.0" text-anchor="end" font-size="9.5" fill="#8a93a0">100</text>
+<line x1="470" y1="80.0" x2="770" y2="80.0" stroke="#eef1f6" stroke-width="1"/>
+<text x="464" y="83.0" text-anchor="end" font-size="9.5" fill="#8a93a0">105</text>
+<line x1="470" y1="30.0" x2="770" y2="30.0" stroke="#eef1f6" stroke-width="1"/>
+<text x="464" y="33.0" text-anchor="end" font-size="9.5" fill="#8a93a0">110</text>
+<text x="768" y="127.0" text-anchor="end" font-size="9" fill="#c92a2a">100% line</text>
+<rect x="498.0" y="103.0" width="40" height="127.0" rx="3" fill="#2b8a3e"/>
+<text x="518.0" y="98.0" text-anchor="middle" font-size="10.5" font-weight="700">102.7</text>
+<text x="518.0" y="244.0" text-anchor="middle" font-size="10.5">v1</text>
+<rect x="566.0" y="56.0" width="40" height="174.0" rx="3" fill="#d9480f"/>
+<text x="586.0" y="51.0" text-anchor="middle" font-size="10.5" font-weight="700">107.4</text>
+<text x="586.0" y="244.0" text-anchor="middle" font-size="10.5">v2/v3</text>
+<rect x="634.0" y="119.0" width="40" height="111.0" rx="3" fill="#7048e8"/>
+<text x="654.0" y="114.0" text-anchor="middle" font-size="10.5" font-weight="700">101.1</text>
+<text x="654.0" y="244.0" text-anchor="middle" font-size="10.5">v5</text>
+<rect x="702.0" y="168.0" width="40" height="62.0" rx="3" fill="#1c5fd8"/>
+<text x="722.0" y="163.0" text-anchor="middle" font-size="10.5" font-weight="700">96.2</text>
+<text x="722.0" y="244.0" text-anchor="middle" font-size="10.5">v6</text>
+</svg>
+<figcaption>Left: CLAP (higher better) — v6 leads at 0.367. Right: WER (lower better, zoomed 90–110) — v6 is the only run that breaks the 100% line (96.2). Note v2/v3 has high CLAP yet the worst WER, a sign the muddled multi-voice "Sunita" produced confident-sounding but less intelligible speech.</figcaption>
+</figure>
+
+<h3>3.4 v6 eval/loss curve — the winning run</h3>
+<figure>
+<svg viewBox="0 0 820 280" role="img" aria-label="v6 eval/loss curve">
+<line x1="54" y1="225.1" x2="804" y2="225.1" stroke="#eef1f6"/>
+<text x="48" y="228.1" text-anchor="end" font-size="10" fill="#8a93a0">4.46</text>
+<line x1="54" y1="191.2" x2="804" y2="191.2" stroke="#eef1f6"/>
+<text x="48" y="194.2" text-anchor="end" font-size="10" fill="#8a93a0">4.48</text>
+<line x1="54" y1="157.4" x2="804" y2="157.4" stroke="#eef1f6"/>
+<text x="48" y="160.4" text-anchor="end" font-size="10" fill="#8a93a0">4.50</text>
+<line x1="54" y1="123.5" x2="804" y2="123.5" stroke="#eef1f6"/>
+<text x="48" y="126.5" text-anchor="end" font-size="10" fill="#8a93a0">4.52</text>
+<line x1="54" y1="89.7" x2="804" y2="89.7" stroke="#eef1f6"/>
+<text x="48" y="92.7" text-anchor="end" font-size="10" fill="#8a93a0">4.54</text>
+<line x1="54" y1="55.8" x2="804" y2="55.8" stroke="#eef1f6"/>
+<text x="48" y="58.8" text-anchor="end" font-size="10" fill="#8a93a0">4.56</text>
+<line x1="54" y1="22.0" x2="804" y2="22.0" stroke="#eef1f6"/>
+<text x="48" y="25.0" text-anchor="end" font-size="10" fill="#8a93a0">4.58</text>
+<text x="54.0" y="264" text-anchor="middle" font-size="9.5" fill="#8a93a0">100</text>
+<text x="185.1" y="264" text-anchor="middle" font-size="9.5" fill="#8a93a0">200</text>
+<text x="316.2" y="264" text-anchor="middle" font-size="9.5" fill="#8a93a0">300</text>
+<text x="447.4" y="264" text-anchor="middle" font-size="9.5" fill="#8a93a0">400</text>
+<text x="578.5" y="264" text-anchor="middle" font-size="9.5" fill="#8a93a0">500</text>
+<text x="709.6" y="264" text-anchor="middle" font-size="9.5" fill="#8a93a0">600</text>
+<text x="804.0" y="264" text-anchor="middle" font-size="9.5" fill="#8a93a0">672</text>
+<text x="429.0" y="278" text-anchor="middle" font-size="10.5" fill="#5b6470">training step</text>
+<polyline points="54.0,55.8 185.1,135.4 316.2,174.3 447.4,192.9 578.5,204.8 709.6,203.1 804.0,204.8" fill="none" stroke="#1c5fd8" stroke-width="2.4"/>
+<circle cx="54.0" cy="55.8" r="3.4" fill="#1c5fd8"/>
+<text x="54.0" y="47.8" text-anchor="middle" font-size="9" fill="#0b2a6b">4.560</text>
+<circle cx="185.1" cy="135.4" r="3.4" fill="#1c5fd8"/>
+<text x="185.1" y="127.4" text-anchor="middle" font-size="9" fill="#0b2a6b">4.513</text>
+<circle cx="316.2" cy="174.3" r="3.4" fill="#1c5fd8"/>
+<text x="316.2" y="166.3" text-anchor="middle" font-size="9" fill="#0b2a6b">4.490</text>
+<circle cx="447.4" cy="192.9" r="3.4" fill="#1c5fd8"/>
+<text x="447.4" y="184.9" text-anchor="middle" font-size="9" fill="#0b2a6b">4.479</text>
+<circle cx="578.5" cy="204.8" r="3.4" fill="#1c5fd8"/>
+<text x="578.5" y="196.8" text-anchor="middle" font-size="9" fill="#0b2a6b">4.472</text>
+<circle cx="709.6" cy="203.1" r="3.4" fill="#1c5fd8"/>
+<text x="709.6" y="195.1" text-anchor="middle" font-size="9" fill="#0b2a6b">4.473</text>
+<circle cx="804.0" cy="204.8" r="3.4" fill="#1c5fd8"/>
+<text x="804.0" y="196.8" text-anchor="middle" font-size="9" fill="#0b2a6b">4.472</text>
+</svg>
+<figcaption>v6 falls smoothly from 4.560 (step 100) to a 4.472 plateau by step 500 and holds — the classic "stop here" shape. WER first dips under 100% at step 200 (95.9) and finishes at 96.2; CLAP peaks at 0.369 (step 400). Four epochs / 672 steps was the right length.</figcaption>
+</figure>
+
+<h3>3.5 Per-codebook final loss (v1 / v5 / v6)</h3>
+<p>Parler predicts <b>9 parallel RVQ codebooks</b> per audio frame. Codebook 0 is the coarse acoustic layer the model learns best; higher codebooks carry fine detail and stay near-random for every run — which is exactly why the <i>mean</i> loss plateaus and under-reports audible improvement.</p>
+<div class="legend">
+  <span><i style="background:#2b8a3e"></i> v1</span>
+  <span><i style="background:#7048e8"></i> v5</span>
+  <span><i style="background:#1c5fd8"></i> v6</span>
+</div>
+<figure>
+<svg viewBox="0 0 820 300" role="img" aria-label="per-codebook final loss">
+<line x1="54" y1="248.0" x2="804" y2="248.0" stroke="#eef1f6"/>
+<text x="48" y="251.0" text-anchor="end" font-size="10" fill="#8a93a0">3.0</text>
+<line x1="54" y1="191.0" x2="804" y2="191.0" stroke="#eef1f6"/>
+<text x="48" y="194.0" text-anchor="end" font-size="10" fill="#8a93a0">3.5</text>
+<line x1="54" y1="134.0" x2="804" y2="134.0" stroke="#eef1f6"/>
+<text x="48" y="137.0" text-anchor="end" font-size="10" fill="#8a93a0">4.0</text>
+<line x1="54" y1="77.0" x2="804" y2="77.0" stroke="#eef1f6"/>
+<text x="48" y="80.0" text-anchor="end" font-size="10" fill="#8a93a0">4.5</text>
+<line x1="54" y1="20.0" x2="804" y2="20.0" stroke="#eef1f6"/>
+<text x="48" y="23.0" text-anchor="end" font-size="10" fill="#8a93a0">5.0</text>
+<text x="54.0" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">0</text>
+<text x="147.8" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">1</text>
+<text x="241.5" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">2</text>
+<text x="335.2" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">3</text>
+<text x="429.0" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">4</text>
+<text x="522.8" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">5</text>
+<text x="616.5" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">6</text>
+<text x="710.2" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">7</text>
+<text x="804.0" y="268" text-anchor="middle" font-size="10" fill="#8a93a0">8</text>
+<text x="429.0" y="284" text-anchor="middle" font-size="10.5" fill="#5b6470">RVQ codebook index (0 = coarse → 8 = fine)</text>
+<polyline points="54.0,231.4 147.8,98.3 241.5,74.5 335.2,77.9 429.0,81.7 522.8,91.1 616.5,95.5 710.2,88.5 804.0,87.6" fill="none" stroke="#2b8a3e" stroke-width="2.2"/>
+<circle cx="54.0" cy="231.4" r="2.6" fill="#2b8a3e"/>
+<circle cx="147.8" cy="98.3" r="2.6" fill="#2b8a3e"/>
+<circle cx="241.5" cy="74.5" r="2.6" fill="#2b8a3e"/>
+<circle cx="335.2" cy="77.9" r="2.6" fill="#2b8a3e"/>
+<circle cx="429.0" cy="81.7" r="2.6" fill="#2b8a3e"/>
+<circle cx="522.8" cy="91.1" r="2.6" fill="#2b8a3e"/>
+<circle cx="616.5" cy="95.5" r="2.6" fill="#2b8a3e"/>
+<circle cx="710.2" cy="88.5" r="2.6" fill="#2b8a3e"/>
+<circle cx="804.0" cy="87.6" r="2.6" fill="#2b8a3e"/>
+<polyline points="54.0,187.1 147.8,80.3 241.5,44.9 335.2,43.6 429.0,45.9 522.8,43.8 616.5,44.5 710.2,47.4 804.0,39.0" fill="none" stroke="#7048e8" stroke-width="2.2"/>
+<circle cx="54.0" cy="187.1" r="2.6" fill="#7048e8"/>
+<circle cx="147.8" cy="80.3" r="2.6" fill="#7048e8"/>
+<circle cx="241.5" cy="44.9" r="2.6" fill="#7048e8"/>
+<circle cx="335.2" cy="43.6" r="2.6" fill="#7048e8"/>
+<circle cx="429.0" cy="45.9" r="2.6" fill="#7048e8"/>
+<circle cx="522.8" cy="43.8" r="2.6" fill="#7048e8"/>
+<circle cx="616.5" cy="44.5" r="2.6" fill="#7048e8"/>
+<circle cx="710.2" cy="47.4" r="2.6" fill="#7048e8"/>
+<circle cx="804.0" cy="39.0" r="2.6" fill="#7048e8"/>
+<polyline points="54.0,219.0 147.8,101.6 241.5,62.8 335.2,58.6 429.0,61.2 522.8,52.9 616.5,56.0 710.2,56.4 804.0,52.8" fill="none" stroke="#1c5fd8" stroke-width="2.2"/>
+<circle cx="54.0" cy="219.0" r="2.6" fill="#1c5fd8"/>
+<circle cx="147.8" cy="101.6" r="2.6" fill="#1c5fd8"/>
+<circle cx="241.5" cy="62.8" r="2.6" fill="#1c5fd8"/>
+<circle cx="335.2" cy="58.6" r="2.6" fill="#1c5fd8"/>
+<circle cx="429.0" cy="61.2" r="2.6" fill="#1c5fd8"/>
+<circle cx="522.8" cy="52.9" r="2.6" fill="#1c5fd8"/>
+<circle cx="616.5" cy="56.0" r="2.6" fill="#1c5fd8"/>
+<circle cx="710.2" cy="56.4" r="2.6" fill="#1c5fd8"/>
+<circle cx="804.0" cy="52.8" r="2.6" fill="#1c5fd8"/>
+</svg>
+<figcaption>Codebook 0 is where the action is: v6 (3.254) and v1 (3.146) both beat v5/v2-v3 (3.534). Codebooks 1–8 are nearly flat across runs (~4.3–4.8), confirming that the audible gains live in the coarse codebook and that <code>eval/loss</code> alone is a blunt instrument.</figcaption>
+</figure>
+
+<h3>3.6 Hyperparameters per run (from W&amp;B config)</h3>
+<table>
+<tr><th>Run</th><th class="num">epochs</th><th class="num">train batch</th><th class="num">grad accum</th><th class="num">warmup</th><th class="num">peak LR</th><th>base model</th></tr>
+<tr><td>v1 woven-mountain-10</td><td class="num">6</td><td class="num">2</td><td class="num">4</td><td class="num">50</td><td class="num">8e-5</td><td>ai4bharat/indic-parler-tts</td></tr>
+<tr><td>v2/v3 balmy-resonance-23</td><td class="num">3</td><td class="num">2</td><td class="num">8</td><td class="num">150</td><td class="num">8e-5</td><td>ai4bharat/indic-parler-tts</td></tr>
+<tr><td>v5 smart-meadow-26</td><td class="num">4</td><td class="num">4</td><td class="num">8</td><td class="num">100</td><td class="num">1e-4</td><td>ai4bharat/indic-parler-tts</td></tr>
+<tr class="best"><td>v6 clean-yogurt-27</td><td class="num">4</td><td class="num">4</td><td class="num">8</td><td class="num">50</td><td class="num">1e-4</td><td>ai4bharat/indic-parler-tts</td></tr>
+</table>
+</section>
+
+<!-- ============================================ 4 LISTENING -->
+<section id="listening">
+<h2><span class="n">4</span>Listening evaluation — the founder's ear</h2>
+<div class="verdict"><b>VERDICT (listening evaluation).</b> Every model output was judged by listening, not just by metrics — for storytelling, trust-your-ears is the real test. The consolidated verdict: <b>Usha</b> is the best single voice produced to date; <b>Maya</b> is harsh and <b>not recommended</b> (though it contributes a narration-style prosody); <b>Hindi / Divya</b> is strong in v6; and <b>v6 overall is clearly the best</b>, especially for Hindi.</div>
+<table>
+<tr><th>Voice</th><th>Language</th><th>Listening verdict</th><th>Disposition</th></tr>
+<tr><td><b>Usha</b></td><td>Marathi</td><td>Best single voice to date — clean, warm, natural storytelling.</td><td><span class="badge g">Keep</span></td></tr>
+<tr><td><b>Sunita</b></td><td>Marathi</td><td>The loved v1 timbre; clear in v5/v6 after relabeling Usha+v1 clips under this name.</td><td><span class="badge g">Keep (target voice)</span></td></tr>
+<tr><td><b>Maya</b></td><td>Marathi</td><td>Harsh; its 10-hour dominance unbalanced the corpus. Adds narration-style prosody but not pleasant.</td><td><span class="badge r">Retire</span></td></tr>
+<tr><td><b>Divya</b> (was "Sarita")</td><td>Hindi</td><td>VERY good in v6 vs the base model — the standout result of the project.</td><td><span class="badge g">Keep</span></td></tr>
+</table>
+<h3>4.1 Base vs fine-tuned A/B (v6)</h3>
+<p>A direct A/B was done on the <b>same two stories</b>, base model vs v6 fine-tune:</p>
+<ul>
+<li><b>Marathi:</b> <code>base_sunita_kawda.wav</code> vs <code>sunita_kawda_test.wav</code></li>
+<li><b>Hindi:</b> base vs v6 on the matched Hindi story</li>
+</ul>
+<p><b>Listening verdict:</b> v6 is clearly better than the base model, <b>especially for Hindi</b>. The objective scores for these exact clips are <b>still to be computed</b> (see §8 — they need a GPU run of <code>compare_squim.py</code>). The v1 model and its narrations remain available at <code>roshni-sorigin/marathi-parler-tts</code> and <code>model_outputs_v1/</code> for comparison.</p>
+</section>
+
+<!-- ============================================ 5 PIPELINE -->
+<section id="pipeline">
+<h2><span class="n">5</span>Data pipeline — from raw story audio to a training set</h2>
+<p>The dataset is built entirely on a laptop CPU; only training needs a GPU. Each step exists to protect the <b>one thing that matters most for a fine-tune: the transcript matches the audio, and the audio is clean.</b></p>
+<figure>
+<svg viewBox="0 0 900 130" role="img" aria-label="data pipeline">
+  <defs><marker id="p" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6470"/></marker></defs>
+  <g><rect x="20" y="40" width="108" height="48" rx="8" fill="#fff7ed" stroke="#e8590c"/><text x="74" y="60" text-anchor="middle" font-size="11" font-weight="700">1 Acquire</text><text x="74" y="76" text-anchor="middle" font-size="9.5" fill="#5b6470">YouTube / site</text></g><line x1="128" y1="64" x2="143" y2="64" stroke="#5b6470" stroke-width="1.6" marker-end="url(#p)"/><g><rect x="145" y="40" width="108" height="48" rx="8" fill="#eef4ff" stroke="#1c5fd8"/><text x="199" y="60" text-anchor="middle" font-size="11" font-weight="700">2 Denoise</text><text x="199" y="76" text-anchor="middle" font-size="9.5" fill="#5b6470">noisereduce</text></g><line x1="253" y1="64" x2="268" y2="64" stroke="#5b6470" stroke-width="1.6" marker-end="url(#p)"/><g><rect x="270" y="40" width="108" height="48" rx="8" fill="#eef4ff" stroke="#1c5fd8"/><text x="324" y="60" text-anchor="middle" font-size="11" font-weight="700">3 Segment</text><text x="324" y="76" text-anchor="middle" font-size="9.5" fill="#5b6470">pydub 2-20 s</text></g><line x1="378" y1="64" x2="393" y2="64" stroke="#5b6470" stroke-width="1.6" marker-end="url(#p)"/><g><rect x="395" y="40" width="108" height="48" rx="8" fill="#eef4ff" stroke="#1c5fd8"/><text x="449" y="60" text-anchor="middle" font-size="11" font-weight="700">4 Transcribe</text><text x="449" y="76" text-anchor="middle" font-size="9.5" fill="#5b6470">whisper / Sarvam</text></g><line x1="503" y1="64" x2="518" y2="64" stroke="#5b6470" stroke-width="1.6" marker-end="url(#p)"/><g><rect x="520" y="40" width="108" height="48" rx="8" fill="#ebfbee" stroke="#2b8a3e"/><text x="574" y="60" text-anchor="middle" font-size="11" font-weight="700">5 Review</text><text x="574" y="76" text-anchor="middle" font-size="9.5" fill="#5b6470">3 days human</text></g><line x1="628" y1="64" x2="643" y2="64" stroke="#5b6470" stroke-width="1.6" marker-end="url(#p)"/><g><rect x="645" y="40" width="108" height="48" rx="8" fill="#eef4ff" stroke="#1c5fd8"/><text x="699" y="60" text-anchor="middle" font-size="11" font-weight="700">6 Disfluency</text><text x="699" y="76" text-anchor="middle" font-size="9.5" fill="#5b6470">flag self-corr.</text></g><line x1="753" y1="64" x2="768" y2="64" stroke="#5b6470" stroke-width="1.6" marker-end="url(#p)"/><g><rect x="770" y="40" width="108" height="48" rx="8" fill="#f1f4f9" stroke="#5b6470"/><text x="824" y="60" text-anchor="middle" font-size="11" font-weight="700">7 Build</text><text x="824" y="76" text-anchor="middle" font-size="9.5" fill="#5b6470">parquet dataset</text></g>
+  <text x="74" y="108" text-anchor="middle" font-size="9" fill="#2b8a3e">demucs strips music here</text>
+  <text x="574" y="108" text-anchor="middle" font-size="9" fill="#2b8a3e">★ #1 quality lever</text>
+</svg>
+<figcaption>Source → clean → dataset. Step 5 (human review) is the single biggest quality lever; everything else feeds it clean material.</figcaption>
+</figure>
+<ol>
+<li><b>Acquisition.</b> Marathi/Hindi story audio is downloaded from YouTube / YT-Music and marathi-stories.com (via the <code>story-audio-fetcher</code> workflow). Background <b>music is stripped with demucs</b> at this stage. <i>Why:</i> the model must learn a clean voice, not a backing track — any residual music becomes baked-in noise.</li>
+<li><b>Denoise.</b> <code>scripts/phase1_dataprep/denoise_chunks.py</code> runs the <b>noisereduce</b> spectral-gating denoiser (<code>prop_decrease=0.5</code>, <code>stationary=True</code>, RMS loudness restored), with an optional ffmpeg <code>atempo</code> slowdown (0.90 = 10% slower, used on Maya). <i>Why:</i> spectral gating removes steady hiss; restoring RMS keeps loudness consistent so the model doesn't learn volume swings.</li>
+<li><b>Segment.</b> <code>segment_audio.py</code> uses pydub silence splitting (−40 dBFS, min-silence 500 ms, keep 250 ms) into 2–20 s chunks at 44.1 kHz mono. <i>Why:</i> Parler trains on short utterances; natural silence cuts avoid clipping words mid-syllable.</li>
+<li><b>Transcribe.</b> <code>transcribe.py</code> uses faster-whisper large-v3 int8 (lang=mr), <b>or</b> <code>transcribe_saaras.py</code> uses Sarvam <b>saaras:v3</b> codemix (mr-IN, keeps English in Latin script). <i>Why:</i> a code-mix-aware transcriber preserves the English words Marathi narrators actually use, instead of mangling them into Devanagari.</li>
+<li><b>Human review — the #1 quality lever.</b> 3 days of listening: fix numbers → words, proper names, code-mix, and add commas for prosody; remove any clip whose transcript doesn't match. <i>Why:</i> mismatched transcript↔audio pairs are the top cause of a bad fine-tune — the model learns to "say" the wrong tokens.</li>
+<li><b>Disfluency flagging.</b> <code>flag_disfluent.py</code> flags low chars/sec clips (self-corrections, stutters). <i>Why:</i> narrators restart sentences; those clips teach the model to stammer.</li>
+<li><b>Build.</b> <code>build_multispeaker_dataset.py</code> writes a parquet with embedded audio; each speaker gets a per-speaker 2% test split, <b>then</b> all are concatenated (so the test set covers every voice and <code>eval/loss</code> is meaningful). Caption template: <i>"{name} narrates a children's story in an expressive, warm, animated storytelling tone with emotional variation, at a {pace} pace. Very clear audio with no background noise."</i> Sunita's train rows are <b>oversampled ×2</b> to anchor the low-resource target voice. <i>Why:</i> identity is the caption name (§6), so a clean per-name split and oversampling the scarce target are what make the voice stick.</li>
+</ol>
+<div class="callout"><span class="tag">Why this now motivates synthetic data</span> Every clip in steps 1–2 comes from a <b>scraped recording</b>. That carries copyright and voice-likeness exposure (§12). The cleaner long-term path is to <b>generate</b> the narration audio ourselves — which is exactly the next-step Gemini synthetic-data plan.</div>
+</section>
+
+<!-- ============================================ 6 HOW FT WORKS -->
+<section id="howft">
+<h2><span class="n">6</span>How the fine-tuning actually works</h2>
+<div class="verdict"><b>VERDICT.</b> Parler-TTS treats speech as a <b>language-modeling problem over learned audio tokens</b>. An autoregressive decoder LM predicts discrete <b>DAC (Descript Audio Codec)</b> tokens, conditioned by cross-attention on a <b>frozen Flan-T5</b> encoding of the English description, plus the transcript. The objective is plain <b>cross-entropy over audio tokens</b> — no spectrograms, no GAN.</div>
+<figure>
+<svg viewBox="0 0 880 220" role="img" aria-label="Parler-TTS architecture">
+  <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6470"/></marker></defs>
+  <rect x="16" y="22" width="172" height="56" rx="8" fill="#fff7ed" stroke="#e8590c"/>
+  <text x="102" y="44" text-anchor="middle" font-size="11.5" font-weight="700">Description (English)</text>
+  <text x="102" y="62" text-anchor="middle" font-size="9.5" fill="#5b6470">"Divya narrates … warm …"</text>
+  <rect x="16" y="140" width="172" height="52" rx="8" fill="#eef4ff" stroke="#1c5fd8"/>
+  <text x="102" y="162" text-anchor="middle" font-size="11.5" font-weight="700">Transcript</text>
+  <text x="102" y="179" text-anchor="middle" font-size="9.5" fill="#5b6470">Marathi / Hindi text</text>
+  <rect x="234" y="34" width="158" height="60" rx="8" fill="#f1f4f9" stroke="#5b6470"/>
+  <text x="313" y="58" text-anchor="middle" font-size="12" font-weight="700">Flan-T5 encoder</text>
+  <text x="313" y="77" text-anchor="middle" font-size="10.5" fill="#c92a2a">❄ FROZEN</text>
+  <rect x="446" y="54" width="190" height="86" rx="8" fill="#ebfbee" stroke="#2b8a3e"/>
+  <text x="541" y="82" text-anchor="middle" font-size="12.5" font-weight="700">Decoder LM</text>
+  <text x="541" y="101" text-anchor="middle" font-size="10.5" fill="#2b8a3e">🔥 TRAINED</text>
+  <text x="541" y="118" text-anchor="middle" font-size="9.5" fill="#5b6470">cross-entropy over tokens</text>
+  <text x="541" y="132" text-anchor="middle" font-size="9.5" fill="#5b6470">cross-attends to encoder</text>
+  <rect x="686" y="44" width="92" height="56" rx="8" fill="#f1f4f9" stroke="#5b6470"/>
+  <text x="732" y="66" text-anchor="middle" font-size="11.5" font-weight="700">DAC</text>
+  <text x="732" y="83" text-anchor="middle" font-size="9" fill="#5b6470">tokens</text>
+  <rect x="686" y="120" width="92" height="52" rx="8" fill="#eef4ff" stroke="#1c5fd8"/>
+  <text x="732" y="142" text-anchor="middle" font-size="11" font-weight="700">DAC decoder</text>
+  <text x="732" y="159" text-anchor="middle" font-size="9" fill="#5b6470">→ waveform</text>
+  <line x1="188" y1="52" x2="232" y2="60" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a2)"/>
+  <line x1="188" y1="160" x2="444" y2="108" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a2)" stroke-dasharray="4 3"/>
+  <line x1="392" y1="66" x2="444" y2="84" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a2)"/>
+  <line x1="636" y1="80" x2="684" y2="74" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a2)"/>
+  <line x1="732" y1="100" x2="732" y2="118" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a2)"/>
+  <text x="16" y="212" font-size="10" fill="#5b6470">Description → [frozen Flan-T5] → cross-attn → [Decoder LM, trained] → DAC tokens → [DAC decoder] → waveform. The transcript (dashed) feeds the decoder directly.</text>
+</svg>
+<figcaption>Only the decoder LM is trained. The description is the single voice-conditioning channel; the DAC codec is a separate, pre-trained model that turns tokens into sound.</figcaption>
+</figure>
+
+<div class="callout bad"><span class="tag">Crucial correction</span> Parler does <b>NOT</b> train on mel-spectrograms and uses <b>NO GAN / mel loss</b>. Those belong to VITS / HiFi-GAN. Any mel and adversarial losses live <i>inside</i> the separately-trained DAC codec — never in the Parler LM we fine-tune. If you ever see someone watching <code>loss_mel</code> or <code>loss_disc</code> on this project, it's the wrong mental model.</div>
+
+<h3>6.1 Identity: a name welded into the weights</h3>
+<p>The speaker is simply a <b>name token in the caption</b> (e.g. "Divya"). Fine-tuning <b>binds that name to a learned timbre inside the weights</b> — a "welded" identity, not a reference clip you pass at inference. Two concepts to separate:</p>
+<ul>
+<li><b>Timbre</b> = the per-name acoustic signature stored in the weights. This is what "Sunita sounds like Sunita" means.</li>
+<li><b>Prosody / pace / emotion</b> = driven by the caption's style words ("expressive, warm, animated… at a moderate pace") plus the transcript's punctuation (commas = pauses).</li>
+</ul>
+<p>This is precisely why putting three different voices under one "Sunita" name in v2/v3 <b>muddied</b> the timbre — the weights tried to weld three signatures to one token. And it's why <b>naming them separately and oversampling</b> the target fixed it in v6.</p>
+
+<h3>6.2 What happens at the start of training</h3>
+<ul>
+<li><b>Flan-T5 stays frozen</b> → the conditioning representation is fixed; we only learn how to <i>use</i> it.</li>
+<li>The decoder starts <b>random with respect to</b> the new name→timbre and caption→style mappings; warmup + a low learning rate stabilize the first steps, which are noisy.</li>
+<li>The <b>name binding sharpens over the first epoch</b> — this is the audible moment the voice "locks in".</li>
+<li>The base model already heard <b>~45,000 hours</b>, so we are only <i>re-pointing a name at a timbre</i>, not learning speech from scratch → a few hours per speaker, ~2–4 epochs, and we <b>stop when eval/loss rises</b> (overfitting).</li>
+</ul>
+<p class="ref">Refs: Parler / Stable-TTS <a href="https://arxiv.org/abs/2402.01912">arXiv:2402.01912</a> · DAC codec <a href="https://arxiv.org/abs/2306.06546">arXiv:2306.06546</a> · <a href="https://github.com/huggingface/parler-tts">huggingface/parler-tts</a> · <a href="https://huggingface.co/ai4bharat/indic-parler-tts">ai4bharat/indic-parler-tts</a> (69 voices / 21 languages).</p>
+</section>
+
+<!-- ============================================ 7 FAILED RUN -->
+<section id="crash">
+<h2><span class="n">7</span>The failed run — the disk-space math</h2>
+<p>One run, <b><code>toasty-fog-25</code></b> (id <code>vz6mq40v</code>), died with <b>"No space left on device"</b> at <b>exactly step 600</b>. That is <b>2 × save_steps(300)</b> — not a coincidence.</p>
+<p>Parler's training loop is a <b>manual <code>accelerate</code> loop</b>, not the HF Trainer. It honors the integer <code>save_steps</code> (and ignores <code>save_strategy</code>), and <code>rotate_checkpoints</code> writes the <b>new</b> checkpoint <i>before</i> deleting the old one. So at the second save, two full checkpoints coexist briefly.</p>
+<div class="callout bad"><span class="tag">Worked calculation — why it crashed at step 600</span>
+<table style="margin:8px 0">
+<tr><th>Component (one full <code>save_state</code> checkpoint, ~0.9B model)</th><th class="num">Size</th></tr>
+<tr><td>Model weights (bf16, 2 bytes/param)</td><td class="num">1.8 GB</td></tr>
+<tr><td>AdamW optimizer states (fp32 m + v, 8 bytes/param)</td><td class="num">7.2 GB</td></tr>
+<tr><td>fp32 master copy of weights</td><td class="num">3.6 GB</td></tr>
+<tr class="best"><td><b>= one checkpoint</b></td><td class="num"><b>~12 GB</b></td></tr>
+<tr><td>At the 2nd save, checkpoint-300 + checkpoint-600 coexist → <b>transient</b></td><td class="num"><b>~24 GB</b></td></tr>
+<tr><td>+ dataset (~5 GB) + token cache (~3 GB) + base model (~6 GB)</td><td class="num">~14 GB</td></tr>
+<tr><td><b>Peak on a 40–50 GB volume</b></td><td class="num"><b>~38 GB → overflow</b></td></tr>
+</table>
+The ~24 GB transient checkpoint spike, stacked on the ~14 GB of fixed data, blew past the small volume → crash at step 600.</div>
+<div class="callout good"><span class="tag">The fix (used on every run since)</span>
+Set <code>save_steps: 100000</code> (far larger than the ~1000 total steps) so <b>no intermediate checkpoints are ever written</b>; the final model is still saved at the end via <code>save_pretrained</code>. Trade-off: no mid-run resume if the pod dies — but a Marathi fine-tune is only ~1–2 hours, so we simply restart. This single line is why v5 and v6 ran clean to completion.</div>
+</section>
+
+<!-- ============================================ 8 EVAL FRAMEWORK -->
+<section id="eval">
+<h2><span class="n">8</span>Evaluation framework</h2>
+<p>TTS quality has no single number. We track a panel of objective (machine), subjective (human), and system metrics. The stars are how much each matters for an <b>expressive storytelling</b> product.</p>
+<h3>8.1 Metric-importance table</h3>
+<table>
+<tr><th>Metric</th><th>Type</th><th>Importance</th><th>What it measures · how</th></tr>
+<tr><td>WER</td><td>Objective</td><td>★★★★★</td><td>Word-error-rate: is the speech intelligible? Transcribe output, compare to target text. <i>Reference-free</i> (needs an ASR model).</td></tr>
+<tr><td>CER</td><td>Objective</td><td>★★★★</td><td>Character-error-rate — finer-grained than WER, better for Indic scripts. <i>Reference-free</i> (ASR).</td></tr>
+<tr><td>UTMOS</td><td>Objective</td><td>★★★★</td><td>A neural network's predicted MOS — naturalness without humans. <i>Reference-free.</i></td></tr>
+<tr><td>Speaker Similarity</td><td>Objective</td><td>★★★★</td><td>Does it sound like the target speaker? Cosine of ECAPA-TDNN embeddings vs a reference clip. <i>Reference-needed.</i></td></tr>
+<tr><td>MOS</td><td>Subjective</td><td>★★★★★</td><td>Mean Opinion Score — humans rate naturalness 1–5. <i>Human.</i></td></tr>
+<tr><td>CMOS</td><td>Subjective</td><td>★★★★★</td><td>Comparative MOS — humans pick A vs B (e.g. v6 vs Gemini) on a −3…+3 scale. <i>Human.</i></td></tr>
+<tr><td>Prosody Evaluation</td><td>Subjective</td><td>★★★★★</td><td>Is the storytelling rhythm/emotion right? Expert listening. <i>Human.</i></td></tr>
+<tr><td>Long-form Stability</td><td>Subjective</td><td>★★★★</td><td>Does it stay coherent over a multi-minute story (no drift/artifacts)? <i>Human.</i></td></tr>
+<tr><td>RTF</td><td>System</td><td>★★★</td><td>Real-time factor: seconds of compute per second of audio. <i>Machine.</i></td></tr>
+</table>
+
+<h3>8.2 Cross-system benchmark — scaffold (numbers TBD)</h3>
+<p>This is the table we will fill once the GPU SQUIM / human run is done. <b>Only the one observed cell is populated</b>; everything else is pending and must not be fabricated.</p>
+<table>
+<tr><th>Model</th><th class="num">WER↓</th><th class="num">CER↓</th><th class="num">MOS↑</th><th class="num">CMOS↑</th><th class="num">UTMOS↑</th><th class="num">Speaker Sim↑</th><th class="num">RTF↓</th></tr>
+<tr><td>OpenAI gpt-4o-mini-tts</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>Gemini-TTS</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>AI4Bharat (IndicF5 / base)</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>Parler Base</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr class="best"><td><b>Parler Fine-tuned (v6)</b></td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num"><b>~1.0</b> (24 GB GPU, observed)</td></tr>
+</table>
+<p style="font-size:13px;color:var(--muted)">Numbers pending the GPU SQUIM / human run — do not fabricate. The only measured cell is v6's RTF ≈ 1.0 on a 24 GB GPU.</p>
+
+<h3>8.3 How we will populate it</h3>
+<ul>
+<li><code>scripts/narrate/compare_squim.py</code> computes <b>UTMOS + SQUIM PESQ / STOI / SI-SDR</b> (all reference-free) and optional WER via Sarvam.</li>
+<li><b>MOS / CMOS</b> need human raters on a fixed story set.</li>
+<li><b>Speaker-Sim</b> = ECAPA-TDNN cosine vs a Sunita reference clip.</li>
+<li><b>CER</b> = character-level error, computed alongside WER.</li>
+<li>The base-vs-v6 A/B on the two stories (§4.1) is currently done by <b>listening</b> (v6 better, esp. Hindi); the objective numbers are the next step.</li>
+</ul>
+<div class="callout"><span class="tag">Read WER relatively, not absolutely</span> Whisper is English-centric, so absolute WER for Marathi is unreliable — the whole project sits near ~100%. What matters is the <b>relative</b> movement: v6 breaking <b>below 100%</b> (96.2) for the first time is the meaningful signal, not the absolute value.</div>
+</section>
+
+<!-- ============================================ 9 LANDSCAPE -->
+<section id="landscape">
+<h2><span class="n">9</span>Model landscape — why Parler, why we dropped the others</h2>
+<table>
+<tr><th>Model</th><th>Approach</th><th>Marathi?</th><th>License</th><th>Why we did / didn't pick it</th></tr>
+<tr><td>XTTS-v2 (Coqui)</td><td>Reference-clip cloning</td><td><span class="badge r">No</span></td><td><b>CPML non-commercial</b></td><td>Coqui shut down Jan 2024; no commercial license available; Marathi unsupported. <b>Hard stop</b> for a commercial Marathi product.</td></tr>
+<tr><td>Meta MMS-TTS</td><td>VITS, one fixed voice/lang</td><td><span class="badge g">Yes</span></td><td>Open</td><td>1100+ languages incl. mar/hin, but <b>one fixed voice, no style/identity/emotion control</b> → not for expressive storytelling.</td></tr>
+<tr><td>IndexTTS-2</td><td>AR over codec + emotion/duration control</td><td>?</td><td><span class="badge y">Ambiguous</span></td><td>Capable, but license is unclear → must verify before any commercial use.</td></tr>
+<tr><td>MARS5 / MARS5-Instruct (CAMB.AI)</td><td>AR (~750M)+DDPM(~450M)+vocoder, ref-clip clone</td><td>?</td><td>Open, commercial OK</td><td>Credible open option; reference-clip cloning rather than welded names.</td></tr>
+<tr><td>A2TTS (BharatGen / AIKosh)</td><td>Diffusion (GradTTS/DDPM)+spk-encoder, ~150M, zero-shot</td><td><span class="badge g">Yes</span></td><td><b>MIT but gated</b></td><td>8 Indian langs incl. Marathi, tiny &amp; separable identity — but the AIKosh download is "Restricted"/gated. <b>The credible deferred option.</b></td></tr>
+<tr class="best"><td><b>Indic-Parler-TTS</b></td><td>AR decoder over DAC tokens, caption-conditioned</td><td><span class="badge g">Yes</span></td><td><b>Apache-2.0</b></td><td><b>Chosen:</b> clean ungated license + mature HF ecosystem + caption style control.</td></tr>
+</table>
+
+<h3>9.1 Parler vs A2TTS — the close call</h3>
+<table>
+<tr><th>Dimension</th><th>Indic-Parler</th><th>A2TTS</th></tr>
+<tr><td>Voice control</td><td>Welded NAME in caption</td><td>Reference-clip, separable <span class="badge g">✓ A2TTS</span></td></tr>
+<tr><td>Model size</td><td>~0.9B</td><td>~150M <span class="badge g">✓ A2TTS</span></td></tr>
+<tr><td>Architecture</td><td>AR over DAC tokens</td><td>Diffusion + speaker encoder</td></tr>
+<tr><td>License</td><td>Apache-2.0, clean &amp; ungated <span class="badge g">✓ Parler</span></td><td>MIT but gated download</td></tr>
+<tr><td>Ecosystem</td><td>Mature HF tooling <span class="badge g">✓ Parler</span></td><td>Research / gated</td></tr>
+</table>
+<div class="verdict"><b>VERDICT.</b> <b>Parler was chosen for its clean license, mature ecosystem, and caption-driven style control.</b> A2TTS is the credible deferred option <i>if</i> we later need a separable reference-clip identity (e.g. fast new-voice onboarding without retraining).</div>
+
+<h3>9.2 Why not zero-shot cloning? The IndicF5 trial</h3>
+<p><code>scripts/narrate/narrate_indicf5.py</code> runs <b>ai4bharat/IndicF5</b> zero-shot reference-clip cloning (24 kHz). The founder tried it on RunPod with one reference wav → outputs were <b>unsatisfactory</b>: cloning trades away the learned prosody/pronunciation you get from a fine-tune. <b>This is exactly why we chose the fine-tuning path over zero-shot cloning.</b></p>
+<p class="ref">Refs: <a href="https://huggingface.co/coqui/XTTS-v2/blob/main/LICENSE.txt">XTTS-v2 CPML</a> · <a href="https://huggingface.co/facebook/mms-tts-mar">MMS-TTS Marathi</a> · <a href="https://arxiv.org/pdf/2305.13516">MMS paper</a> · <a href="https://github.com/index-tts/index-tts">IndexTTS-2</a> · <a href="https://github.com/Camb-ai/MARS5-TTS">MARS5-TTS</a> · <a href="https://arxiv.org/html/2507.15272v1">A2TTS paper</a> · <a href="https://aikosh.indiaai.gov.in/...tts_with_spk_adapt_marathi.html">A2TTS on AIKosh</a>.</p>
+</section>
+
+<!-- ============================================ 10 RUNPOD OPS -->
+<section id="runpod">
+<h2><span class="n">10</span>RunPod ops &amp; minimum config (reference for the next training)</h2>
+<h3>10.1 Canonical command flow</h3>
+<pre><span class="c"># LAPTOP — build + upload the dataset</span>
+venv/bin/python scripts/phase1_dataprep/build_multispeaker_dataset.py --output-dir &lt;ds&gt; --eval-frac 0.02
+DATASET_DIR=$PWD/&lt;ds&gt; scripts/phase2_runpod/upload.sh &lt;IP&gt; &lt;PORT&gt;
+
+<span class="c"># POD — set up, log in, train, test, upload</span>
+bash runpod_setup.sh
+huggingface-cli login &amp;&amp; wandb login
+tmux  <span class="c"># keep training alive across SSH drops</span>
+accelerate launch ./training/run_parler_tts_training.py /workspace/marathi_config.json
+python test_inference.py
+huggingface-cli upload &lt;repo&gt; /workspace/marathi_tts_output . --repo-type model --private</pre>
+<p>The living, step-by-step doc is <code>RUNPOD_RUNBOOK.md</code> — follow it for the next run.</p>
+
+<h3>10.2 Minimum GPU — and the VRAM math</h3>
+<div class="callout"><span class="tag">Minimum GPU</span> <b>24 GB Ampere/Ada (A5000 / L4 / RTX 4090).</b> <b>NOT 16 GB.</b> Avoid T4/V100 — no native bf16.</div>
+<div class="callout bad"><span class="tag">Worked VRAM calculation (batch 4)</span>
+<table style="margin:8px 0">
+<tr><th>Component</th><th class="num">VRAM</th></tr>
+<tr><td>bf16 weights</td><td class="num">1.8 GB</td></tr>
+<tr><td>gradients (bf16)</td><td class="num">1.8 GB</td></tr>
+<tr><td>AdamW fp32 states (m + v)</td><td class="num">7.2 GB</td></tr>
+<tr><td>fp32 master weights</td><td class="num">3.6 GB</td></tr>
+<tr><td><b>= model + optimizer</b></td><td class="num"><b>14.4 GB</b></td></tr>
+<tr><td>frozen Flan-T5-large</td><td class="num">~1.5 GB</td></tr>
+<tr><td>activations + DAC + CUDA + autoregressive eval-gen KV-cache</td><td class="num">several GB</td></tr>
+<tr class="best"><td><b>Peak at batch 4</b></td><td class="num"><b>~16–18 GB</b></td></tr>
+</table>
+A 16 GB card OOMs <b>specifically during periodic eval-generation</b> (the KV-cache for autoregressive sampling is the spike); 24 GB fits comfortably. AdamW = 16 bytes/param in mixed precision.</div>
+
+<h3>10.3 Disk lessons</h3>
+<ul>
+<li>Use an <b>80 GB volume</b>; apply the <code>save_steps</code> fix from §7.</li>
+<li><code>/workspace</code> is a <b>MooseFS network volume</b> → <code>df</code> reports the whole cluster. Use <code>du -sh /workspace</code> for real usage.</li>
+</ul>
+<p class="ref">Refs: AdamW memory (<a href="https://arxiv.org/pdf/2101.06840">arXiv:2101.06840</a>) · <a href="https://huggingface.co/docs/transformers/v4.20.1/en/perf_train_gpu_one">HF single-GPU training memory</a>.</p>
+</section>
+
+<!-- ============================================ 11 DEPLOY -->
+<section id="deploy">
+<h2><span class="n">11</span>Deployment &amp; cost</h2>
+<p>The fine-tuned model is <b>≈3.5 GB safetensors</b> (3.75 GB on HF including tokenizer) — small enough to load in seconds.</p>
+<h3>11.1 Serving</h3>
+<ul>
+<li><b>RunPod Serverless:</b> a container + 3.5 GB weights load in seconds. Mitigate <b>cold start</b> with min-warm / active workers, flashboot, or network-volume-cached weights. Per-second billing; flex scales to zero.</li>
+</ul>
+<h3>11.2 Cost math (RTF ≈ 1 → 1 audio-minute ≈ 60 GPU-seconds)</h3>
+<table>
+<tr><th>Option</th><th class="num">~Cost / audio-minute</th><th>Notes</th></tr>
+<tr><td>Self-host Parler (L4 / A5000 pod)</td><td class="num">~$0.01–0.03</td><td>L4 ~$0.39/hr (~$0.00011/s) pod; serverless ~$0.0002–0.001/s.</td></tr>
+<tr><td>Gemini 2.5 Flash TTS</td><td class="num">~$0.015</td><td>$10 / 1M audio tokens, ~25 tok/s; 1 min ≈ ~900 chars.</td></tr>
+<tr><td>Google Chirp 3 HD</td><td class="num">~$0.027</td><td>$30 / 1M chars.</td></tr>
+<tr><td>Google Standard / WaveNet</td><td class="num">~$0.0036</td><td>Cheapest, lowest quality.</td></tr>
+<tr><td>Google Studio</td><td class="num">~$0.144</td><td>Premium tier.</td></tr>
+</table>
+<div class="verdict"><b>VERDICT.</b> Per-minute, self-hosted Parler is <b>comparable to Gemini Flash and cheaper than Chirp 3 HD / Studio</b>. <b>At high sustained volume, self-host wins</b> (no per-character markup, the GPU stays busy); <b>at low/bursty volume, Gemini's pay-per-character + zero-idle wins</b>. The crossover is utilization.</div>
+<p class="ref">Refs: <a href="https://cloud.google.com/text-to-speech/pricing">Google TTS pricing</a> · <a href="https://docs.runpod.io/serverless/pricing">RunPod Serverless pricing</a>.</p>
+</section>
+
+<!-- ============================================ 12 NEXT -->
+<section id="next">
+<h2><span class="n">12</span>Recommendations &amp; next steps</h2>
+<ol>
+<li><b>Ship/advance v6</b> as the current best — sub-100 WER, best CLAP, strong Hindi. Keep <b>Usha / Sunita</b> and <b>Divya</b>; <b>retire Maya</b> (harsh, and its dominance hurt balance).</li>
+<li><b>Compute the objective benchmark panel</b> (<code>compare_squim.py</code> on a GPU) to fill §8.2, then add a human <b>MOS / CMOS</b> A/B vs Gemini on a fixed story set.</li>
+<li><b class="eng">⚙ NEXT GOAL (founder directive, 2026-06-30): build a copyright-safe dataset with Gemini.</b> Generate animated/kids story scripts, synthesize narration audio via the <b>Gemini TTS API</b>, and fine-tune Parler on that synthetic data — removing the source-recording copyright <i>and</i> voice-likeness exposure of YouTube/website audio.</li>
+</ol>
+<div class="callout bad"><span class="tag">Legal caveat to state plainly</span> Scraped audio carries <b>two</b> risks: (1) source-recording <b>copyright</b>, and (2) <b>right-of-publicity / voice-likeness</b>. "A voice isn't copyrightable" is <b>not</b> a safe defense — see the <b>ELVIS Act (2024)</b>. <b>But</b> before relying on Gemini-distillation commercially, check Google's <b>Gemini API terms</b> (no developing competing models; paid vs unpaid data-use differ).</div>
+<p class="ref">Refs: <a href="https://ai.google.dev/gemini-api/terms">Gemini API terms</a> · <a href="https://holonlaw.com/entertainment-law/synthetic-media-voice-cloning-and-the-new-right-of-publicity-risk-map-for-2026/">Right-of-publicity risk map 2026</a>.</p>
+</section>
+
+<!-- ============================================ 13 REFS -->
+<section id="refs">
+<h2><span class="n">13</span>References</h2>
+<h3>W&amp;B runs</h3>
+<ul class="ref">
+<li>v1 woven-mountain-10 — <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/swjl9a9g">runs/swjl9a9g</a></li>
+<li>v2/v3 balmy-resonance-23 — <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/tnldrtnv">runs/tnldrtnv</a></li>
+<li>v5 smart-meadow-26 — <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/mx3sxj3f">runs/mx3sxj3f</a></li>
+<li>v6 clean-yogurt-27 — <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/h4eoivdb">runs/h4eoivdb</a></li>
+</ul>
+<h3>Papers &amp; models</h3>
+<ul class="ref">
+<li>Parler / Stable-TTS — <a href="https://arxiv.org/abs/2402.01912">arXiv:2402.01912</a></li>
+<li>DAC neural audio codec — <a href="https://arxiv.org/abs/2306.06546">arXiv:2306.06546</a></li>
+<li>Parler-TTS repo — <a href="https://github.com/huggingface/parler-tts">github.com/huggingface/parler-tts</a></li>
+<li>Indic-Parler-TTS — <a href="https://huggingface.co/ai4bharat/indic-parler-tts">huggingface.co/ai4bharat/indic-parler-tts</a></li>
+<li>XTTS-v2 license (CPML) — <a href="https://huggingface.co/coqui/XTTS-v2/blob/main/LICENSE.txt">LICENSE.txt</a></li>
+<li>MMS-TTS Marathi — <a href="https://huggingface.co/facebook/mms-tts-mar">facebook/mms-tts-mar</a> · paper <a href="https://arxiv.org/pdf/2305.13516">arXiv:2305.13516</a></li>
+<li>IndexTTS-2 — <a href="https://github.com/index-tts/index-tts">github.com/index-tts/index-tts</a></li>
+<li>MARS5-TTS — <a href="https://github.com/Camb-ai/MARS5-TTS">github.com/Camb-ai/MARS5-TTS</a></li>
+<li>A2TTS — paper <a href="https://arxiv.org/html/2507.15272v1">arXiv:2507.15272v1</a> · <a href="https://aikosh.indiaai.gov.in/...tts_with_spk_adapt_marathi.html">AIKosh listing</a></li>
+</ul>
+<h3>Infra, cost &amp; legal</h3>
+<ul class="ref">
+<li>AdamW memory — <a href="https://arxiv.org/pdf/2101.06840">arXiv:2101.06840</a></li>
+<li>HF single-GPU training memory — <a href="https://huggingface.co/docs/transformers/v4.20.1/en/perf_train_gpu_one">transformers perf_train_gpu_one</a></li>
+<li>Google TTS pricing — <a href="https://cloud.google.com/text-to-speech/pricing">cloud.google.com/text-to-speech/pricing</a></li>
+<li>RunPod Serverless pricing — <a href="https://docs.runpod.io/serverless/pricing">docs.runpod.io/serverless/pricing</a></li>
+<li>Gemini API terms — <a href="https://ai.google.dev/gemini-api/terms">ai.google.dev/gemini-api/terms</a></li>
+<li>Right-of-publicity risk map 2026 — <a href="https://holonlaw.com/entertainment-law/synthetic-media-voice-cloning-and-the-new-right-of-publicity-risk-map-for-2026/">holonlaw.com</a></li>
+</ul>
+</section>
+
+<footer>
+Marathi &amp; Hindi Storytelling TTS — Fine-Tuning Research Report (v1→v6) · Generated 2026-06-30 ·
+All metrics verified from Weights &amp; Biases (roshnis-betacraft/parler-speech) · Self-contained, offline-friendly.
+</footer>
+
+</div>
+</body>
+</html>

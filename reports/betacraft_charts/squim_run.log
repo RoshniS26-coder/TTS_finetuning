@@ -1,0 +1,15 @@
+>> loading SQUIM-Objective ...
+>> loading UTMOS ...
+Using cache found in /Users/roshnisundrani/.cache/torch/hub/tarepan_SpeechMOS_v1.2.0
+/Users/roshnisundrani/TTS/TTS_finetuning/venv_infer/lib/python3.11/site-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+Gemini-Sulafat (teacher)               STOI 0.992 PESQ 3.79 SI-SDR  25.0 UTMOS 3.08
+betacraft kawda temp=1                 STOI 0.989 PESQ 3.55 SI-SDR  22.9 UTMOS 1.61
+betacraft kawda temp=0.7               STOI 0.995 PESQ 3.86 SI-SDR  26.9 UTMOS 2.1
+betacraft kawda temp=0.5 (buzzy)       STOI 0.977 PESQ 3.41 SI-SDR  19.8 UTMOS 2.21
+betacraft superhero temp=0.7           STOI 0.994 PESQ 3.80 SI-SDR  25.1 UTMOS 2.51
+betacraft superhero temp=0.3 (buzzy)   STOI 0.949 PESQ 2.03 SI-SDR   1.2 UTMOS 2.82
+FreeVC (Sulafat ref)                   STOI 0.998 PESQ 4.18 SI-SDR  28.1 UTMOS 2.61
+IndicF5 (Sulafat clone)                STOI 0.992 PESQ 3.63 SI-SDR  21.9 UTMOS 3.09
+betacraft hindi temp=1                 STOI 0.986 PESQ 3.68 SI-SDR  22.9 UTMOS 2.14
+>> saved reports/betacraft_charts/squim_scores.json

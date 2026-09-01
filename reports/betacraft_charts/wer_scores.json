@@ -1,0 +1,58 @@
+[
+  {
+    "label": "Gemini-Sulafat (teacher/ceiling) MR",
+    "lang": "mr-IN",
+    "wer": 4.5,
+    "cer": 0.4,
+    "ref_words": 44,
+    "hyp_preview": "मुलांनो, आज मी तुम्हाला एका हुशार कोल्ह्याची आणि एका कावळ्याची मजेशीर "
+  },
+  {
+    "label": "betacraft kawda temp=1 (default) MR",
+    "lang": "mr-IN",
+    "wer": 3.0,
+    "cer": 0.8,
+    "ref_words": 265,
+    "hyp_preview": "मुलांनो, आज मी तुम्हाला एका हुशार कोल्ह्याची आणि एका कावळ्याची मजेशीर "
+  },
+  {
+    "label": "betacraft kawda temp=0.7 seed=42 MR",
+    "lang": "mr-IN",
+    "wer": 2.6,
+    "cer": 0.8,
+    "ref_words": 265,
+    "hyp_preview": "मुलांनो, आज मी तुम्हाला एका हुशार कोल्ह्याची आणि एका कावळ्याची मजेशीर "
+  },
+  {
+    "label": "betacraft superhero temp=0.7 MR",
+    "lang": "mr-IN",
+    "wer": 21.8,
+    "cer": 13.5,
+    "ref_words": 55,
+    "hyp_preview": "Raju, 1 छोटा superhero. Raju-ला 1 खूप मोठी आणि गमतीशीर गोष्ट माहित होत"
+  },
+  {
+    "label": "FreeVC (Parler0.7 -> Sulafat ref) MR",
+    "lang": "mr-IN",
+    "wer": 20.0,
+    "cer": 13.2,
+    "ref_words": 55,
+    "hyp_preview": "Raju, 1 छोटा superhero. Raju-ला 1 खूप मोठी आणि गमतीशीर गोष्ट माहीत होत"
+  },
+  {
+    "label": "IndicF5 (Sulafat clone) MR",
+    "lang": "mr-IN",
+    "wer": 85.5,
+    "cer": 67.5,
+    "ref_words": 55,
+    "hyp_preview": "एक Raju Raju-ला गणी गतिशीट माहीत होती छोक तोक आहे रो Raju मुजावाच्या व"
+  },
+  {
+    "label": "betacraft hindi temp=1 (default) HI",
+    "lang": "hi-IN",
+    "wer": 20.0,
+    "cer": 7.8,
+    "ref_words": 165,
+    "hyp_preview": "मेरे प्यारे बच्चों, आज मैं आपको 1 चालाक लोमड़ी और 1 भोले कौवे की मजेदा"
+  }
+]

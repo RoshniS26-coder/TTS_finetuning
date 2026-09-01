@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TTS Fine-Tuning Research — Indic-Parler-TTS for Marathi Storytelling</title>
+<style>
+  :root{
+    --ink:#1a1d24; --muted:#5b6470; --line:#e3e7ee; --bg:#f7f8fb; --card:#fff;
+    --accent:#1c5fd8; --accent2:#d9480f; --good:#2b8a3e; --warn:#e8590c; --bad:#c92a2a;
+    --code:#0b1021; --codeink:#d7e0ff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px 80px;}
+  header.hero{background:linear-gradient(135deg,#0b2a6b,#1c5fd8);color:#fff;padding:46px 0 38px;margin-bottom:8px;}
+  header.hero .wrap{padding-bottom:0}
+  header.hero h1{margin:0 0 8px;font-size:30px;line-height:1.2;letter-spacing:-.3px}
+  header.hero p{margin:6px 0 0;color:#d7e3ff;font-size:15px}
+  .pill{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+    color:#fff;border-radius:999px;padding:3px 11px;font-size:12px;margin:10px 6px 0 0}
+  nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:22px 0;
+    columns:2;column-gap:30px;font-size:14.5px}
+  nav.toc a{color:var(--accent);text-decoration:none;display:block;padding:3px 0;break-inside:avoid}
+  nav.toc a:hover{text-decoration:underline}
+  h2{font-size:22px;margin:42px 0 6px;padding-top:10px;border-top:2px solid var(--line);letter-spacing:-.2px}
+  h2 .n{color:var(--accent);font-weight:800;margin-right:8px}
+  h3{font-size:17px;margin:22px 0 6px;color:#22305a}
+  p{margin:10px 0}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 26px 22px;margin:18px 0;
+    box-shadow:0 1px 2px rgba(20,30,60,.04)}
+  .verdict{background:#eef4ff;border-left:4px solid var(--accent);padding:12px 16px;border-radius:8px;margin:14px 0;font-size:15px}
+  .verdict b{color:#0b2a6b}
+  .callout{border-left:4px solid var(--warn);background:#fff7ed;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .callout.bad{border-color:var(--bad);background:#fff0f0}
+  .callout.good{border-color:var(--good);background:#ebfbee}
+  .callout .tag{font-weight:700;font-size:12px;letter-spacing:.4px;text-transform:uppercase;display:block;margin-bottom:3px}
+  .callout.bad .tag{color:var(--bad)} .callout.good .tag{color:var(--good)} .callout .tag{color:var(--warn)}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f4f9;font-weight:700}
+  tr:nth-child(even) td{background:#fafbfd}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  code{background:#eef1f6;border-radius:5px;padding:1px 6px;font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace}
+  pre{background:var(--code);color:var(--codeink);border-radius:10px;padding:14px 16px;overflow:auto;font:13px ui-monospace,Menlo,monospace;line-height:1.55}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  figure{margin:18px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:14px}
+  figcaption{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
+  .ref{font-size:13px;color:var(--muted)}
+  .ref a{color:var(--accent)}
+  .refs li{margin:5px 0;font-size:13.5px}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+  .kpi .box{flex:1;min-width:130px;background:#f1f4f9;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .box .v{font-size:22px;font-weight:800;color:#0b2a6b}
+  .kpi .box .l{font-size:12px;color:var(--muted)}
+  .tl{font-size:12px;color:var(--muted)}
+  .badge{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700}
+  .badge.g{background:#ebfbee;color:var(--good)} .badge.r{background:#fff0f0;color:var(--bad)} .badge.y{background:#fff7ed;color:var(--warn)}
+  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
+  @media (max-width:760px){nav.toc{columns:1}.grid2{grid-template-columns:1fr}}
+  @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}header.hero{background:#0b2a6b !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>Fine-Tuning Indic-Parler-TTS for Marathi Storytelling</h1>
+    <p>A referenced technical brief + live W&amp;B training analysis — goal: approach Gemini-TTS quality at a fraction of the cost.</p>
+    <div>
+      <span class="pill">Base model: ai4bharat/indic-parler-tts</span>
+      <span class="pill">Generated 2026-06-20</span>
+      <span class="pill">Author: tts-research agent</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <a href="#tldr">★ Executive summary &amp; action items</a>
+  <a href="#arch">0 · How Parler-TTS works (architecture)</a>
+  <a href="#music">1 · Background music in training data</a>
+  <a href="#theory">2 · Fine-tuning theory &amp; hyperparameters</a>
+  <a href="#multi">3 · Multi-speaker / mixed voices</a>
+  <a href="#data">4 · Data quantity &amp; epochs</a>
+  <a href="#lang">5 · Separate datasets per language?</a>
+  <a href="#gemini">6 · Single-narrator data &amp; how Gemini differs</a>
+  <a href="#eval">7 · Evaluation metrics &amp; benchmark</a>
+  <a href="#wandb">8 · Your W&amp;B run — live analysis</a>
+  <a href="#refs">References</a>
+</nav>
+
+<!-- ============ EXEC SUMMARY ============ -->
+<section id="tldr">
+<h2><span class="n">★</span>Executive summary &amp; action items</h2>
+<div class="grid2">
+<div>
+<p>This report answers your Parler-TTS fine-tuning questions with cited sources, then analyses your actual
+Weights &amp; Biases training data. The short version:</p>
+<ul>
+<li><b>Remove background music.</b> Parler reproduces whatever the codec encodes — music becomes part of the voice and leaks into output. Cleanliness is also <i>causally coupled</i> to the "very clear audio" caption.</li>
+<li><b>3 speakers × 5–6 h each, name-anchored, is the correct multi-speaker recipe</b> — but Sunita/Radha/Isha already exist in the base model, so reusing those names overwrites them.</li>
+<li><b>5–6 h/speaker is generous, not too much.</b> Start at <b>3–5 epochs</b> with early stopping on eval loss.</li>
+<li><b>Yes, you need per-language datasets</b> — and one combined balanced multilingual fine-tune beats sequential ones (forgetting).</li>
+<li><b>Benchmark vs Gemini</b> on identical held-out texts using SQUIM + UTMOS + WER. You already have <code>compare_squim.py</code> and <code>narrate_gemini.py</code>.</li>
+</ul>
+</div>
+<div>
+<div class="callout bad"><span class="tag">Action — W&amp;B naming</span>
+No run named <code>marathi-parler-v2</code> exists. Your only logged run is <code>woven-mountain-10</code>
+(<code>roshnis-betacraft/parler-speech</code>) — a <b>~5-min, 174-step smoke test</b>, not full v2 training.
+The <code>run_name</code> in config isn't reaching W&amp;B — pass it to <code>wandb.init</code> or set
+<code>WANDB_NAME=marathi-parler-v2</code> before launching.</div>
+<div class="callout bad"><span class="tag">Action — that run's health</span>
+<code>woven-mountain-10</code> ended at <b>eval/loss 4.27</b> and <b>WER ≈ 100%</b> — i.e. it produced
+essentially no intelligible speech. Expected for a 5-min run on too few steps. Treat it as a plumbing test;
+the real v2 still needs to run.</div>
+</div>
+</div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="arch">
+<h2><span class="n">0</span>How Parler-TTS actually works</h2>
+<p>Everything below depends on one mental model. Parler-TTS is <b>autoregressive</b>: a decoder language model
+predicts <b>discrete DAC audio-codec tokens</b>, conditioned on a <b>frozen Flan-T5</b> text encoder that reads
+both your transcript and a natural-language <b>description caption</b>. There is <b>no mel-spectrogram loss and no
+GAN/discriminator</b> — the single objective is <b>cross-entropy over the next codec token</b>.</p>
+
+<figure>
+<svg viewBox="0 0 720 250" width="100%" role="img" aria-label="Parler-TTS architecture">
+  <style>.bx{rx:10;stroke-width:1.5} .lbl{font:13px sans-serif;fill:#1a1d24} .sub{font:11px sans-serif;fill:#5b6470}
+    .ttl{font:13px sans-serif;font-weight:700;fill:#fff} .ar{stroke:#5b6470;stroke-width:1.6;fill:none;marker-end:url(#a)}</style>
+  <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L7,3 L0,6 Z" fill="#5b6470"/></marker></defs>
+  <!-- inputs -->
+  <rect class="bx" x="10" y="20" width="150" height="46" fill="#eef4ff" stroke="#1c5fd8"/>
+  <text class="lbl" x="20" y="40">Transcript (Marathi)</text><text class="sub" x="20" y="56">एक आटपाट नगर होतं.</text>
+  <rect class="bx" x="10" y="86" width="150" height="56" fill="#eef4ff" stroke="#1c5fd8"/>
+  <text class="lbl" x="20" y="106">Description caption</text><text class="sub" x="20" y="121">"Sunita narrates…</text>
+  <text class="sub" x="20" y="135">very clear audio"</text>
+  <!-- encoder -->
+  <rect class="bx" x="205" y="55" width="150" height="56" fill="#6b7280" stroke="#374151"/>
+  <text class="ttl" x="218" y="80">Flan-T5 encoder</text><text class="sub" x="218" y="98" fill="#e5e7eb">FROZEN ❄</text>
+  <!-- decoder -->
+  <rect class="bx" x="400" y="55" width="160" height="56" fill="#1c5fd8" stroke="#0b2a6b"/>
+  <text class="ttl" x="414" y="80">Decoder LM</text><text class="sub" x="414" y="98" fill="#cfe0ff">TRAINED 🔥 (the voice)</text>
+  <!-- dac -->
+  <rect class="bx" x="400" y="160" width="160" height="56" fill="#2b8a3e" stroke="#1b5e2a"/>
+  <text class="ttl" x="414" y="184">DAC codec</text><text class="sub" x="414" y="202" fill="#d7f5dd">tokens ⇄ waveform</text>
+  <!-- target -->
+  <rect class="bx" x="205" y="160" width="150" height="56" fill="#fff7ed" stroke="#e8590c"/>
+  <text class="lbl" x="216" y="184">Target audio</text><text class="sub" x="216" y="202">narrator WAV</text>
+  <!-- output -->
+  <rect class="bx" x="600" y="86" width="110" height="46" fill="#ebfbee" stroke="#2b8a3e"/>
+  <text class="lbl" x="612" y="106">Speech out</text><text class="sub" x="612" y="122">at inference</text>
+  <!-- arrows -->
+  <path class="ar" d="M160,43 C185,43 185,70 205,72"/>
+  <path class="ar" d="M160,112 C185,112 185,92 205,92"/>
+  <path class="ar" d="M355,83 L400,83"/>
+  <path class="ar" d="M355,188 L400,188"/>
+  <path class="ar" d="M480,160 L480,111"/>
+  <text class="sub" x="486" y="140">codec tokens =</text><text class="sub" x="486" y="152">training target</text>
+  <path class="ar" d="M560,100 L600,105"/>
+</svg>
+<figcaption>Voice identity, prosody and emotion ride entirely on the <b>caption</b> — the model has no separate speaker-ID input.
+The cross-entropy loss teaches the decoder to reproduce the codec tokens of your narrator's audio.</figcaption>
+</figure>
+<p class="ref">Sources: Lyth &amp; King 2024 (arXiv 2402.01912); Parler-TTS repo; DAC (Kumar et al. 2023, arXiv 2306.06546); indic-parler-tts model card. See <a href="#refs">References</a>.</p>
+</section>
+
+<!-- ============ 1 MUSIC ============ -->
+<section id="music">
+<h2><span class="n">1</span>Background music in training data</h2>
+<div class="verdict"><b>Verdict —</b> Music-free audio is not a hard architectural requirement, but for a clean storytelling voice it is
+<b>effectively compulsory</b>. The DAC codec encodes the <i>entire</i> waveform — music included — into the tokens the decoder is
+trained to reproduce, so <b>music becomes part of the learned voice and leaks into generated speech</b>. Strip it before training.</div>
+
+<h3>Why — mechanistically</h3>
+<p>There is no source-separation stage and no perceptual loss that could "ignore" non-speech energy. The pipeline is literally:
+target audio → DAC encoder → discrete codes → decoder trained with cross-entropy to predict <i>exactly those codes</i>.
+DAC faithfully reconstructs <b>whatever waveform it is given</b> — speech, music, or a mix. If the target is voice+music, the
+codes encode voice+music, and the model's learned distribution <i>is</i> "voice+music." Nothing separates them.</p>
+
+<div class="callout"><span class="tag">The subtle, Parler-specific trap</span>
+The "very clear audio" phrase is <b>not</b> arbitrary text. In the Parler/DataSpeech pipeline the noise-level tag is
+<i>derived from measured acoustics</i> (SNR, PESQ, SI-SDR, C50 reverberation). So if you keep music but caption clips
+"very clear audio," you teach the model that <b>"clear" maps to a music bed</b> — corrupting the exact control token you use at
+inference, degrading "very clear audio" for <i>every</i> speaker. Label them honestly ("noisy") and you instead bias your
+narrator toward the noisy region. Either way, controllability and fidelity suffer.</div>
+
+<h3>What this means for you</h3>
+<ul>
+<li>Run vocal isolation (Demucs) → mono → resample <b>before</b> encoding. Your <code>story-audio-fetcher</code> path already does this — keep it.</li>
+<li>Verify cleanliness numerically (SNR/PESQ) per clip, then assign "very clear audio" only to clips that actually are — so caption and audio agree.</li>
+<li><b>Is it compulsory?</b> Not to make training <i>run</i>. It is compulsory to make the <i>output</i> clean and the caption controls trustworthy.</li>
+</ul>
+<p class="ref">Refs: DataSpeech (SNR/PESQ/C50→tags); DAC (arXiv 2306.06546); HF DAC docs; indic-parler-tts model card.</p>
+</section>
+
+<!-- ============ 2 THEORY ============ -->
+<section id="theory">
+<h2><span class="n">2</span>Fine-tuning theory, process &amp; parameters</h2>
+<div class="verdict"><b>Verdict —</b> Fine-tuning is <b>next-token prediction over audio codec tokens</b>. Text + description are encoded by the
+frozen Flan-T5; the target waveform is encoded by DAC into discrete codes; the decoder is trained with teacher forcing and
+cross-entropy to predict the next codec token; gradients update the decoder (encoder stays frozen). You tune ~a dozen
+hyperparameters — the high-leverage ones for a ~5 h run are <b>learning rate, epochs, effective batch size, and the LR schedule</b>.</div>
+
+<h3>The training loop</h3>
+<ol>
+<li><b>Inputs:</b> transcript (what to say) + description caption (who/how). Both tokenized; frozen Flan-T5 produces conditioning embeddings.</li>
+<li><b>Target:</b> ground-truth narrator audio → DAC → sequence of discrete RVQ codes.</li>
+<li><b>Objective:</b> decoder predicts those codes autoregressively under teacher forcing; loss = cross-entropy over the codebook vocabulary. <span class="badge y">no mel loss</span> <span class="badge y">no GAN</span></li>
+<li><b>Backprop:</b> updates the decoder LM (and the encoder only if you unfreeze it). Repeat over epochs.</li>
+</ol>
+
+<h3>Hyperparameters — what each does &amp; what to use</h3>
+<p>Mini-v1 column = documented <i>pretraining</i> defaults; the right-hand column is engineering guidance for a small single-speaker
+<i>fine-tune</i> (flagged ⚙ where it is a recommendation, not a documented default).</p>
+<table>
+<tr><th>Parameter</th><th>What it does</th><th>Pretrain default</th><th>Suggested for ~5 h fine-tune</th></tr>
+<tr><td><code>learning_rate</code></td><td>Step size for decoder updates</td><td class="num">9.5e-4</td><td>⚙ <b>2e-5 – 1e-4</b> (your config: 8e-5 — fine)</td></tr>
+<tr><td><code>num_train_epochs</code></td><td>Passes over data</td><td class="num">4</td><td>⚙ <b>3–5</b>, early-stop on eval loss</td></tr>
+<tr><td><code>per_device_train_batch_size</code></td><td>Clips per device step</td><td class="num">4</td><td>2–4 (VRAM-bound)</td></tr>
+<tr><td><code>gradient_accumulation_steps</code></td><td>Micro-batches before optimizer step</td><td class="num">6</td><td>4–8 → effective batch ~8–32</td></tr>
+<tr><td><code>warmup_steps</code></td><td>LR ramp-up</td><td class="num">20000</td><td>⚙ <b>~3–8% of total steps</b> (tens–~150)</td></tr>
+<tr><td><code>lr_scheduler_type</code></td><td>LR decay shape</td><td>constant+warmup</td><td><code>cosine</code> for longer runs (your config) </td></tr>
+<tr><td><code>weight_decay</code></td><td>L2 regularization</td><td class="num">0.01</td><td>0.01</td></tr>
+<tr><td><code>freeze_text_encoder</code></td><td>Freeze Flan-T5</td><td>true</td><td><b>true</b> — preserves text understanding, saves compute</td></tr>
+<tr><td><code>gradient_checkpointing</code></td><td>Trade compute for VRAM</td><td>false</td><td><b>true</b> if VRAM-limited</td></tr>
+<tr><td><code>bf16</code> / dtype</td><td>Mixed precision</td><td>bfloat16</td><td><b>bf16</b> (Ampere+ on RunPod; prevents NaN)</td></tr>
+<tr><td><code>max/min_duration_in_seconds</code></td><td>Clip length window</td><td class="num">2–30</td><td>2–20 s (4–12 s sweet spot)</td></tr>
+</table>
+
+<h3>What can change vs what stays frozen</h3>
+<ul>
+<li><b>Frozen:</b> Flan-T5 text encoder (<code>freeze_text_encoder: true</code>) and the DAC codec (a fixed tokenizer/vocoder, never trained here).</li>
+<li><b>Trained:</b> the decoder LM — this is where voice/style adaptation happens.</li>
+<li><b>Optional — LoRA/PEFT:</b> adapt the decoder with a few low-rank adapters instead of all weights. Far fewer trainable params, materially less catastrophic forgetting and overfitting on small data. Worth considering if you see the model drift away from its other languages.</li>
+</ul>
+<p class="ref">Refs: Parler-TTS training README; Lyth &amp; King 2024; Kwon et al. Interspeech 2025 (PEFT for low-resource TTS).</p>
+</section>
+
+<!-- ============ 3 MULTI-SPEAKER ============ -->
+<section id="multi">
+<h2><span class="n">3</span>Multi-speaker / mixed voices in one run</h2>
+<div class="verdict"><b>Verdict —</b> Mixing voices/pitches/speeds <i>without distinguishing them in captions</i> produces a muddy
+"averaged" voice — the model has no signal to separate them, so it learns their mean. Your plan (Sunita, Radha, Isha —
+~5–6 h each, each <b>name-anchored</b> in its caption) is the correct recipe and yields three distinguishable, stable voices,
+<i>provided</i> captions are consistent and you handle the name-collision and balance risks.</div>
+
+<h3>Why unlabeled mixing collapses</h3>
+<p>The caption is the <b>only</b> per-example signal that distinguishes speakers — there is no separate speaker-ID embedding.
+If two clips have indistinguishable captions but one is a fast high-pitch voice and the other slow and low, cross-entropy is
+minimized by predicting tokens that <i>hedge between both</i> — the model regresses to the conditional mean. Result: unstable
+pitch/identity and muddy timbre.</p>
+
+<h3>Your 3-speaker plan, mechanistically</h3>
+<p>With each voice consistently anchored ("<b>Sunita</b> narrates…", "<b>Radha</b> narrates…", "<b>Isha</b> narrates…"), the name
+becomes a discriminative token Flan-T5 maps to a stable embedding, and the decoder learns three distinct token distributions
+keyed on it. This is exactly how the base model already holds 69 named voices across 21 languages. <b>Expected outcome:</b>
+three recognizable, separable narrator voices — assuming the data is balanced (your ~equal 5–6 h each is ideal).</p>
+
+<div class="callout bad"><span class="tag">Risk — name collision</span>
+<b>Sunita, Radha and Isha are already pretrained Marathi speakers in the base model.</b> Fine-tuning under those same names
+<i>overwrites/shifts</i> the base voices toward your recordings. Decide deliberately: reuse the names to <b>replace</b> them with
+your narrators, or use <b>fresh distinct names</b> to add voices while keeping the originals. Mixing the two intentions yields a
+hybrid identity.</div>
+<ul>
+<li><b>Imbalance:</b> keep the three roughly equal — skew biases the shared decoder toward the majority voice.</li>
+<li><b>Caption consistency:</b> vary prosody words freely, but keep the <b>name + core descriptor template fixed per speaker</b>;
+inconsistent captions for one speaker reintroduce averaging within that identity.</li>
+<li><b>Schema:</b> one caption template across all three; only the discriminative fields (name, pitch, rate) differ. Always include "very clear audio".</li>
+</ul>
+<p class="ref">Refs: indic-parler-tts model card (named speakers); Continual Speaker Adaptation for TTS (arXiv 2103.14512); IndicVoices-R (arXiv 2409.05356).</p>
+</section>
+
+<!-- ============ 4 DATA & EPOCHS ============ -->
+<section id="data">
+<h2><span class="n">4</span>Data quantity &amp; epochs</h2>
+<div class="verdict"><b>Verdict —</b> 5–6 h per speaker is comfortably <b>generous</b> for a single-speaker/style fine-tune — <i>not</i> too much.
+It sits well above the ~30 min floor and below full-corpus scale. Start around <b>3–5 epochs</b> and let <b>eval loss</b> decide the
+stop, not a fixed number.</div>
+
+<div class="grid2">
+<div>
+<h3>How much data is "good"</h3>
+<table>
+<tr><th>Reference point</th><th class="num">Hours</th><th>Note</th></tr>
+<tr><td>Practical fine-tune floor</td><td class="num">~0.5</td><td>works, overfits fast</td></tr>
+<tr><td><b>Your plan / speaker</b></td><td class="num">5–6</td><td><span class="badge g">generous</span></td></tr>
+<tr><td>LJSpeech (1 speaker)</td><td class="num">~24</td><td>classic single-speaker set</td></tr>
+<tr><td>VCTK (109 speakers)</td><td class="num">~44</td><td>~24 min each</td></tr>
+<tr><td>Indic-Parler base corpus</td><td class="num">1,806</td><td>69 speakers, 21 languages</td></tr>
+</table>
+<p>You are <b>steering an existing voice</b>, not teaching Marathi from scratch — the regime small data suits. 5–6 h is plenty
+to lock in style/identity.</p>
+</div>
+<div>
+<h3>How many epochs</h3>
+<ul>
+<li>More data → fewer epochs. Parler's pretrain used 4 epochs on 45k h; single-speaker fine-tunes have used as few as 2.</li>
+<li><b>Start: 3–5 epochs</b> for ~5–6 h/speaker, with early stopping.</li>
+<li>Your ~20 min PoC used 6 epochs to compensate for tiny data — <b>don't carry 6 over blindly</b> to the bigger set.</li>
+<li><b>Overfitting signal:</b> train loss keeps falling while <b>eval loss rises</b> → stop there.</li>
+</ul>
+<h3>Total-steps math</h3>
+<p>Effective batch = <code>per_device × grad_accum × num_devices</code>. With ~15–18 h total (~3k–6k clips) at effective batch 16
+→ ~200–375 steps/epoch → 3–5 epochs ≈ <b>~600–1,900 steps</b>. Set <code>warmup_steps</code> to ~3–8% of that (tens–~150), not 20,000.</p>
+</div>
+</div>
+<p class="ref">Refs: Parler-TTS training README; Parler community fine-tune discussion; indic-parler-tts model card.</p>
+</section>
+
+<!-- ============ 5 LANGUAGE ============ -->
+<section id="lang">
+<h2><span class="n">5</span>Do you need separate datasets per language?</h2>
+<div class="verdict"><b>Verdict — YES.</b> The base knows many Indian languages, but a fine-tune on Marathi shifts the decoder's acoustics
+<i>toward Marathi</i>, and the model can't acquire a new language's narration style from a language it wasn't shown. For multiple
+targets, prefer <b>one combined, balanced multilingual fine-tune</b> over a chain of single-language fine-tunes (catastrophic forgetting).</div>
+
+<h3>Why per-language data is required</h3>
+<ul>
+<li><b>Phonetics &amp; prosody:</b> different phoneme inventories, stress and narration rhythm. The decoder learns these from <i>that language's</i> codec tokens; it can't infer Marathi prosody from English clips.</li>
+<li><b>Script &amp; code-mixing:</b> different scripts and frequent English loanwords mean the text side must see in-language transcripts to align text to the right acoustics.</li>
+<li><b>Identity drift:</b> a single-language fine-tune nudges the shared voice toward that language's acoustics — fine-tune only on Marathi and the same voice's Hindi/English narration degrades.</li>
+</ul>
+
+<h3>Combined vs sequential</h3>
+<table>
+<tr><th>Strategy</th><th>Effect</th><th>Verdict</th></tr>
+<tr><td>Sequential per-language fine-tunes</td><td>Each new language overwrites decoder weights → earlier languages forgotten</td><td><span class="badge r">avoid</span></td></tr>
+<tr><td><b>One combined balanced multilingual set</b></td><td>Decoder holds all targets jointly (how the base itself was built)</td><td><span class="badge g">recommended</span></td></tr>
+<tr><td>PEFT / per-language adapters</td><td>Add languages incrementally with low forgetting</td><td><span class="badge y">if incremental</span></td></tr>
+</table>
+<div class="callout"><span class="tag">Cross-language voice consistency is hard</span>
+Keeping "Sunita" sounding <i>identical</i> in Marathi and Hindi needs the <b>same speaker recorded in both languages</b>; otherwise
+the model can't disentangle "Sunita-ness" from "Marathi-ness," and the voice shifts across languages.</div>
+<p class="ref">Refs: indic-parler-tts model card / IndicVoices-R; Bayesian PEFT for forgetting (arXiv 2402.12220); adapters for language adaptation (arXiv 2508.18006).</p>
+</section>
+
+<!-- ============ 6 GEMINI ============ -->
+<section id="gemini">
+<h2><span class="n">6</span>Single-narrator data &amp; how Gemini differs</h2>
+<div class="verdict"><b>Verdict —</b> Single-narrator data is recommended <i>per voice</i> because consistency yields a stable identity — but
+"single narrator" and "many voices" are reconciled by <b>caption-conditioned multi-speaker training</b> (many narrators, each labeled).
+A 5–6 h fine-tune can produce a few excellent, stable Marathi voices; it <b>cannot</b> match Gemini's breadth, which comes from massive
+proprietary multilingual multi-speaker pretraining.</div>
+
+<div class="grid2">
+<div>
+<h3>Why single-narrator per voice</h3>
+<p>A consistent narrator gives one coherent acoustic target, so the learned identity is stable rather than averaged. For
+<i>each</i> voice you want crisp, keep that voice's audio internally consistent (same speaker, conditions, style).</p>
+<h3>Reconciling "one identity" with "many voices"</h3>
+<p>You don't pick one narrator globally — you keep each narrator internally consistent and <b>label each with its own name</b>.
+The model then "saves" several identities keyed by name. That <i>is</i> caption-conditioned multi-speaker training (§3).</p>
+</div>
+<div>
+<h3>How Gemini reaches every-language quality</h3>
+<p>Gemini-TTS is natively multi-speaker and prompt-controllable: 70+ languages, named voices, "Director's Notes" style control.
+It gets there through <b>large-scale pretraining on huge proprietary multilingual multi-speaker corpora</b> — orders of magnitude
+beyond any fine-tune set, possibly a different architecture.</p>
+<div class="callout good"><span class="tag">Honest scope of a 5–6 h fine-tune</span>
+<b>Can:</b> a handful of high-fidelity, stable, on-style Marathi voices that approach Gemini-perceived quality <i>on your trained
+target</i>, at a tiny fraction of the cost. <b>Cannot:</b> match Gemini's 70+ languages, arbitrary voice casting, or robustness on
+untrained languages. Frame it for stakeholders as <i>"match Gemini on our narrow Marathi-narration target,"</i> not "replace Gemini."</div>
+</div>
+</div>
+<p class="ref">Refs: Gemini-TTS docs (Google Cloud); Gemini speech-generation API; indic-parler-tts model card.</p>
+</section>
+
+<!-- ============ 7 EVAL ============ -->
+<section id="eval">
+<h2><span class="n">7</span>Evaluation metrics &amp; building a Gemini benchmark</h2>
+<div class="verdict"><b>Verdict —</b> Use reference-free objective metrics so you can judge an unfamiliar-language model from numbers alone:
+<b>SQUIM (STOI/PESQ/SI-SDR)</b> + a <b>MOS predictor (UTMOS / SQUIM-MOS / DNSMOS)</b> for quality, <b>WER/CER</b> via ASR for intelligibility,
+and <b>speaker-embedding cosine</b> for voice match. Benchmark by narrating the <i>same</i> held-out texts with Gemini and your model and
+tabulating side by side. You already have <code>compare_squim.py</code> and <code>narrate_gemini.py</code>.</div>
+
+<h3>Metric reference table — what counts as "good"</h3>
+<table>
+<tr><th>Metric</th><th>Measures</th><th>Range / unit</th><th>"Good" target</th></tr>
+<tr><td><b>STOI</b> (SQUIM)</td><td>Intelligibility</td><td class="num">0 → 1</td><td>≥ 0.90 (clean ≈ 0.95+)</td></tr>
+<tr><td><b>PESQ</b> (SQUIM)</td><td>Perceptual quality</td><td class="num">−0.5 → 4.5</td><td>≥ 3.0 good · 4.0+ excellent</td></tr>
+<tr><td><b>SI-SDR</b> (SQUIM)</td><td>Signal cleanliness</td><td class="num">dB ↑</td><td>≥ 15–20 dB</td></tr>
+<tr><td><b>UTMOS / SQUIM-MOS / DNSMOS</b></td><td>Predicted MOS</td><td class="num">1 → 5</td><td>≥ 4.0 high · 4.3+ excellent</td></tr>
+<tr><td><b>WER / CER</b> (ASR)</td><td>Intelligibility / accuracy</td><td class="num">% ↓</td><td>as low as possible (near reference)</td></tr>
+<tr><td><b>Speaker cosine</b></td><td>Voice match to target narrator</td><td class="num">0 → 1 ↑</td><td>higher = closer to target</td></tr>
+</table>
+<div class="callout"><span class="tag">Caveat</span>
+SQUIM/DNSMOS were trained mostly for enhancement assessment — treat them as <b>relative</b> comparators (Parler vs Gemini on the
+<i>same</i> texts), not absolute verdicts. Add UTMOS for a TTS-oriented MOS and WER for hard intelligibility.</div>
+
+<h3>The benchmark recipe</h3>
+<ol>
+<li>Fix a set of held-out Marathi story passages (<b>not</b> in training).</li>
+<li>Synthesize each with <b>(a) Gemini-TTS</b> (<code>narrate_gemini.py</code>) and <b>(b) fine-tuned Parler</b> under matched named-speaker captions.</li>
+<li>Score every clip with SQUIM (STOI/PESQ/SI-SDR) + UTMOS/SQUIM-MOS + WER/CER + speaker cosine.</li>
+<li>Tabulate per-system means. You're "approaching Gemini" when Parler's PESQ/UTMOS/STOI land within a small margin of Gemini's and WER is comparably low — judgeable from the table even without speaking Marathi.</li>
+</ol>
+<pre># existing tooling you already have
+python scripts/narrate/narrate_gemini.py  --text-file PASSAGE.txt --output model_outputs_v2/gemini/p1.wav
+python scripts/narrate/compare_squim.py   --dir model_outputs_v2     # STOI / PESQ / SI-SDR per model folder
+# recommended additions: UTMOS (MOS), an ASR pass for WER/CER, speaker-cosine vs a reference clip</pre>
+
+<h3>Reading the W&amp;B loss curves</h3>
+<table>
+<tr><th>Pattern</th><th>Meaning</th><th>Action</th></tr>
+<tr><td>train ↓ and eval ↓ together, then plateau</td><td>healthy convergence</td><td>stop at plateau</td></tr>
+<tr><td>train ↓ while <b>eval ↑</b></td><td>overfitting (data/epoch ceiling)</td><td>early-stop here</td></tr>
+<tr><td>both still falling steeply at the end</td><td>underfit</td><td>more epochs / more data</td></tr>
+</table>
+<p>Always pair curves with <b>audio samples</b> — cross-entropy can plateau while perceptual quality still moves. Score the logged
+samples with the metrics above as a proxy MOS during training.</p>
+<p class="ref">Refs: TorchAudio-SQUIM tutorial &amp; paper (arXiv 2304.01448); UTMOS toolkit; DNSMOS P.835 (arXiv 2110.01763); Gemini-TTS docs.</p>
+</section>
+
+<!-- ============ 8 WANDB ============ -->
+<section id="wandb">
+<h2><span class="n">8</span>Your W&amp;B run — live analysis</h2>
+<p class="tl">Pulled live from W&amp;B on 2026-06-20 by the <code>wandb-metrics-fetcher</code> subagent.</p>
+
+<div class="callout bad"><span class="tag">No run named "marathi-parler-v2"</span>
+The only run that exists is <code>woven-mountain-10</code> under <b>roshnis-betacraft / parler-speech</b>
+(<a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/swjl9a9g">open in W&amp;B ↗</a>). Its config matches
+<code>marathi_config.json</code> exactly — it's this fine-tune, just auto-named because <code>run_name</code> never reached
+<code>wandb.init</code>. Set <code>WANDB_NAME=marathi-parler-v2</code> (or pass <code>run_name</code> through) before the real run.</div>
+
+<div class="kpi">
+  <div class="box"><div class="v">finished</div><div class="l">run state</div></div>
+  <div class="box"><div class="v">174</div><div class="l">total steps</div></div>
+  <div class="box"><div class="v">~276 s</div><div class="l">runtime (≈5 min)</div></div>
+  <div class="box"><div class="v">4.27</div><div class="l">final eval/loss</div></div>
+  <div class="box"><div class="v">~100%</div><div class="l">eval WER</div></div>
+  <div class="box"><div class="v">0.30</div><div class="l">eval CLAP</div></div>
+</div>
+
+<figure>
+<svg viewBox="0 0 700 300" width="100%" role="img" aria-label="Training and eval loss curve">
+  <style>.axis{stroke:#9aa3af;stroke-width:1}.grid{stroke:#edf0f5;stroke-width:1}.t{font:11px sans-serif;fill:#5b6470}
+    .lt{font:12px sans-serif;fill:#1a1d24}</style>
+  <!-- grid + y labels -->
+  <line class="grid" x1="55" y1="29.2" x2="680" y2="29.2"/><text class="t" x="48" y="33" text-anchor="end">5</text>
+  <line class="grid" x1="55" y1="75.4" x2="680" y2="75.4"/><text class="t" x="48" y="79" text-anchor="end">4</text>
+  <line class="grid" x1="55" y1="121.5" x2="680" y2="121.5"/><text class="t" x="48" y="125" text-anchor="end">3</text>
+  <line class="grid" x1="55" y1="167.7" x2="680" y2="167.7"/><text class="t" x="48" y="171" text-anchor="end">2</text>
+  <line class="grid" x1="55" y1="213.8" x2="680" y2="213.8"/><text class="t" x="48" y="217" text-anchor="end">1</text>
+  <line class="axis" x1="55" y1="260" x2="680" y2="260"/><text class="t" x="48" y="264" text-anchor="end">0</text>
+  <line class="axis" x1="55" y1="20" x2="55" y2="260"/>
+  <!-- x ticks -->
+  <text class="t" x="55" y="276" text-anchor="middle">0</text>
+  <text class="t" x="159" y="276" text-anchor="middle">30</text>
+  <text class="t" x="263" y="276" text-anchor="middle">60</text>
+  <text class="t" x="367" y="276" text-anchor="middle">90</text>
+  <text class="t" x="472" y="276" text-anchor="middle">120</text>
+  <text class="t" x="576" y="276" text-anchor="middle">150</text>
+  <text class="t" x="680" y="276" text-anchor="middle">180</text>
+  <text class="t" x="367" y="292" text-anchor="middle">training step</text>
+  <!-- train polyline -->
+  <polyline fill="none" stroke="#1c5fd8" stroke-width="2" points="89.7,30.0 124.4,54.1 159.2,204.1 193.9,62.1 228.6,68.0 263.3,212.5 298.1,58.5 332.8,70.1 367.5,201.7 402.2,64.4 436.9,72.0 471.7,219.7 506.4,65.6 541.1,89.0 575.8,189.8 610.6,79.2 645.3,96.0"/>
+  <!-- eval markers -->
+  <circle cx="402.2" cy="58.6" r="5" fill="#d9480f"/><text x="402.2" y="48.6" font-size="11" fill="#d9480f" text-anchor="middle">4.36</text>
+  <circle cx="659.2" cy="62.8" r="5" fill="#d9480f"/><text x="659.2" y="52.8" font-size="11" fill="#d9480f" text-anchor="middle">4.27</text>
+  <!-- legend -->
+  <rect x="470" y="222" width="200" height="34" fill="#fff" stroke="#e3e7ee" rx="6"/>
+  <line x1="482" y1="234" x2="506" y2="234" stroke="#1c5fd8" stroke-width="2"/><text class="lt" x="512" y="238">train/loss</text>
+  <circle cx="582" cy="234" r="4" fill="#d9480f"/><text class="lt" x="592" y="238">eval/loss</text>
+</svg>
+<figcaption>Loss vs step for <code>woven-mountain-10</code>. The train curve oscillates between ~0.9 and ~5.0 because losses are
+logged across the 9 codebooks; eval/loss barely moves (4.36 → 4.27). With WER ≈ 100% this run produced no intelligible speech —
+consistent with a 5-minute smoke test, not a converged model.</figcaption>
+</figure>
+
+<h3>Metric history (every 10 steps)</h3>
+<table>
+<tr><th class="num">step</th><th class="num">epoch</th><th class="num">train/loss</th><th class="num">eval/loss</th><th class="num">lr</th><th class="num">grad_norm</th></tr>
+<tr><td class="num">10</td><td class="num">0</td><td class="num">4.983</td><td class="num">–</td><td class="num">1.60e-5</td><td class="num">1.491</td></tr>
+<tr><td class="num">30</td><td class="num">0</td><td class="num">1.210</td><td class="num">–</td><td class="num">4.80e-5</td><td class="num">0.597</td></tr>
+<tr><td class="num">50</td><td class="num">1</td><td class="num">4.159</td><td class="num">–</td><td class="num">8.00e-5</td><td class="num">0.681</td></tr>
+<tr><td class="num">60</td><td class="num">1</td><td class="num">1.029</td><td class="num">–</td><td class="num">7.87e-5</td><td class="num">0.463</td></tr>
+<tr><td class="num">90</td><td class="num">2</td><td class="num">1.264</td><td class="num">–</td><td class="num">6.12e-5</td><td class="num">0.562</td></tr>
+<tr><td class="num">100</td><td class="num">3</td><td class="num">4.239</td><td class="num">4.363</td><td class="num">5.20e-5</td><td class="num">0.602</td></tr>
+<tr><td class="num">120</td><td class="num">3</td><td class="num">0.873</td><td class="num">–</td><td class="num">3.19e-5</td><td class="num">0.435</td></tr>
+<tr><td class="num">140</td><td class="num">4</td><td class="num">3.706</td><td class="num">–</td><td class="num">1.39e-5</td><td class="num">0.624</td></tr>
+<tr><td class="num">150</td><td class="num">4</td><td class="num">1.521</td><td class="num">–</td><td class="num">7.17e-6</td><td class="num">0.596</td></tr>
+<tr><td class="num">170</td><td class="num">5</td><td class="num">3.553</td><td class="num">–</td><td class="num">2.05e-7</td><td class="num">0.688</td></tr>
+<tr><td class="num">174</td><td class="num">5</td><td class="num">–</td><td class="num">4.273</td><td class="num">–</td><td class="num">–</td></tr>
+</table>
+
+<h3>What this tells you</h3>
+<ul>
+<li><b>It's a plumbing test, not a model.</b> 174 steps in ~5 min on a tiny effective batch (2×4=8) cannot converge a 0.9B decoder. eval/loss 4.36→4.27 is essentially flat; WER ≈ 100% means unusable speech. That's <i>expected</i> here, not a failure of method.</li>
+<li><b>Eval was logged only twice</b> (steps 100, 174) — too sparse to see overfitting. For the real run, lower <code>eval_steps</code> so the eval curve has enough points to read the train-vs-eval divergence.</li>
+<li><b>Effective batch is only 8</b> (per-device 2 × grad-accum 4 × 1 device). For the full ~5 h v2, push grad-accum up (→ effective 16–32) for steadier gradients.</li>
+<li><b>Fix the run name</b> so future analyses (and this report's subagent) can find <code>marathi-parler-v2</code> directly.</li>
+</ul>
+<p class="ref tl">Raw data and the full 18-row history are available from the <code>wandb-metrics-fetcher</code> subagent; re-run it once the real v2 training is live to regenerate this section.</p>
+</section>
+
+<!-- ============ REFERENCES ============ -->
+<section id="refs">
+<h2><span class="n">§</span>References</h2>
+<ol class="refs">
+<li>Lyth &amp; King, <i>Natural language guidance of high-fidelity TTS with synthetic annotations</i>, arXiv 2402.01912 — <a href="https://arxiv.org/abs/2402.01912">link</a></li>
+<li>Parler-TTS GitHub (inference &amp; training) — <a href="https://github.com/huggingface/parler-tts">link</a></li>
+<li>Parler-TTS training README (hyperparameters, schedule) — <a href="https://github.com/huggingface/parler-tts/blob/main/training/README.md">link</a></li>
+<li>Parler community fine-tune discussion (hours/epochs) — <a href="https://huggingface.co/parler-tts/parler_tts_mini_v0.1/discussions/7">link</a></li>
+<li>DataSpeech (SNR/PESQ/C50/SI-SDR → description tags) — <a href="https://github.com/huggingface/dataspeech">link</a></li>
+<li>ai4bharat/indic-parler-tts model card (named speakers, "very clear audio", 1,806 h) — <a href="https://huggingface.co/ai4bharat/indic-parler-tts">link</a></li>
+<li>ai4bharat/indic-parler-tts-pretrained — <a href="https://huggingface.co/ai4bharat/indic-parler-tts-pretrained">link</a></li>
+<li>Kumar et al., <i>High-Fidelity Audio Compression with Improved RVQGAN</i> (DAC), arXiv 2306.06546 — <a href="https://arxiv.org/abs/2306.06546">link</a></li>
+<li>HF Transformers DAC docs — <a href="https://huggingface.co/docs/transformers/en/model_doc/dac">link</a></li>
+<li>Descript Audio Codec GitHub — <a href="https://github.com/descriptinc/descript-audio-codec">link</a></li>
+<li>IndicVoices-R, arXiv 2409.05356 — <a href="https://arxiv.org/pdf/2409.05356">link</a></li>
+<li>TorchAudio-SQUIM tutorial (metric ranges) — <a href="https://docs.pytorch.org/audio/main/tutorials/squim_tutorial.html">link</a></li>
+<li>TorchAudio-SQUIM paper, arXiv 2304.01448 — <a href="https://arxiv.org/abs/2304.01448">link</a></li>
+<li>UTMOS toolkit — <a href="https://github.com/fakerybakery/utmos">link</a></li>
+<li>DNSMOS P.835, arXiv 2110.01763 — <a href="https://arxiv.org/pdf/2110.01763">link</a></li>
+<li>Gemini-TTS, Google Cloud docs — <a href="https://docs.cloud.google.com/text-to-speech/docs/gemini-tts">link</a></li>
+<li>Gemini speech-generation API — <a href="https://ai.google.dev/gemini-api/docs/speech-generation">link</a></li>
+<li>Continual Speaker Adaptation for TTS, arXiv 2103.14512 — <a href="https://arxiv.org/pdf/2103.14512">link</a></li>
+<li>PEFT for Low-Resource TTS, Interspeech 2025 — <a href="https://www.isca-archive.org/interspeech_2025/kwon25_interspeech.pdf">link</a></li>
+<li>Bayesian PEFT for Overcoming Catastrophic Forgetting, arXiv 2402.12220 — <a href="https://arxiv.org/pdf/2402.12220">link</a></li>
+<li>Unseen Speaker/Language Adaptation with Adapters, arXiv 2508.18006 — <a href="https://arxiv.org/html/2508.18006">link</a></li>
+</ol>
+</section>
+
+<footer>
+Generated by the <b>tts-research</b> agent · grounded in <code>marathi_config.json</code>, <code>CLAUDE.md</code>, and live W&amp;B data ·
+re-run <code>/tts-research</code> after the v2 training completes to refresh §8.
+</footer>
+
+</div>
+</body>
+</html>

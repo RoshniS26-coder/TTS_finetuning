@@ -1,0 +1,9 @@
+# Mixed / various narrators. Mix of "little background music" (need demucs) and
+# "no background music". Default --separate is safe for all of these.
+# -> these are DIFFERENT speakers: give each its own speaker name at dataset-build time.
+https://music.youtube.com/watch?v=iqISpUCN8V4   # little bg music -> demucs
+https://music.youtube.com/watch?v=J5qUeMHUBig   # no bg music
+https://music.youtube.com/watch?v=rBUy33gcb_A   # little bg music -> demucs
+https://music.youtube.com/watch?v=SAyxYYKH_o8   # little bg music -> demucs
+https://music.youtube.com/watch?v=Gy6ufWPsTOg   # little bg music -> demucs
+https://music.youtube.com/watch?v=lXNGXm_qVvg&list=PLoFuCvXOZ2Up_uve7uLvl9TpvbZVA5cAt   # playlist, different narrators

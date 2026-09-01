@@ -1,0 +1,8 @@
+Using cache found in /Users/roshnisundrani/.cache/torch/hub/tarepan_SpeechMOS_v1.2.0
+/Users/roshnisundrani/TTS/TTS_finetuning/venv_infer/lib/python3.11/site-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+v1 superhero {'pesq': 3.22, 'si_sdr': 25.9, 'utmos': 1.44}
+v3 superhero {'pesq': 3.43, 'si_sdr': 24.4, 'utmos': 1.45}
+v5 kawda {'pesq': 3.16, 'si_sdr': 25.9, 'utmos': 1.48}
+v6 kawda {'pesq': 3.47, 'si_sdr': 25.7, 'utmos': 1.54}
+DONE

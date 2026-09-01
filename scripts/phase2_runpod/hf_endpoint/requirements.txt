@@ -1,0 +1,4 @@
+# Extra deps the Inference Endpoint installs on top of the base image.
+# parler-tts pulls its own pinned transformers/accelerate; soundfile writes WAV.
+git+https://github.com/huggingface/parler-tts.git
+soundfile

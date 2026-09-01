@@ -1,0 +1,5 @@
+# Marathi Panchatantra — playlist. "little background music" -> RUN WITH demucs (default).
+https://music.youtube.com/watch?v=i4enCbBkCZ0&list=PLIwrIjiFmzsriVcObLl2siTGltRmtvMr4
+# ADrs3jffzvc&list=PLIwrIjiFmzsriVcObLl2siTGltRmtvMr4 = SAME playlist as above (different start video) -> skipped as duplicate.
+# Single track from an RD radio-mix (list=RDPEVMqhQXvBj_0as dropped to avoid infinite auto-mix); no &list= so it stays a single video under default --yes-playlist.
+https://music.youtube.com/watch?v=BOFqvdxwgqs

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indic-Parler-TTS Fine-Tuning — v2 vs v5 Training Analysis &amp; Evaluation Guide (2026-06-29)</title>
+<style>
+  :root{--ink:#1a1d24;--muted:#5b6470;--line:#e3e7ee;--bg:#f7f8fb;--card:#fff;
+    --accent:#1c5fd8;--accent2:#d9480f;--good:#2b8a3e;--warn:#e8590c;--bad:#c92a2a;--code:#0b1021;--codeink:#d7e0ff;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px 80px;}
+  header.hero{background:linear-gradient(135deg,#0b2a6b,#1c5fd8);color:#fff;padding:46px 0 38px;margin-bottom:8px;}
+  header.hero .wrap{padding-bottom:0}
+  header.hero h1{margin:0 0 8px;font-size:27px;line-height:1.22;letter-spacing:-.3px}
+  header.hero p{margin:6px 0 0;color:#d7e3ff;font-size:15px}
+  .pill{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:3px 11px;font-size:12px;margin:10px 6px 0 0}
+  nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:22px 0;columns:2;column-gap:30px;font-size:14.5px}
+  nav.toc a{color:var(--accent);text-decoration:none;display:block;padding:3px 0;break-inside:avoid}
+  nav.toc a:hover{text-decoration:underline}
+  h2{font-size:22px;margin:42px 0 6px;padding-top:10px;border-top:2px solid var(--line);letter-spacing:-.2px}
+  h2 .n{color:var(--accent);font-weight:800;margin-right:8px}
+  h3{font-size:17px;margin:22px 0 6px;color:#22305a}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 26px 22px;margin:18px 0;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+  .verdict{background:#eef4ff;border-left:4px solid var(--accent);padding:12px 16px;border-radius:8px;margin:14px 0;font-size:15px}
+  .verdict b{color:#0b2a6b}
+  .callout{border-left:4px solid var(--warn);background:#fff7ed;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .callout.bad{border-color:var(--bad);background:#fff0f0}
+  .callout.good{border-color:var(--good);background:#ebfbee}
+  .callout .tag{font-weight:700;font-size:12px;letter-spacing:.4px;text-transform:uppercase;display:block;margin-bottom:3px;color:var(--warn)}
+  .callout.bad .tag{color:var(--bad)} .callout.good .tag{color:var(--good)}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f4f9;font-weight:700}
+  tr:nth-child(even) td{background:#fafbfd}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.total td{background:#eef4ff;font-weight:700}
+  code{background:#eef1f6;border-radius:5px;padding:1px 6px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace}
+  pre{background:var(--code);color:var(--codeink);border-radius:10px;padding:14px 16px;overflow:auto;font:12.5px ui-monospace,Menlo,monospace;line-height:1.55}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  figure{margin:18px 0;background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:14px}
+  figure svg{width:100%;height:auto;display:block}
+  figcaption{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
+  .ref{font-size:13px;color:var(--muted)} .ref a{color:var(--accent)}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+  .kpi .box{flex:1;min-width:120px;background:#f1f4f9;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .box .v{font-size:22px;font-weight:800;color:#0b2a6b}
+  .kpi .box .l{font-size:12px;color:var(--muted)}
+  .badge{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700}
+  .badge.g{background:#ebfbee;color:var(--good)} .badge.r{background:#fff0f0;color:var(--bad)} .badge.y{background:#fff7ed;color:var(--warn)}
+  .badge.b{background:#eef4ff;color:var(--accent)}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:6px 0 2px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
+  ol li,ul li{margin:3px 0}
+  footer{color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
+  @media (max-width:760px){nav.toc{columns:1}.grid2{grid-template-columns:1fr}}
+  @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}header.hero{background:#0b2a6b !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}figure{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>Indic-Parler-TTS Fine-Tuning — v2 vs v5 Training Analysis &amp; Evaluation Guide</h1>
+    <p>Verified W&amp;B metrics for the Marathi storyteller fine-tune: v5 (4-speaker balanced) vs v2/v3 (older unbalanced), the disk-full crash and its fix, dataset/speaker balance, and a thorough evaluation-metrics panel (MOS · CMOS · MCD · PESQ · UTMOS + CLAP/WER/STOI/SI-SDR/speaker-cosine).</p>
+    <div>
+      <span class="pill">Base: ai4bharat/indic-parler-tts</span>
+      <span class="pill">Entity roshnis-betacraft · project parler-speech</span>
+      <span class="pill">Generated 2026-06-29</span>
+      <span class="pill">Metrics: verified from W&amp;B</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <a href="#tldr">★ Executive summary</a>
+  <a href="#arch">1 · Architecture &amp; why eval/loss is a weak signal</a>
+  <a href="#compare">2 · v2 vs v5 training comparison</a>
+  <a href="#crash">3 · The disk-full failure &amp; the fix</a>
+  <a href="#data">4 · Dataset &amp; speaker balance</a>
+  <a href="#metrics">5 · Evaluation metrics panel</a>
+  <a href="#caption">6 · Inference caption-match rule</a>
+  <a href="#next">7 · Recommendations / next steps</a>
+  <a href="#refs">8 · References</a>
+</nav>
+
+<!-- EXEC SUMMARY -->
+<section id="tldr">
+<h2><span class="n">★</span>Executive summary</h2>
+<div class="kpi">
+  <div class="box"><div class="v">4.6135</div><div class="l">v5 final eval/loss (988 steps)</div></div>
+  <div class="box"><div class="v">4.5702</div><div class="l">v2/v3 final eval/loss (2418 steps)</div></div>
+  <div class="box"><div class="v">0.308</div><div class="l">v5 final eval/CLAP</div></div>
+  <div class="box"><div class="v">7967 / 159</div><div class="l">v5 train / test clips (~10.5 h)</div></div>
+  <div class="box"><div class="v">4</div><div class="l">v5 epochs (plateau by 1–2)</div></div>
+</div>
+<p><b>What v5 changed vs v2.</b> v5 (<code>smart-meadow-26</code>) is a deliberate redesign of the multispeaker corpus rather than a hyperparameter tweak: speakers were <b>balanced</b> (Maya capped from 7561→3000), the data was <b>cleaned</b> (disfluent / empty / English-heavy / outro segments removed), the low-resource target voice <b>Sunita was oversampled</b> (train ×2) to anchor it, the caption pace was fixed to <b>"moderate"</b>, and the recurring disk-full crash was eliminated by setting <code>save_steps: 100000</code> (no intermediate checkpoints; final model saved via <code>save_pretrained</code>). v5 ran clean to completion in ~5000 s on a single 24 GB GPU.</p>
+<div class="callout bad"><span class="tag">Read this before comparing the two loss numbers</span>
+<b>eval/loss is NOT directly comparable across v2 and v5.</b> The two runs use <b>different datasets and different held-out eval sets</b>, so v2's lower 4.5702 vs v5's 4.6135 does <i>not</i> mean v2 is "better." v2 also ran far more steps (2418 vs 988) over more (and differently-distributed) data. Cross-run loss deltas here are confounded — judge voice quality by <b>listening</b> plus the reference-free audio-metric panel (Section 5), not by the cross-run loss gap.</div>
+<ul>
+<li><b>v5 is the current production design</b> (CLAUDE.md STATUS = v5). Its win is corpus quality and balance, not a lower loss number.</li>
+<li><b>Only one failed run exists in this project:</b> <code>toasty-fog-25</code> (died at step 600 = 2× <code>save_steps</code> 300 — the checkpoint-rotation disk spike). The <code>copper-voice-22</code> referenced elsewhere was <b>not found</b> in this project (likely another project or deleted) — not fabricated here.</li>
+<li><b>Per-codebook loss is dominated by codebook 0</b> (≈3.53 for both v2 and v5; ≈3.15 for v1). The coarse acoustic codebook is the one the model learns best; higher codebooks stay near ~4.7–4.8.</li>
+<li><b>⚙ Engineering recommendation</b> markers flag choices that differ from documented defaults.</li>
+</ul>
+</section>
+
+<!-- 1 ARCHITECTURE -->
+<section id="arch">
+<h2><span class="n">1</span>Architecture &amp; why eval/loss is a weak signal</h2>
+<div class="verdict"><b>VERDICT.</b> Parler-TTS is an <b>autoregressive decoder LM over DAC audio-codec tokens</b>, conditioned on a <b>frozen Flan-T5 text encoder via cross-attention</b>, trained with a plain <b>cross-entropy</b> objective. There is <b>no mel-spectrogram loss and no GAN/discriminator loss</b> (those belong to VITS/HiFi-GAN). Because the loss is token cross-entropy over a 9-codebook RVQ stack — and many token sequences decode to perceptually equivalent audio — <code>eval/loss</code> flattens early and is a <b>weak proxy for perceived quality</b>. Trust your ears + the audio-metric panel.</div>
+
+<figure>
+<svg viewBox="0 0 820 220" role="img" aria-label="Parler-TTS architecture diagram">
+  <!-- caption box -->
+  <rect x="20" y="30" width="180" height="60" rx="8" fill="#fff7ed" stroke="#e8590c"/>
+  <text x="110" y="54" text-anchor="middle" font-size="12" font-weight="700">Description / caption</text>
+  <text x="110" y="72" text-anchor="middle" font-size="10.5" fill="#5b6470">"Sunita narrates … moderate</text>
+  <text x="110" y="85" text-anchor="middle" font-size="10.5" fill="#5b6470">pace. Very clear audio…"</text>
+  <!-- transcript box -->
+  <rect x="20" y="130" width="180" height="50" rx="8" fill="#eef4ff" stroke="#1c5fd8"/>
+  <text x="110" y="150" text-anchor="middle" font-size="12" font-weight="700">Transcript (Marathi)</text>
+  <text x="110" y="168" text-anchor="middle" font-size="10.5" fill="#5b6470">एक आटपाट नगर होतं.</text>
+  <!-- flan-t5 frozen -->
+  <rect x="250" y="40" width="170" height="60" rx="8" fill="#f1f4f9" stroke="#5b6470"/>
+  <text x="335" y="63" text-anchor="middle" font-size="12.5" font-weight="700">Flan-T5 encoder</text>
+  <text x="335" y="82" text-anchor="middle" font-size="11" fill="#c92a2a">❄ FROZEN</text>
+  <!-- decoder LM trained -->
+  <rect x="470" y="55" width="180" height="70" rx="8" fill="#ebfbee" stroke="#2b8a3e"/>
+  <text x="560" y="80" text-anchor="middle" font-size="12.5" font-weight="700">Decoder LM</text>
+  <text x="560" y="98" text-anchor="middle" font-size="11" fill="#2b8a3e">🔥 TRAINED (cross-entropy)</text>
+  <text x="560" y="114" text-anchor="middle" font-size="10" fill="#5b6470">cross-attends to encoder</text>
+  <!-- DAC codec -->
+  <rect x="700" y="55" width="100" height="70" rx="8" fill="#f1f4f9" stroke="#5b6470"/>
+  <text x="750" y="82" text-anchor="middle" font-size="12.5" font-weight="700">DAC</text>
+  <text x="750" y="100" text-anchor="middle" font-size="10" fill="#5b6470">tokens ↔ wave</text>
+  <!-- arrows -->
+  <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6470"/></marker></defs>
+  <line x1="200" y1="60" x2="248" y2="65" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="200" y1="150" x2="240" y2="95" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a)" stroke-dasharray="4 3"/>
+  <line x1="420" y1="75" x2="468" y2="85" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="650" y1="90" x2="698" y2="90" stroke="#5b6470" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="470" y="195" font-size="10.5" fill="#5b6470">Voice identity + style are carried ONLY by the caption through frozen cross-attention — the single conditioning channel.</text>
+</svg>
+<figcaption>Three components: Flan-T5 text encoder (frozen) → decoder LM (trained, cross-entropy over DAC tokens) → DAC codec (tokens ↔ waveform). No mel/GAN loss anywhere.</figcaption>
+</figure>
+
+<h3>Why the loss number under-reports quality</h3>
+<ul>
+<li><b>Token CE ≠ perceptual quality.</b> The 9 RVQ codebooks are predicted in parallel; codebook 0 (coarse) is learnable, higher codebooks stay near-random-ish (~4.7–4.8 nats) for every run — they barely move with fine-tuning, dragging the mean loss to a flat plateau.</li>
+<li><b>Many valid renderings.</b> Several token paths decode to perceptually identical speech, so a "wrong" next-token prediction is often not an audible error — CE penalizes it anyway.</li>
+<li><b>The base model already saw ~45k h.</b> Fine-tuning <i>re-anchors</i> voice/style rather than learning audio from scratch, so loss only inches down while the audible voice can shift a lot.</li>
+<li><b>Practical rule (CLAUDE.md):</b> stop when <code>eval/loss</code> rises while <code>train/loss</code> still falls; otherwise let logged audio + the metric panel decide.</li>
+</ul>
+<p class="ref">Refs: Parler/Stable-TTS (arXiv 2402.01912); DAC neural codec (arXiv 2306.06546); Parler-TTS training README.</p>
+</section>
+
+<!-- 2 COMPARISON -->
+<section id="compare">
+<h2><span class="n">2</span>v2 vs v5 training comparison</h2>
+
+<h3>2.1 eval/loss trajectory (v2 &amp; v5)</h3>
+<div class="legend">
+  <span><i style="background:#1c5fd8"></i> v5 smart-meadow-26 (988 steps, 4 ep)</span>
+  <span><i style="background:#d9480f"></i> v2/v3 balmy-resonance-23 (2418 steps, 3 ep)</span>
+  <span><i style="background:#2b8a3e"></i> v1 baseline (174 steps, final 4.2725)</span>
+</div>
+<figure>
+<svg viewBox="0 0 820 380" role="img" aria-label="eval/loss trajectory v2 vs v5">
+  <!-- y grid + labels -->
+  <line x1="70" y1="330" x2="790" y2="330" stroke="#e3e7ee"/><text x="62" y="334" text-anchor="end" font-size="10" fill="#5b6470">4.55</text>
+  <line x1="70" y1="270" x2="790" y2="270" stroke="#e3e7ee"/><text x="62" y="274" text-anchor="end" font-size="10" fill="#5b6470">4.60</text>
+  <line x1="70" y1="210" x2="790" y2="210" stroke="#e3e7ee"/><text x="62" y="214" text-anchor="end" font-size="10" fill="#5b6470">4.65</text>
+  <line x1="70" y1="150" x2="790" y2="150" stroke="#e3e7ee"/><text x="62" y="154" text-anchor="end" font-size="10" fill="#5b6470">4.70</text>
+  <line x1="70" y1="90"  x2="790" y2="90"  stroke="#e3e7ee"/><text x="62" y="94"  text-anchor="end" font-size="10" fill="#5b6470">4.75</text>
+  <line x1="70" y1="30"  x2="790" y2="30"  stroke="#e3e7ee"/><text x="62" y="34"  text-anchor="end" font-size="10" fill="#5b6470">4.80</text>
+  <!-- x labels -->
+  <text x="70"  y="350" text-anchor="middle" font-size="10" fill="#5b6470">0</text>
+  <text x="216.9" y="350" text-anchor="middle" font-size="10" fill="#5b6470">500</text>
+  <text x="363.9" y="350" text-anchor="middle" font-size="10" fill="#5b6470">1000</text>
+  <text x="510.8" y="350" text-anchor="middle" font-size="10" fill="#5b6470">1500</text>
+  <text x="657.8" y="350" text-anchor="middle" font-size="10" fill="#5b6470">2000</text>
+  <text x="780.6" y="350" text-anchor="middle" font-size="10" fill="#5b6470">2418</text>
+  <text x="430" y="372" text-anchor="middle" font-size="11" fill="#5b6470">training step</text>
+  <!-- v2 polyline -->
+  <polyline fill="none" stroke="#d9480f" stroke-width="2" points="99.4,44.8 128.8,134.0 158.2,168.1 187.6,196.8 216.9,215.4 246.3,233.8 275.7,247.2 305.1,253.8 334.5,256.1 363.9,265.9 393.3,274.5 422.7,280.3 452.0,285.5 481.4,292.9 510.8,295.5 540.2,296.4 569.6,297.6 599.0,300.0 628.4,302.8 657.8,303.4 687.1,305.2 716.5,305.3 745.9,305.6 775.3,305.7 780.6,305.8"/>
+  <!-- v5 polyline -->
+  <polyline fill="none" stroke="#1c5fd8" stroke-width="2.4" points="99.4,104.3 128.8,176.5 158.2,206.9 187.6,228.0 216.9,235.2 246.3,244.3 275.7,252.2 305.1,250.6 334.5,253.4 360.4,253.8"/>
+  <!-- v5 markers -->
+  <circle cx="99.4" cy="104.3" r="3.2" fill="#1c5fd8"/><circle cx="128.8" cy="176.5" r="3.2" fill="#1c5fd8"/><circle cx="158.2" cy="206.9" r="3.2" fill="#1c5fd8"/><circle cx="187.6" cy="228.0" r="3.2" fill="#1c5fd8"/><circle cx="216.9" cy="235.2" r="3.2" fill="#1c5fd8"/><circle cx="246.3" cy="244.3" r="3.2" fill="#1c5fd8"/><circle cx="275.7" cy="252.2" r="3.2" fill="#1c5fd8"/><circle cx="305.1" cy="250.6" r="3.2" fill="#1c5fd8"/><circle cx="334.5" cy="253.4" r="3.2" fill="#1c5fd8"/><circle cx="360.4" cy="253.8" r="4" fill="#1c5fd8" stroke="#fff"/>
+  <!-- v1 final reference line at 4.2725 -> below 4.55 axis, annotate -->
+  <text x="785" y="248" text-anchor="end" font-size="10" fill="#1c5fd8" font-weight="700">v5 final 4.6135</text>
+  <text x="785" y="318" text-anchor="end" font-size="10" fill="#d9480f" font-weight="700">v2 final 4.5702</text>
+  <text x="160" y="372" text-anchor="middle" font-size="9.5" fill="#2b8a3e">v1 final 4.2725 (off-axis, smaller corpus)</text>
+</svg>
+<figcaption>Both runs flatten by ~step 600–800. v5 (blue) covers steps 100–988; v2 (orange) runs to 2418. The lines sit on <b>different eval sets</b> — vertical position is not a quality ranking. v1's lower 4.2725 reflects a smaller, easier held-out set, not a better model.</figcaption>
+</figure>
+
+<h3>2.2 eval/CLAP trajectory (style adherence)</h3>
+<div class="legend">
+  <span><i style="background:#1c5fd8"></i> v5 CLAP</span>
+  <span><i style="background:#d9480f"></i> v2/v3 CLAP</span>
+</div>
+<figure>
+<svg viewBox="0 0 820 380" role="img" aria-label="eval/clap trajectory v2 vs v5">
+  <line x1="70" y1="330" x2="790" y2="330" stroke="#e3e7ee"/><text x="62" y="334" text-anchor="end" font-size="10" fill="#5b6470">0.26</text>
+  <line x1="70" y1="263.3" x2="790" y2="263.3" stroke="#e3e7ee"/><text x="62" y="267" text-anchor="end" font-size="10" fill="#5b6470">0.28</text>
+  <line x1="70" y1="196.7" x2="790" y2="196.7" stroke="#e3e7ee"/><text x="62" y="200" text-anchor="end" font-size="10" fill="#5b6470">0.30</text>
+  <line x1="70" y1="130" x2="790" y2="130" stroke="#e3e7ee"/><text x="62" y="134" text-anchor="end" font-size="10" fill="#5b6470">0.32</text>
+  <line x1="70" y1="63.3" x2="790" y2="63.3" stroke="#e3e7ee"/><text x="62" y="67" text-anchor="end" font-size="10" fill="#5b6470">0.34</text>
+  <text x="70"  y="350" text-anchor="middle" font-size="10" fill="#5b6470">0</text>
+  <text x="216.9" y="350" text-anchor="middle" font-size="10" fill="#5b6470">500</text>
+  <text x="363.9" y="350" text-anchor="middle" font-size="10" fill="#5b6470">1000</text>
+  <text x="510.8" y="350" text-anchor="middle" font-size="10" fill="#5b6470">1500</text>
+  <text x="657.8" y="350" text-anchor="middle" font-size="10" fill="#5b6470">2000</text>
+  <text x="780.6" y="350" text-anchor="middle" font-size="10" fill="#5b6470">2418</text>
+  <text x="430" y="372" text-anchor="middle" font-size="11" fill="#5b6470">training step</text>
+  <polyline fill="none" stroke="#d9480f" stroke-width="1.8" points="99.4,196.4 128.8,297.6 158.2,160.2 187.6,73.8 216.9,105.6 246.3,50.8 275.7,106.4 305.1,115.4 334.5,87.1 363.9,97.3 393.3,155.9 422.7,133.9 452.0,127.0 481.4,122.5 510.8,112.7 540.2,155.2 569.6,116.7 599.0,65.6 628.4,81.7 657.8,88.8 687.1,105.3 716.5,85.9 745.9,115.2 775.3,135.4 780.6,60.4"/>
+  <polyline fill="none" stroke="#1c5fd8" stroke-width="2.2" points="99.4,139.3 128.8,206.7 158.2,204.2 187.6,172.9 216.9,92.0 246.3,149.9 275.7,186.7 305.1,189.5 334.5,131.3 360.4,169.0"/>
+</svg>
+<figcaption>CLAP (text↔audio style agreement) is noisy and bounded ~0.27–0.34 for both runs, with no clear upward trend — consistent with the brief's warning that CLAP can stay high even as audio degrades. Use it as a coarse style sanity check, not a quality score.</figcaption>
+</figure>
+
+<h3>2.3 Per-codebook final eval-loss (v5 vs v2 vs v1)</h3>
+<figure>
+<svg viewBox="0 0 820 340" role="img" aria-label="per-codebook final eval loss bar chart">
+  <line x1="55" y1="300.0" x2="800" y2="300.0" stroke="#e3e7ee"/><text x="48" y="304.0" text-anchor="end" font-size="10" fill="#5b6470">0</text>
+  <line x1="55" y1="248.0" x2="800" y2="248.0" stroke="#e3e7ee"/><text x="48" y="252.0" text-anchor="end" font-size="10" fill="#5b6470">1</text>
+  <line x1="55" y1="196.0" x2="800" y2="196.0" stroke="#e3e7ee"/><text x="48" y="200.0" text-anchor="end" font-size="10" fill="#5b6470">2</text>
+  <line x1="55" y1="144.0" x2="800" y2="144.0" stroke="#e3e7ee"/><text x="48" y="148.0" text-anchor="end" font-size="10" fill="#5b6470">3</text>
+  <line x1="55" y1="92.0"  x2="800" y2="92.0"  stroke="#e3e7ee"/><text x="48" y="96.0"  text-anchor="end" font-size="10" fill="#5b6470">4</text>
+  <line x1="55" y1="40.0"  x2="800" y2="40.0"  stroke="#e3e7ee"/><text x="48" y="44.0"  text-anchor="end" font-size="10" fill="#5b6470">5</text>
+  <rect x="71.1" y="116.2" width="18" height="183.8" fill="#1c5fd8"><title>cb0 v5: 3.534</title></rect>
+  <rect x="92.1" y="116.2" width="18" height="183.8" fill="#d9480f"><title>cb0 v2: 3.534</title></rect>
+  <rect x="113.1" y="136.4" width="18" height="163.6" fill="#2b8a3e"><title>cb0 v1: 3.146</title></rect>
+  <rect x="153.3" y="67.5" width="18" height="232.5" fill="#1c5fd8"><title>cb1 v5: 4.471</title></rect>
+  <rect x="174.3" y="70.6" width="18" height="229.4" fill="#d9480f"><title>cb1 v2: 4.412</title></rect>
+  <rect x="195.3" y="75.7" width="18" height="224.3" fill="#2b8a3e"><title>cb1 v1: 4.313</title></rect>
+  <rect x="235.6" y="51.3" width="18" height="248.7" fill="#1c5fd8"><title>cb2 v5: 4.782</title></rect>
+  <rect x="256.6" y="56.0" width="18" height="244.0" fill="#d9480f"><title>cb2 v2: 4.691</title></rect>
+  <rect x="277.6" y="64.9" width="18" height="235.1" fill="#2b8a3e"><title>cb2 v1: 4.522</title></rect>
+  <rect x="317.8" y="50.8" width="18" height="249.2" fill="#1c5fd8"><title>cb3 v5: 4.793</title></rect>
+  <rect x="338.8" y="51.0" width="18" height="249.0" fill="#d9480f"><title>cb3 v2: 4.788</title></rect>
+  <rect x="359.8" y="66.4" width="18" height="233.6" fill="#2b8a3e"><title>cb3 v1: 4.492</title></rect>
+  <rect x="400.0" y="51.8" width="18" height="248.2" fill="#1c5fd8"><title>cb4 v5: 4.773</title></rect>
+  <rect x="421.0" y="54.7" width="18" height="245.3" fill="#d9480f"><title>cb4 v2: 4.716</title></rect>
+  <rect x="442.0" y="68.1" width="18" height="231.9" fill="#2b8a3e"><title>cb4 v1: 4.459</title></rect>
+  <rect x="482.2" y="50.9" width="18" height="249.1" fill="#1c5fd8"><title>cb5 v5: 4.791</title></rect>
+  <rect x="503.2" y="54.1" width="18" height="245.9" fill="#d9480f"><title>cb5 v2: 4.728</title></rect>
+  <rect x="524.2" y="72.4" width="18" height="227.6" fill="#2b8a3e"><title>cb5 v1: 4.376</title></rect>
+  <rect x="564.4" y="51.2" width="18" height="248.8" fill="#1c5fd8"><title>cb6 v5: 4.785</title></rect>
+  <rect x="585.4" y="52.9" width="18" height="247.1" fill="#d9480f"><title>cb6 v2: 4.752</title></rect>
+  <rect x="606.4" y="74.4" width="18" height="225.6" fill="#2b8a3e"><title>cb6 v1: 4.338</title></rect>
+  <rect x="646.7" y="52.5" width="18" height="247.5" fill="#1c5fd8"><title>cb7 v5: 4.760</title></rect>
+  <rect x="667.7" y="54.7" width="18" height="245.3" fill="#d9480f"><title>cb7 v2: 4.718</title></rect>
+  <rect x="688.7" y="71.3" width="18" height="228.7" fill="#2b8a3e"><title>cb7 v1: 4.399</title></rect>
+  <rect x="728.9" y="48.7" width="18" height="251.3" fill="#1c5fd8"><title>cb8 v5: 4.833</title></rect>
+  <rect x="749.9" y="50.8" width="18" height="249.2" fill="#d9480f"><title>cb8 v2: 4.791</title></rect>
+  <rect x="770.9" y="70.8" width="18" height="229.2" fill="#2b8a3e"><title>cb8 v1: 4.407</title></rect>
+  <text x="101.1" y="316" text-anchor="middle" font-size="11">cb0</text>
+  <text x="183.3" y="316" text-anchor="middle" font-size="11">cb1</text>
+  <text x="265.6" y="316" text-anchor="middle" font-size="11">cb2</text>
+  <text x="347.8" y="316" text-anchor="middle" font-size="11">cb3</text>
+  <text x="430.0" y="316" text-anchor="middle" font-size="11">cb4</text>
+  <text x="512.2" y="316" text-anchor="middle" font-size="11">cb5</text>
+  <text x="594.4" y="316" text-anchor="middle" font-size="11">cb6</text>
+  <text x="676.7" y="316" text-anchor="middle" font-size="11">cb7</text>
+  <text x="758.9" y="316" text-anchor="middle" font-size="11">cb8</text>
+</svg>
+<figcaption><span class="badge b">v5</span> <span class="badge r" style="background:#fff0f0;color:#d9480f">v2/v3</span> <span class="badge g">v1</span> — Codebook 0 (coarse RVQ level) is the only one the model learns appreciably (~3.5); codebooks 1–8 sit near 4.4–4.8 for every run. v1's uniformly lower bars reflect its smaller/easier eval set, not a stronger model.</figcaption>
+</figure>
+
+<h3>2.4 Configuration &amp; outcome table</h3>
+<table>
+<tr><th>Field</th><th>v1 woven-mountain-10</th><th>v2/v3 balmy-resonance-23</th><th>v5 smart-meadow-26</th></tr>
+<tr><td>W&amp;B run id</td><td>swjl9a9g</td><td>tnldrtnv</td><td>mx3sxj3f</td></tr>
+<tr><td>State</td><td>finished</td><td>finished</td><td>finished</td></tr>
+<tr><td class="num">Total steps</td><td class="num">174</td><td class="num">2418</td><td class="num">988</td></tr>
+<tr><td class="num">Epochs</td><td class="num">6</td><td class="num">3</td><td class="num">4</td></tr>
+<tr><td>Learning rate</td><td>8e-5</td><td>8e-5</td><td>1e-4</td></tr>
+<tr><td>Batch × grad-accum</td><td>2 × 4</td><td>2 × 8</td><td>4 × 8</td></tr>
+<tr><td class="num">Warmup steps</td><td class="num">50</td><td class="num">150</td><td class="num">100</td></tr>
+<tr><td class="num">Final eval/loss</td><td class="num">4.2725</td><td class="num">4.5702</td><td class="num">4.6135</td></tr>
+<tr><td class="num">Final eval/CLAP</td><td class="num">0.304</td><td class="num">0.341</td><td class="num">0.308</td></tr>
+<tr><td class="num">Codebook-0 loss</td><td class="num">3.146</td><td class="num">3.534</td><td class="num">3.534</td></tr>
+<tr><td class="num">Runtime</td><td class="num">~276 s</td><td class="num">~7123 s</td><td class="num">~5000 s</td></tr>
+<tr><td>Dataset</td><td>~20-min PoC, 1 voice</td><td>older larger unbalanced multispeaker (~12.8k clips, Maya-dominated)</td><td>4-speaker balanced (train 7967 / test 159, ~10.5 h)</td></tr>
+<tr><td>Base model</td><td colspan="3">ai4bharat/indic-parler-tts (all runs)</td></tr>
+</table>
+
+<h3>2.5 Convergence &amp; epochs</h3>
+<ul>
+<li><b>Both runs plateau by ~1–2 epochs</b> (≈ step 600–800). v5's curve is essentially flat from step 700 (4.6148 → 4.6135 at 988); extra epochs buy almost nothing on the loss axis — consistent with the HF README's 4-epoch worked example and the "per-speaker coverage is the binding constraint" point from the brief.</li>
+<li><b>v2 ran 2418 steps</b> because its corpus was larger; the marginal eval/loss improvement after step ~1000 (4.603 → 4.570) is tiny relative to compute spent.</li>
+<li><b>⚙ Recommendation:</b> for the v5 corpus, 3–4 epochs with early-stop on the eval-loss elbow is the right budget; spend saved compute on listening + the metric panel, not more steps.</li>
+</ul>
+<p class="ref">Refs: Parler-TTS training README (4-epoch example); arXiv 2402.01912.</p>
+</section>
+
+<!-- 3 CRASH -->
+<section id="crash">
+<h2><span class="n">3</span>The disk-full failure &amp; the fix</h2>
+<div class="callout bad"><span class="tag">Root cause — checkpoint rotation 2× disk spike</span>
+The one failed run in this project, <b><code>toasty-fog-25</code></b> (id <code>vz6mq40v</code>, state=<b>failed</b>), died at <b>step 600 = 2× <code>save_steps</code> (300)</b>. <code>run_parler_tts_training.py</code> is a <b>manual accelerate loop, NOT the HF Trainer</b> → it <b>ignores <code>save_strategy</code></b> and honors only integer <code>save_steps</code>. On a save tick, <code>rotate_checkpoints</code> writes the new full-state checkpoint (~10 GB: model + AdamW optimizer state) <b>before</b> deleting the old one → a transient <b>2× (~20 GB) spike</b> that fills a small volume → "No space left on device".</div>
+<div class="callout good"><span class="tag">The fix (v5, in marathi_config.json)</span>
+Set <b><code>save_steps: 100000</code></b> (≫ the ~1000 total steps of a run) with <code>save_total_limit: 1</code>. The save condition <code>cur_step % save_steps == 0 or cur_step == total_train_steps</code> then fires <b>only at the very end</b>, so <b>no intermediate checkpoints</b> are written and the disk never doubles. The final model is still always persisted via <code>unwrapped_model.save_pretrained(output_dir)</code>.
+<br><b>⚙ Trade-off:</b> no mid-run resume — if the pod dies, just relaunch the <code>accelerate launch</code> command (by design, since no checkpoint exists).</div>
+<p><b>Note on <code>copper-voice-22</code>:</b> referenced in some prior notes but <b>not found</b> in project <code>parler-speech</code> — it is likely in another project or was deleted. It is recorded here as "not found" rather than fabricated.</p>
+<h3>Disk facts (RunPod, from CLAUDE.md)</h3>
+<ul>
+<li><code>/workspace</code> is MooseFS → <code>df -h /workspace</code> shows the whole cluster (~PB) and is useless; use <code>du -sh /workspace</code> for real usage and <code>df -h /</code> for the container overlay disk.</li>
+<li>Peak run usage: ~20 GB on <code>/workspace</code>, ~10 GB on the container disk → a 50 GB volume / 30 GB container is comfortable.</li>
+<li>Stopping a pod wipes the container disk (pip deps + <code>~/.cache</code> base model) — only <code>/workspace</code> persists.</li>
+</ul>
+</section>
+
+<!-- 4 DATASET -->
+<section id="data">
+<h2><span class="n">4</span>Dataset &amp; speaker balance</h2>
+<div class="verdict"><b>VERDICT.</b> Multi-speaker Parler is driven by <b>name-anchored captions</b> — the speaker name in the caption is the only identity label. Mixing voices under one unlabeled caption averages them into a mush; class imbalance lets the high-resource speaker dominate. v5 fixes both by <b>capping Maya, cleaning data, and oversampling the low-resource target Sunita</b>. Crucially, <b>Sunita is a built-in Indic-Parler Marathi speaker</b>, so v5 <i>adapts</i> a stable existing voice rather than building one from scratch — far safer at ~10 min of target audio.</div>
+
+<h3>4.1 v5 composition (from CLAUDE.md — not in W&amp;B)</h3>
+<table>
+<tr><th>Speaker</th><th>Source dataset</th><th class="num">Clips used</th><th>Role / knob</th></tr>
+<tr><td>Maya</td><td>marathi_panchtantra_dataset</td><td class="num">3000</td><td>capped from 7561 (random subsample; source untouched)</td></tr>
+<tr><td>Usha</td><td>marathi_dataset_v2</td><td class="num">3000</td><td>storytelling prosody/pronunciation lift</td></tr>
+<tr><td>Sarita</td><td>hindi_panchtantra_dataset</td><td class="num">1667</td><td>cross-lingual pronunciation breadth</td></tr>
+<tr><td>Sunita</td><td>marathi_dataset_v1 (the loved v1 timbre)</td><td class="num">232 (train ×2 oversample)</td><td><b>target voice</b>; oversampled to anchor</td></tr>
+<tr class="total"><td colspan="2">TOTAL (after per-speaker 2% split, then merge)</td><td class="num">train 7967 / test 159</td><td>~10.5 h</td></tr>
+</table>
+<p><b>v2/v3 corpus</b> was an older, larger <b>unbalanced</b> multispeaker set (~12.8k clips) with <b>Maya dominating</b> before the cleanup, which is exactly the imbalance v5 was built to remove.</p>
+
+<h3>4.2 Why balancing + Sunita oversampling</h3>
+<ul>
+<li><b>Imbalance favors high-resource speakers.</b> Left uncapped, Maya's 7561 clips would dominate the gradient and pull the shared decoder toward her voice/style.</li>
+<li><b>Oversampling the low-resource target helps.</b> The literature shows oversampling improves naturalness for under-represented speakers while undersampling is harmful — so Sunita's 232 train clips are repeated ×2 (TRAIN only; the test split is untouched → <b>no leakage</b>).</li>
+<li><b>Per-speaker split before merge.</b> Each speaker is split 2% then merged, so <code>test</code> covers every voice and <code>eval/loss</code> is meaningful per-run.</li>
+<li><b>⚙ For a target with &lt;1 h of audio</b>, LoRA/PEFT is the recommended adaptation route (less catastrophic forgetting); v5 used full fine-tune because the combined corpus is ~10.5 h.</li>
+</ul>
+
+<h3>4.3 Name-anchored captions &amp; "adapt not create"</h3>
+<p>All captions use the same template; only the <b>name</b> and <b>pace</b> differ. Sunita being a real Indic-Parler Marathi speaker means we re-anchor an already-stable timbre — the lower-risk choice the model card and CLAUDE.md both recommend over inventing a brand-new name. <b>Do NOT run <code>fix_maya_caption.py</code></b> (it flips Maya's caption from "moderate" to "fairly fast", desyncing pace).</p>
+<p class="ref">Refs: ai4bharat/indic-parler-tts model card (named speakers incl. Sunita); oversampling/low-resource TTS (arXiv 1904.00771; arXiv 2502.07562; Kwon et al., Interspeech 2025).</p>
+</section>
+
+<!-- 5 METRICS -->
+<section id="metrics">
+<h2><span class="n">5</span>Evaluation metrics panel</h2>
+<div class="verdict"><b>VERDICT.</b> No single number captures TTS quality. Use a <b>battery</b>: reference-free signal-quality metrics (UTMOS, SQUIM STOI/PESQ/SI-SDR) that run on novel stories <b>now</b>, plus human MOS/CMOS for the final call, plus identity (speaker-cosine), style (CLAP), and intelligibility (WER). MCD and classic PESQ need a <b>time-aligned ground-truth reference</b>, so they only apply to held-out clips that have the original recording — not to novel narrations.</div>
+
+<h3>5.1 Full metric reference</h3>
+<table>
+<tr><th>Metric</th><th>What it measures</th><th class="num">Range &amp; direction</th><th>Type</th><th>Can this repo compute it now?</th></tr>
+<tr><td><b>MOS</b></td><td>Overall naturalness, absolute opinion score</td><td class="num">1–5, higher ↑</td><td>Human-rated</td><td><span class="badge r">No</span> needs human raters (panel of listeners)</td></tr>
+<tr><td><b>CMOS</b></td><td>Comparative preference vs a reference system (A/B)</td><td class="num">−3…+3, higher ↑ = ours preferred</td><td>Human-rated</td><td><span class="badge r">No</span> needs human raters; ideal for the Gemini A/B</td></tr>
+<tr><td><b>UTMOS</b></td><td>Learned MOS predictor (naturalness proxy)</td><td class="num">~1–5, higher ↑</td><td>Reference-free</td><td><span class="badge g">Yes</span> via SQUIM-style no-reference scoring (<code>scripts/narrate/compare_squim.py</code>, run on GPU)</td></tr>
+<tr><td><b>PESQ (SQUIM)</b></td><td>Perceptual speech quality (no-reference SQUIM estimate)</td><td class="num">−0.5…4.5, higher ↑ (≥3 good)</td><td>Reference-free (SQUIM)</td><td><span class="badge g">Yes</span> TorchAudio-SQUIM, no reference</td></tr>
+<tr><td><b>PESQ (classic)</b></td><td>ITU-T P.862 perceptual quality vs clean reference</td><td class="num">−0.5…4.5, higher ↑</td><td>Reference-required</td><td><span class="badge y">Only on held-out clips</span> needs the original recording aligned to output</td></tr>
+<tr><td><b>STOI (SQUIM)</b></td><td>Short-time objective intelligibility</td><td class="num">0–1, higher ↑ (≥0.90 good)</td><td>Reference-free (SQUIM)</td><td><span class="badge g">Yes</span> <code>compare_squim.py</code></td></tr>
+<tr><td><b>SI-SDR (SQUIM)</b></td><td>Scale-invariant signal-to-distortion ratio</td><td class="num">dB, higher ↑ (≥15–20 good)</td><td>Reference-free (SQUIM)</td><td><span class="badge g">Yes</span> <code>compare_squim.py</code></td></tr>
+<tr><td><b>MCD</b></td><td>Mel-Cepstral Distortion (spectral distance to reference)</td><td class="num">dB, lower ↓</td><td>Reference-required (DTW-aligned)</td><td><span class="badge y">Only on held-out clips</span> needs DTW-aligned ground-truth audio; N/A for novel stories</td></tr>
+<tr><td><b>CLAP</b></td><td>Text↔audio style agreement (caption adherence)</td><td class="num">~0–1, higher ↑</td><td>Reference-free</td><td><span class="badge g">Yes</span> logged in W&amp;B (~0.27–0.34); can be high while audio degrades</td></tr>
+<tr><td><b>WER</b></td><td>Intelligibility via ASR transcription error</td><td class="num">%, lower ↓</td><td>Reference-free (ASR + known text)</td><td><span class="badge y">Relative only</span> distil-whisper is English-only → Marathi WER unreliable; use relative deltas, not absolute</td></tr>
+<tr><td><b>Speaker cosine</b></td><td>Speaker-embedding similarity to target voice</td><td class="num">0–1, higher ↑</td><td>Reference-required (target embedding)</td><td><span class="badge g">Yes</span> embed target (Sunita) clips + outputs, cosine</td></tr>
+</table>
+
+<h3>5.2 Cross-System Benchmark (template — to populate)</h3>
+<p>This scaffold pins down the comparison grid. <b>None of these numbers have been measured yet</b> — every cell is intentionally blank (—/TBD) except the single value actually observed in the narration test.</p>
+<table>
+<tr><th>Model</th><th class="num">WER ↓</th><th class="num">CER ↓</th><th class="num">MOS ↑</th><th class="num">CMOS ↑</th><th class="num">UTMOS ↑</th><th class="num">Speaker Sim ↑</th><th class="num">RTF ↓</th></tr>
+<tr><td>OpenAI (gpt-4o-mini-tts)</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>Gemini-TTS (Kore)</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>AI4Bharat (IndicF5)</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td>Parler Base (ai4bharat/indic-parler-tts, un-fine-tuned)</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><td><b>Parler Fine-tuned (v5)</b></td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num">TBD</td><td class="num"><b>~1.0 (A5000, observed)</b></td></tr>
+</table>
+<p class="ref">Scaffold — populate by running the identical metric panel on the SAME held-out text through every model; cells are intentionally blank.</p>
+<div class="callout"><span class="tag">How to populate each column</span>
+<ul style="margin:4px 0">
+<li><b>WER / CER:</b> run the same held-out Marathi/Hindi text through each model, transcribe with <b>Sarvam Saaras STT</b> via <code>scripts/narrate/compare_squim.py --wer</code>, compare to reference (CER = char-level edit distance). distil-whisper is unreliable for Marathi → prefer Sarvam + relative deltas.</li>
+<li><b>UTMOS:</b> <code>scripts/narrate/compare_squim.py</code> (no-reference); already runnable on the existing <code>model_outputs_v1/</code> baselines (gemini / indic_f5 / pretrained_indic_parler / mms).</li>
+<li><b>MOS:</b> human listening test, absolute 1–5.</li>
+<li><b>CMOS:</b> human blind A/B preference vs a fixed anchor (e.g. Gemini), −3…+3.</li>
+<li><b>Speaker Sim:</b> cosine similarity of ECAPA-TDNN (or x-vector) speaker embeddings between the generated clip and a Sunita reference clip.</li>
+<li><b>RTF:</b> wall-clock generation time ÷ output audio duration (lower = faster; &lt;1 = faster than real-time).</li>
+<li><b>Fairness rule:</b> synthesize the SAME sentences with every model (SQUIM/UTMOS are per-clip), and run blind for MOS/CMOS.</li>
+</ul></div>
+
+<div class="callout"><span class="tag">Caveats to keep in mind</span>
+<ul style="margin:4px 0">
+<li><b>CLAP can stay high while audio degrades</b> — it scores style match, not fidelity.</li>
+<li><b>WER is unreliable in absolute terms for Marathi</b> (distil-whisper is English-only); the repo's logged eval/wer sits ~100% and is best read as a <b>relative</b> signal across checkpoints, not an accuracy.</li>
+<li><b>SQUIM is reference-free and was built for enhancement assessment</b> → treat STOI/PESQ/SI-SDR as a <b>relative comparator</b> across models on identical texts, paired with UTMOS + listening.</li>
+<li><b>MCD &amp; classic PESQ require the original recording</b> time-aligned to the output — usable only on held-out clips, never on novel generated stories.</li>
+</ul></div>
+
+<h3>5.3 How to benchmark vs Gemini-TTS</h3>
+<ol>
+<li><b>Fix the text set.</b> Pick N held-out Marathi paragraphs (mix seen-domain + unseen words).</li>
+<li><b>Generate from both systems</b> on the <b>same text</b>: the v5 fine-tune (Sunita caption) and Gemini-TTS. Keep sample rate / loudness normalized.</li>
+<li><b>Run the identical objective panel</b> on both sets: UTMOS + SQUIM (STOI/PESQ/SI-SDR) + speaker-cosine (to the v5 target) + relative WER. Tabulate side by side.</li>
+<li><b>Blind A/B CMOS.</b> Present paired clips (ours vs Gemini) in random order to human raters; collect CMOS in −3…+3. This is the decisive metric.</li>
+<li><b>External anchor:</b> Gemini 3.1 Flash TTS sits at ~1211 Elo on public leaderboards — a useful upper-reference, not a pass/fail bar. Success target: within ~0.2–0.3 MOS of Gemini on the Marathi target voice.</li>
+</ol>
+<p class="ref">Tooling: <code>scripts/narrate/compare_squim.py</code> (TorchAudio-SQUIM STOI/PESQ/SI-SDR + UTMOS, no-reference; run on the RunPod GPU). Refs: TTSDS2 objective-metric battery (SSW 2025, minixhofer25); distil-whisper; Marathi-Whisper ASR (Lamarr); Gemini 3.1 Flash TTS.</p>
+</section>
+
+<!-- 6 CAPTION -->
+<section id="caption">
+<h2><span class="n">6</span>Inference caption-match rule</h2>
+<div class="verdict"><b>VERDICT.</b> The inference caption MUST be <b>byte-identical</b> to the training caption. Voice identity and style are conditioned <b>only</b> through the frozen Flan-T5 cross-attention — it is the single conditioning channel, so any drift in the caption drifts the voice/style. (Mechanism-based, not a measured ablation.)</div>
+<p>The exact v5 Sunita caption (build script <code>CAPTION</code>, name=Sunita, pace=moderate) — copy verbatim into <code>test_inference.py</code> and <code>narrate_story.py</code> <code>DESCRIPTION</code>:</p>
+<pre>Sunita narrates a children's story in an expressive, warm, animated storytelling tone with emotional variation, at a moderate pace. Very clear audio with no background noise.</pre>
+<ul>
+<li>Prosody is <b>caption-driven</b>, NOT transferred speaker→speaker. Sunita's intonation = her own clips + the caption's style words; the shared decoder only lifts general pronunciation.</li>
+<li>The phrase <b>"very clear audio"</b> is the high-fidelity trigger — keep it. Punctuation (commas) in the Marathi transcript controls pauses/prosody — keep it too.</li>
+</ul>
+<p class="ref">Refs: indic-parler-tts model card; Parler-TTS README.</p>
+</section>
+
+<!-- 7 NEXT -->
+<section id="next">
+<h2><span class="n">7</span>Recommendations / next steps</h2>
+<ul>
+<li><b>⚙ Run the GPU metric panel on v5 outputs</b> — UTMOS + SQUIM (STOI/PESQ/SI-SDR) + speaker-cosine to the Sunita target, on a fixed novel-story set. The local SQUIM run previously wedged on CPU; run it on the RunPod GPU.</li>
+<li><b>⚙ Do not rank v2 vs v5 by eval/loss.</b> Their eval sets differ; settle it with blind listening + CMOS A/B.</li>
+<li><b>Keep <code>save_steps</code> huge</b> on every retrain (≫ total steps) to avoid the 2× checkpoint disk spike; accept no-resume.</li>
+<li><b>Hold epochs at 3–4</b> for the v5-scale corpus; early-stop on the eval-loss elbow. Spend compute on data quality, not extra passes.</li>
+<li><b>If targeting a &lt;1 h voice</b>, switch to LoRA/PEFT to reduce catastrophic forgetting; keep balancing + oversampling for the low-resource speaker.</li>
+<li><b>Benchmark vs Gemini-TTS</b> on identical text with the full panel + blind CMOS; aim within ~0.2–0.3 MOS of Gemini on the Marathi target.</li>
+<li><b>Keep the caption byte-identical</b> at inference; never edit name/pace/style words ad hoc.</li>
+</ul>
+</section>
+
+<!-- 8 REFS -->
+<section id="refs">
+<h2><span class="n">8</span>References</h2>
+<p class="ref">Carried verbatim from the verified research brief — no invented citations.</p>
+<ol class="ref">
+<li>Parler / Stable-TTS (data-described controllable TTS): <a href="https://arxiv.org/abs/2402.01912">https://arxiv.org/abs/2402.01912</a></li>
+<li>DAC — high-fidelity neural audio codec: <a href="https://arxiv.org/abs/2306.06546">https://arxiv.org/abs/2306.06546</a></li>
+<li>Parler-TTS training README: <a href="https://github.com/huggingface/parler-tts/blob/main/training/README.md">https://github.com/huggingface/parler-tts/blob/main/training/README.md</a></li>
+<li>ai4bharat/indic-parler-tts model card (named speakers incl. Sunita): <a href="https://huggingface.co/ai4bharat/indic-parler-tts">https://huggingface.co/ai4bharat/indic-parler-tts</a></li>
+<li>Low-resource / multi-speaker oversampling (data balance): <a href="https://arxiv.org/abs/1904.00771">https://arxiv.org/abs/1904.00771</a></li>
+<li>Oversampling for low-resource TTS naturalness: <a href="https://arxiv.org/pdf/2502.07562">https://arxiv.org/pdf/2502.07562</a></li>
+<li>Kwon et al., Interspeech 2025 (low-resource speaker adaptation): <a href="https://www.isca-archive.org/interspeech_2025/kwon25_interspeech.pdf">https://www.isca-archive.org/interspeech_2025/kwon25_interspeech.pdf</a></li>
+<li>TTSDS2 objective-metric battery (SSW 2025, minixhofer25): <a href="https://www.isca-archive.org/ssw_2025/minixhofer25_ssw.pdf">https://www.isca-archive.org/ssw_2025/minixhofer25_ssw.pdf</a></li>
+<li>distil-whisper (English-only ASR): <a href="https://github.com/huggingface/distil-whisper">https://github.com/huggingface/distil-whisper</a></li>
+<li>Fine-tuning Whisper for Marathi ASR (Lamarr): <a href="https://lamarr-institute.org/blog/fine-tuning-whisper-marathi-asr/">https://lamarr-institute.org/blog/fine-tuning-whisper-marathi-asr/</a></li>
+<li>Gemini 3.1 Flash TTS (external Elo anchor ~1211): <a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-tts/">https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-tts/</a></li>
+<li>Parler-TTS README (inference caption conditioning): <a href="https://github.com/huggingface/parler-tts/blob/main/README.md">https://github.com/huggingface/parler-tts/blob/main/README.md</a></li>
+</ol>
+<p class="ref">W&amp;B runs (entity roshnis-betacraft · project parler-speech): v5 <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/mx3sxj3f">mx3sxj3f</a> · v2/v3 <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/tnldrtnv">tnldrtnv</a> · v1 <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/swjl9a9g">swjl9a9g</a> · failed toasty-fog-25 <a href="https://wandb.ai/roshnis-betacraft/parler-speech/runs/vz6mq40v">vz6mq40v</a>.</p>
+</section>
+
+<footer>
+Generated by the <b>tts-report-generator</b> agent · metrics verified from <code>logs/wandb_v2_v5_compare.json</code> · dataset facts from CLAUDE.md (v5 operational reference) · 2026-06-29.<br>
+Caveats flagged: eval/loss not comparable across differing eval sets · CLAP can be high while audio degrades · Marathi WER unreliable (English-only ASR) · SQUIM is a relative comparator · copper-voice-22 not found.
+</footer>
+
+</div>
+</body>
+</html>

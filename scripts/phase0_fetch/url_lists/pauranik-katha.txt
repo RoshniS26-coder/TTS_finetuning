@@ -1,0 +1,12 @@
+# Pauranik katha — mostly NO background music
+# -> can use --no-separate (faster).
+# NOTE: Vj8y2qHQ8ig is Sanskrit-heavy -> transcription will need extra care.
+#
+# SKIPPED ENTIRELY FOR NOW — keep for later. Do NOT run demucs on these.
+# https://music.youtube.com/watch?v=CYrTG0bApmI
+# https://music.youtube.com/watch?v=SXQH7PmLc48
+# https://music.youtube.com/watch?v=oX2Re12VUwo
+# https://music.youtube.com/watch?v=TDv7f5HkupU
+# https://music.youtube.com/watch?v=JydxnResMJY
+# https://music.youtube.com/watch?v=Vj8y2qHQ8ig
+# https://music.youtube.com/watch?v=gjyOOpns-kk&list=RDPEVMCYrTG0bApmI  (also needs Sanskrit transcription)

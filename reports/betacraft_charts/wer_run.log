@@ -1,0 +1,9 @@
+Gemini-Sulafat (teacher/ceiling) MR        WER   4.5%  CER   0.4%
+betacraft kawda temp=1 (default) MR        WER   3.0%  CER   0.8%
+betacraft kawda temp=0.7 seed=42 MR        WER   2.6%  CER   0.8%
+betacraft superhero temp=0.7 MR            WER  21.8%  CER  13.5%
+FreeVC (Parler0.7 -> Sulafat ref) MR       WER  20.0%  CER  13.2%
+IndicF5 (Sulafat clone) MR                 WER  85.5%  CER  67.5%
+betacraft hindi temp=1 (default) HI        WER  20.0%  CER   7.8%
+
+saved -> reports/betacraft_charts/wer_scores.json

@@ -1,0 +1,97 @@
+audio_data/
+marathi_dataset/
+marathi_parler_ds/
+__pycache__/
+*.pyc
+.DS_Store
+*.zip
+.venv/
+venv/
+.env
+
+# ── Large data / audio / model artifacts — keep OUT of git (source + small CSVs only) ──
+# audio (any depth) and audio subfolders of datasets
+*.wav
+*.mp3
+*.flac
+**/audio/
+**/audio-audio/
+deleted_wavs_*/
+# built datasets / parquet / arrow
+*.parquet
+*.arrow
+marathi_hindi_parler_ds_*/
+v1_pq/
+# trained models / checkpoints / inference outputs
+marathi_tts_model_*/
+marathi_tts_output*/
+checkpoint-*/
+model_outputs_*/
+narrations_v5/
+stream_out/
+_audio_mp3/
+pretrained
+# big binaries
+runpodctl
+*.safetensors
+# kept on purpose: metadata.csv (+ .bak_*), configs, scripts, reports/*.html
+
+# ══════════════════════════════════════════════════════════════════════════════
+# The DOCKER IMAGE is the deployable artifact, so its inputs are the must-keep
+# set and nothing below may match them: Dockerfile, requirements-api.txt, and
+# scripts/narrate/** (the two COPY lines + the rp_handler.py CMD). Model weights
+# are NOT in this repo — the build pulls them from HF into the image's own cache.
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Markdown: only CLAUDE.md and README.md tracked (many per-version .md exist) ──
+# No leading slash on !README.md, so scripts/README.md etc. survive too.
+*.md
+!CLAUDE.md
+!README.md
+# Keeps the tts-research skill + agent definitions working for clones — *.md would
+# otherwise hide .claude/skills/tts-research/SKILL.md and .claude/agents/*.md, which
+# are functional code, not version-history docs:
+!.claude/**/*.md
+
+# ── Corpora / built data (tts_corpus/ stays TRACKED — small source TSVs) ──
+tts_data/
+# has its OWN .git inside — ignoring avoids a broken gitlink on first commit
+tts-research-reports/
+logs/
+
+# ── v1 / v2 / v3 dataset + output artifacts ──
+marathi_dataset_v*/
+
+# ── remaining built datasets not matched by an existing dir rule ──
+mar_hin_betacraft_ds/
+marathi_sunita_ds_v6/
+
+# ── trial / A-B / narration audio output dirs (trailing slash = dirs only, so
+#    scripts/narrate/narrate_gemini.py is NOT matched) ──
+ab_out/
+base_caption_test/
+betacraft_fix/
+betacraft_outputs/
+gemini_*/
+narrations_*/
+new_test_beta_audio/
+partial_audio/
+
+# ── binary safety nets (stop a stray checkpoint hitting GitHub's 100MB limit) ──
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.onnx
+*.msgpack
+*.npy
+*.pkl
+*.tar
+*.tar.gz
+*.tgz
+
+# ── secrets (.env holds the WEBHOOK-URL Slack key + API credentials) ──
+.env
+.env.*
+!.env.example

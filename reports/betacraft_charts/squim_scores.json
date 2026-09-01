@@ -1,0 +1,65 @@
+[
+  {
+    "label": "Gemini-Sulafat (teacher)",
+    "stoi": 0.992,
+    "pesq": 3.79,
+    "si_sdr": 25.0,
+    "utmos": 3.08
+  },
+  {
+    "label": "betacraft kawda temp=1",
+    "stoi": 0.989,
+    "pesq": 3.55,
+    "si_sdr": 22.9,
+    "utmos": 1.61
+  },
+  {
+    "label": "betacraft kawda temp=0.7",
+    "stoi": 0.995,
+    "pesq": 3.86,
+    "si_sdr": 26.9,
+    "utmos": 2.1
+  },
+  {
+    "label": "betacraft kawda temp=0.5 (buzzy)",
+    "stoi": 0.977,
+    "pesq": 3.41,
+    "si_sdr": 19.8,
+    "utmos": 2.21
+  },
+  {
+    "label": "betacraft superhero temp=0.7",
+    "stoi": 0.994,
+    "pesq": 3.8,
+    "si_sdr": 25.1,
+    "utmos": 2.51
+  },
+  {
+    "label": "betacraft superhero temp=0.3 (buzzy)",
+    "stoi": 0.949,
+    "pesq": 2.03,
+    "si_sdr": 1.2,
+    "utmos": 2.82
+  },
+  {
+    "label": "FreeVC (Sulafat ref)",
+    "stoi": 0.998,
+    "pesq": 4.18,
+    "si_sdr": 28.1,
+    "utmos": 2.61
+  },
+  {
+    "label": "IndicF5 (Sulafat clone)",
+    "stoi": 0.992,
+    "pesq": 3.63,
+    "si_sdr": 21.9,
+    "utmos": 3.09
+  },
+  {
+    "label": "betacraft hindi temp=1",
+    "stoi": 0.986,
+    "pesq": 3.68,
+    "si_sdr": 22.9,
+    "utmos": 2.14
+  }
+]

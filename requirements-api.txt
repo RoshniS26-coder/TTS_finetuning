@@ -1,0 +1,18 @@
+# Deps for the Betacraft TTS serving image.
+# Two entrypoints share betacraft_core.py: rp_handler.py (RunPod Serverless
+# QUEUE handler — the deployed path) and api_server.py (FastAPI, local dev).
+# torch is NOT listed here: the Dockerfile bases off a RunPod PyTorch image
+# that already has a CUDA-matched torch build installed.
+# installed from source, not PyPI: pip's resolver hits "resolution-too-deep"
+# trying to solve parler-tts==0.2.2 against an already-installed torch.
+git+https://github.com/huggingface/parler-tts.git
+transformers==4.46.1
+tokenizers==0.20.3
+fastapi>=0.110
+uvicorn[standard]>=0.29
+# RunPod Serverless SDK — provides runpod.serverless.start(), the job-queue
+# poller that rp_handler.py runs as the container's main process.
+runpod>=1.6
+soundfile>=0.12.1
+sentencepiece
+protobuf
