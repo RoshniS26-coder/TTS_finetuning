@@ -1,0 +1,38 @@
+{
+  "when": "20260908-165423",
+  "model": "betacraft",
+  "decoding": "greedy",
+  "temperature": null,
+  "seeds": [
+    648
+  ],
+  "device": "mps",
+  "stopped_early": true,
+  "conclusion": "GREEDY IS UNUSABLE. Every sentence ran to max_new_tokens without emitting EOS; all 3 reseeded attempts byte-identical (greedy ignores the seed, so the retry ladder is pure waste). 17.25s generated -> 1.8s after trim. Ear-scored: all incomplete. Stopped before the 5th sentence — the result was unambiguous.",
+  "clips": [
+    {
+      "wav": "c0_mr_s648.wav",
+      "audio_sec": 0.71,
+      "verdict": "bad",
+      "note": "greedy: hit token cap without EOS on all 3 attempts (identical output); most of the generated audio trimmed as silence"
+    },
+    {
+      "wav": "c1_mr_s648.wav",
+      "audio_sec": 2.64,
+      "verdict": "bad",
+      "note": "greedy: hit token cap without EOS on all 3 attempts (identical output); most of the generated audio trimmed as silence"
+    },
+    {
+      "wav": "c2_mr_s648.wav",
+      "audio_sec": 1.82,
+      "verdict": "bad",
+      "note": "greedy: hit token cap without EOS on all 3 attempts (identical output); most of the generated audio trimmed as silence"
+    },
+    {
+      "wav": "c3_hi_s648.wav",
+      "audio_sec": 2.22,
+      "verdict": "bad",
+      "note": "greedy: hit token cap without EOS on all 3 attempts (identical output); most of the generated audio trimmed as silence"
+    }
+  ]
+}

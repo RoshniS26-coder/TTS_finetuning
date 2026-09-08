@@ -1,0 +1,37 @@
+{
+  "when": "20260904-121719",
+  "model": "betacraft",
+  "runs": 1,
+  "temperature": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "रोहनला स्वतःहून हळूहळू चालत जायला आवडेल का?",
+        "words": 7,
+        "expected_sec": 4.0,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.19
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.77,
+          "ratio": 1.19,
+          "short": false,
+          "tail_flux": 0.1241,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 113.5,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}

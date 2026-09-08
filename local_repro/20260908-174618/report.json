@@ -1,0 +1,46 @@
+{
+  "when": "20260908-174618",
+  "model": "betacraft",
+  "runs": 1,
+  "seeds": [
+    648
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": false,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प. तो डबा जमिनीवर पडला. तो घाबरला. सगळे हसले.",
+        "words": 9,
+        "expected_sec": 5.14,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.28
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 6.56,
+          "ratio": 1.28,
+          "short": false,
+          "tail_flux": 0.1702,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 54.1,
+          "attempts": 1,
+          "verdict": "good",
+          "note": "PRE-FIX: _merge_short replaced full stops with commas. Correct by ear at this seed — the comma failure is stochastic and did not trigger here."
+        }
+      ]
+    }
+  ],
+  "unit_sent_to_model": "…पडला, तो घाबरला, सगळे हसले."
+}

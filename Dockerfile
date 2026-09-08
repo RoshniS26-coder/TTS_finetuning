@@ -27,7 +27,6 @@ RUN pip install --no-cache-dir -r requirements-api.txt
 # step silently failed and generation just got slower.
 RUN pip install --no-cache-dir flash-attn --no-build-isolation || echo "flash-attn install failed — continuing without it"
 
-COPY scripts/narrate/ /app/scripts/narrate/
 
 ENV BETACRAFT_MODEL_DIR=roshni-sorigin/mar-hin-betacraft-tts
 ENV BETACRAFT_DEVICE=cuda:0
@@ -71,6 +70,13 @@ PY
 
 # Runtime never needs the network — everything above is already in HF_HOME.
 ENV HF_HUB_OFFLINE=1
+
+# App code is copied LAST, deliberately. It changes on almost every iteration,
+# and Docker invalidates every layer AFTER a changed one — with this COPY sitting
+# above the model-download step (where it used to be), editing one line of
+# betacraft_core.py re-ran the ~10-25 min HF download and re-pushed those layers.
+# Copied here, a code change rebuilds and pushes only this final thin layer.
+COPY scripts/narrate/ /app/scripts/narrate/
 
 # RunPod Serverless QUEUE handler — NOT an HTTP server. runpod.serverless.start()
 # polls RunPod's job queue and calls handler() per job, so there is no port to

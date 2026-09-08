@@ -48,6 +48,9 @@ runpodctl
 *.md
 !CLAUDE.md
 !README.md
+# Session reports are deliverables, not per-version scratch docs. Must come AFTER
+# the *.md line above — in gitignore the LAST matching pattern wins.
+!*-report.md
 # Keeps the tts-research skill + agent definitions working for clones — *.md would
 # otherwise hide .claude/skills/tts-research/SKILL.md and .claude/agents/*.md, which
 # are functional code, not version-history docs:

@@ -30,6 +30,7 @@ from pydantic import BaseModel, Field
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from betacraft_core import (  # noqa: E402
     DEFAULT_MODEL,
+    DEFAULT_SEED,
     LOUDNESS_MAX_GAIN_DB,
     MODELS,
     PACK_TARGET_WORDS,
@@ -85,7 +86,7 @@ class SynthesizeRequest(BaseModel):
     )
     language: str = Field("mr", description="mr | hi | en (speaker depends on the model)")
     temperature: float | None = Field(None, gt=0, description="None -> server default (0.65)")
-    seed: int = Field(42, description="reset before EACH sentence for cross-sentence voice consistency")
+    seed: int = Field(DEFAULT_SEED, description="reset before EACH sentence for cross-sentence voice consistency")
     gap_ms: int = Field(350, ge=0, description="silence between units (ms)")
     pack_words: int = Field(
         PACK_TARGET_WORDS, ge=0,

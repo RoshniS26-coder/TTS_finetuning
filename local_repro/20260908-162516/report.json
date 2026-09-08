@@ -1,0 +1,168 @@
+{
+  "when": "20260908-162516",
+  "model": "betacraft",
+  "runs": 2,
+  "seeds": [
+    42,
+    1042
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": true,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प तो डबा जमिनीवर पडला.",
+        "words": 5,
+        "expected_sec": 2.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.11
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 3.22,
+          "ratio": 1.13,
+          "short": false,
+          "tail_flux": 0.2473,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 20.2,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 3.13,
+          "ratio": 1.1,
+          "short": false,
+          "tail_flux": 0.1975,
+          "stalled": false,
+          "wav": "c0_mr_s1042.wav",
+          "gen_sec": 47.0,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "तेवढ्यात त्यांचा छोटा चुलत भाऊ चिन्मय तिथे आला.",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.06
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.37,
+          "ratio": 0.96,
+          "short": false,
+          "tail_flux": 0.1643,
+          "stalled": false,
+          "wav": "c1_mr_s42.wav",
+          "gen_sec": 64.2,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 5.33,
+          "ratio": 1.17,
+          "short": false,
+          "tail_flux": 0.2481,
+          "stalled": false,
+          "wav": "c1_mr_s1042.wav",
+          "gen_sec": 61.0,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "त्याने डोळे मिटले आणि जोरात मोजायला सुरुवात केली तीन दोन एक झूम!",
+        "words": 12,
+        "expected_sec": 6.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.19
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 7.25,
+          "ratio": 1.06,
+          "short": false,
+          "tail_flux": 0.1212,
+          "stalled": false,
+          "wav": "c2_mr_s42.wav",
+          "gen_sec": 72.7,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 9.05,
+          "ratio": 1.32,
+          "short": false,
+          "tail_flux": 0.1372,
+          "stalled": false,
+          "wav": "c2_mr_s1042.wav",
+          "gen_sec": 91.6,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "He counted slowly three two one and closed his eyes.",
+        "words": 10,
+        "expected_sec": 4.81,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.99
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.9,
+          "ratio": 1.02,
+          "short": false,
+          "tail_flux": 0.1612,
+          "stalled": false,
+          "wav": "c3_en_s42.wav",
+          "gen_sec": 60.6,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 4.67,
+          "ratio": 0.97,
+          "short": false,
+          "tail_flux": 0.187,
+          "stalled": false,
+          "wav": "c3_en_s1042.wav",
+          "gen_sec": 59.0,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}

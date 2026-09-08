@@ -1,0 +1,129 @@
+{
+  "when": "20260908-172322",
+  "model": "betacraft",
+  "runs": 1,
+  "seeds": [
+    648
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": true,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प... तो डबा जमिनीवर पडला.",
+        "words": 5,
+        "expected_sec": 2.86,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.22
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 3.5,
+          "ratio": 1.22,
+          "short": false,
+          "tail_flux": 0.212,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 111.5,
+          "attempts": 3
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "तेवढ्यात त्यांचा छोटा चुलत भाऊ... चिन्मय... तिथे आला.",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.27
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 5.82,
+          "ratio": 1.27,
+          "short": false,
+          "tail_flux": 0.1516,
+          "stalled": false,
+          "wav": "c1_mr_s648.wav",
+          "gen_sec": 45.7,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "त्याने डोळे मिटले आणि जोरात मोजायला सुरुवात केली... तीन... दोन... एक... झूम!",
+        "words": 12,
+        "expected_sec": 6.86,
+        "generations": 1,
+        "short": 0,
+        "stalled": 1,
+        "short_rate": 0.0,
+        "stall_rate": 1.0,
+        "median_ratio": 2.57
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 17.6,
+          "ratio": 2.57,
+          "short": false,
+          "tail_flux": 0.0093,
+          "stalled": true,
+          "wav": "c2_mr_s648.wav",
+          "gen_sec": 397.1,
+          "attempts": 2,
+          "note": "SEVERE — breaks down at 'मोजायला सु…' into a held vowel then buzz. Fails EARLIER than the comma version, which stayed clean through '…सुरुवात केली' and only broke at the comma run. Ellipses degrade the whole generation, not just the enumeration. Ear-scored 2026-09-08.",
+          "verdict": "bad",
+          "severity": "content"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "He counted slowly... three... two... one... and closed his eyes.",
+        "words": 10,
+        "expected_sec": 4.81,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.58
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 7.58,
+          "ratio": 1.58,
+          "short": false,
+          "tail_flux": 0.1546,
+          "stalled": false,
+          "wav": "c3_en_s648.wav",
+          "gen_sec": 257.0,
+          "attempts": 3,
+          "note": "measured as severe overrun/stall — pending ear confirmation"
+        }
+      ]
+    }
+  ],
+  "conclusion": "ELLIPSIS IS WORSE THAN COMMAS. Marathi countdown: 2.57x expected with tail flux 0.0093 — the lowest ever measured here, far below the 0.03 stall threshold, i.e. a severe held sound. 3 of 4 sentences worse than the comma-stripped version. Hypothesis (training uses '...' for counting, 9 Marathi units) is REJECTED: 9 examples in 1772 units is too few to have been learned, and '...' reads as 'trail off', which is what the model then does. Comma REMOVAL (20260908-164351, 4/4 correct by ear) remains the fix."
+}

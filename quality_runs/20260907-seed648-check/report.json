@@ -1,0 +1,21 @@
+{
+  "text": "He counted slowly, three, two, one, and closed his eyes.",
+  "lang": "en",
+  "endpoint": "5tk0794i74t8lh",
+  "when": "20260907",
+  "note": "GPU bf16 re-check of the en_02 hallucination at the new default seed",
+  "rows": [
+    {
+      "seed": 648,
+      "wav": "en_02_seed648.wav",
+      "audio_sec": 10.53,
+      "ratio_vs_1.75": 1.84,
+      "ratio_vs_2.08_en": 2.19,
+      "exec_ms": 12788,
+      "delay_ms": 48452,
+      "hit_cap_14.29s": false,
+      "verdict": "bad",
+      "note": "DROPPED the entire countdown and closing — only 'He counted slowly' is spoken, the remaining ~8s is buzz. Ear-scored 2026-09-08."
+    }
+  ]
+}

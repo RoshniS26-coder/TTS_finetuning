@@ -100,6 +100,15 @@ log = logging.getLogger("betacraft_core")
 # retry, which is itself a source of drift. Do not raise this without
 # re-measuring: too high silently re-creates that failure.
 EXPECTED_WORDS_PER_SEC = 1.75
+# PER-LANGUAGE as of 2026-09-07. The 1.75 above was measured on MARATHI output
+# and then applied to every language, which made the English token budget ~19%
+# too generous: production logs (2026-09-04, 75 units) show English narrates at
+# ~2.08 words/sec, so normal English landed at 0.68-0.84x "expected" and an
+# English runaway had to reach ~3x its true length before the cap stopped it.
+# Confirmed by quality_runs/20260903-150327 en_02_r0: 10 words of English ran
+# 14.71s (3.06x the 4.81s it should take) and was only caught because it hit the
+# ceiling. Hindi shares Marathi's rate until it is separately measured.
+WORDS_PER_SEC_BY_LANG = {"mr": 1.75, "hi": 1.75, "en": 2.08}
 MAX_DURATION_MULTIPLIER = 2.5  # a unit running this much longer than expected is a runaway
 MAX_CHUNK_ATTEMPTS = 3  # original attempt + up to 2 retries with a different seed
 
@@ -133,7 +142,35 @@ MAX_CHUNK_ATTEMPTS = 3  # original attempt + up to 2 retries with a different se
 # and worth re-testing if the content model starts producing much shorter
 # sentences. But 0 is the default: generate one sentence at a time.
 PACK_TARGET_WORDS = 0
-PACK_HARD_CAP_WORDS = 22
+# LOWERED from 22 on 2026-09-02 after a trailing-hallucination report in Hindi.
+# A/B on the SAME text and seed (42), warm worker, via the RunPod queue endpoint:
+#   A  "...लग गया और वह और भी थोड़ा फट गया।"   21 words, 1 unit  -> 11.12s audio
+#   B  "...लग गया। और वह और भी थोड़ा फट गया।"  same words, 2 units ->  9.52s audio
+# A emitted 1.6s MORE audio for identical words, and the extra is an elongated
+# final vowel ("...gayaaaaa"). Measured on the 50ms RMS envelope:
+#   envelope flux over the last 1.3s : A 0.016  vs  B 0.184   (11x smoother)
+#   monotonically-decaying tail frames: A 21/25 vs  B 13/25
+# i.e. A ends in a long smooth fade (a sustained vowel) where B has the rapid
+# phoneme-to-silence alternation of real speech. Whole-clip flux is depressed too
+# (A 0.146 vs B 0.210), so the degradation builds through the generation rather
+# than appearing only at the end — matching the mechanism described above.
+#
+# clean_edges() is NOT the fix: both clips trimmed an identical 0.42s after the
+# last frame >=7% of peak. The elongated vowel is voiced and stays ABOVE that
+# threshold, so the trimmer correctly leaves it alone. The cure is to stop
+# generating it, by keeping units shorter via _split_overlong (which prefers
+# comma boundaries before falling back to a hard word split).
+#
+# 22 let a 21-word sentence through by one word. 18, not 16: production logs
+# (2026-09-02, 58 units) show only 22% of units exceed 16 words and their rtf
+# (1.30) is no worse than shorter units (1.34) — so splitting more buys no speed,
+# while every extra split adds a join boundary and a chance of prosody drift.
+# 18 still catches the 21-word case that triggered this.
+#
+# MIRRORED CLIENT-SIDE in jaanteho-fresh lib/text-segments.ts (MAX_SENTENCE_WORDS,
+# also 18). Whichever splits FIRST wins, so the client value governs app traffic
+# and this one is the backstop for direct callers (ab_test.sh, curl). Keep in sync.
+PACK_HARD_CAP_WORDS = 18
 
 # Bound the cost of a runaway generation. This used to be one flat number
 # (1200 tokens, ~14s), which no longer works once units vary from 4 to 34
@@ -230,8 +267,114 @@ def _env_opt_float(name: str, default: float | None) -> float | None:
 # BETACRAFT_NO_REPEAT_NGRAM=3 to restore the old behaviour for comparison.
 DEFAULT_TEMPERATURE = _env_opt_float("BETACRAFT_TEMPERATURE", 0.65) or 0.65
 DEFAULT_TOP_P = _env_opt_float("BETACRAFT_TOP_P", 0.9)
+
+# Seed. set_seed() is re-applied before EVERY unit (see synthesize), so this is
+# the voice anchor for a whole narration, not just a randomness source: change
+# it and the timbre changes. 648 was picked from the local seed sweep on
+# 2026-09-04 (local_repro/20260904-*/report.json). Env-tunable so a different
+# anchor can be tried from the RunPod console without an image rebuild.
+DEFAULT_SEED = int(os.environ.get("BETACRAFT_SEED") or 648)
+
+# The BLIND SPOT between "normal" and "runaway", closed 2026-09-07.
+#
+# MAX_DURATION_MULTIPLIER (2.5x) is a hard token cap: it TRUNCATES. That makes it
+# a backstop for catastrophes only, and everything below it shipped unchecked —
+# which is where the real damage was. MEASURED, English, seed 648, 10 words
+# (quality_runs/20260907-seed648-check): 10.53s against 4.81s expected = 2.19x,
+# a stalled countdown that never tripped the 14.29s cap and so was never retried.
+# Seed 42 on the SAME sentence ran 14.71s, hit the cap, and WAS retried — i.e.
+# the worse-sounding clip was handled and the merely-bad one was not.
+#
+# So flag "too long" independently of the cap: a unit past this multiple of its
+# expected length is SUSPECT (reseed and retry, keeping the better take) but is
+# never truncated, which is what separates this from the min_new_tokens floor
+# rejected on 2026-09-04 — that one FORCED generation to continue and so
+# manufactured trailing stalls. This only rejects a take that already exists.
+#
+# 1.8 clears the longest legitimate output observed (Marathi 1.68x in
+# local_repro/20260904-152523) while catching the 2.19x case above. Env-tunable
+# because it is a calibration threshold: it will need moving once the probe set
+# is scored by ear, and that must not require an image rebuild.
+SOFT_DURATION_MULTIPLIER = _env_opt_float("BETACRAFT_SOFT_DURATION_MULT", 1.8) or 1.8
+
 DEFAULT_REPETITION_PENALTY = _env_opt_float("BETACRAFT_REPETITION_PENALTY", None)
 DEFAULT_NO_REPEAT_NGRAM = _env_opt_float("BETACRAFT_NO_REPEAT_NGRAM", None)
+
+
+# --- Enumeration punctuation ------------------------------------------------
+# MEASURED 2026-09-08, same seed (648), same temperature, one variable
+# (local_repro/20260908-163739 vs -164351 vs -172322, all ear-scored):
+#
+#     "…केली, तीन, दोन, एक, झूम!"    1.51x expected — hallucinates at the commas
+#     "…केली... तीन... दोन... एक..." 2.57x, tail flux 0.0093 — WORSE, breaks even earlier
+#     "…केली तीन दोन एक झूम!"        1.01x — CORRECT
+#
+# Why: a comma is a place to pause, and this model has no mechanism forcing it to
+# cover the text before stopping — so a run of one-word fragments gives it several
+# consecutive chances to mistake a pause for an ending. It then either stops (the
+# words are never spoken) or fails to stop (a held vowel). Ellipsis is worse still:
+# it reads as "trail off", and the model obliges indefinitely.
+#
+# TRAINING FREQUENCY is what decides the scope. Of 1,772 Marathi units:
+#     comma-separated counting            0      <- what we generate, never seen
+#     runs of >=2 short comma fragments   47     (2.65%)
+#     a SINGLE short comma fragment      101     (5.7%, mostly "आई," / "मुलांनो,")
+# So only RUNS are collapsed. A lone "ढप्प," or a form of address is left alone —
+# stripping those would move AWAY from the training distribution, not toward it.
+_ENUM_SEP_RE = re.compile(r"(\s*(?:\.\.\.|[,\u060C])\s*)")
+ENUM_SHORT_WORDS = 2      # a fragment this short or shorter counts toward a run
+ENUM_MIN_RUN = 2          # this many consecutive short fragments makes it a run
+
+
+def normalize_enumerations(text: str) -> str:
+    """Collapse runs of short comma/ellipsis-fenced fragments into plain words."""
+    parts = _ENUM_SEP_RE.split(text)
+    if len(parts) < 3:
+        return text
+    frags, seps = parts[0::2], parts[1::2]
+    short = [0 < len(f.split()) <= ENUM_SHORT_WORDS for f in frags]
+
+    drop = set()                                  # indices of separators to replace
+    i = 0
+    while i < len(frags):
+        if not short[i]:
+            i += 1
+            continue
+        j = i
+        while j + 1 < len(frags) and short[j + 1]:
+            j += 1
+        # A run of the SAME word repeated ("हा... हा... हा...", "घोर... घोर...")
+        # IS in the corpus — onomatopoeia and laughter are written exactly that
+        # way — so leave it alone. Only runs of DISTINCT short fragments are the
+        # unseen pattern: comma-separated counting appears 0 times in 3,283 units.
+        # Strip quotes too: a run inside dialogue makes the first fragment '"हा'
+        # and the rest 'हा', which would compare as different words and defeat the
+        # exemption. Empty fragments (a lone closing quote after the last "...")
+        # are dropped rather than counted as a distinct word.
+        _EDGE = " \u0964.!?\u0965\"'\u201c\u201d\u2018\u2019-"
+        run_frags = [f.strip(_EDGE) for f in frags[i:j + 1]]
+        run_frags = [f for f in run_frags if f]
+        repeated = len(set(run_frags)) <= 1
+        if j - i + 1 >= ENUM_MIN_RUN and not repeated:
+            # Separators INSIDE the run, plus the ones on BOTH sides joining it to
+            # its neighbours. Dropping only the leading one leaves a comma sitting
+            # immediately after the enumeration — precisely where the model is most
+            # likely to mistake a pause for an ending — and would not reproduce the
+            # text that was ear-confirmed correct (local_repro/20260908-164351).
+            drop.update(range(i, j))
+            if i > 0:
+                drop.add(i - 1)
+            if j < len(seps):
+                drop.add(j)
+        i = j + 1
+    if not drop:
+        return text
+
+    out = [frags[0]]
+    for k, sep in enumerate(seps):
+        out.append(" " if k in drop else sep)
+        out.append(frags[k + 1])
+    return "".join(out)
 
 
 def normalize_digits(text: str, language: str) -> str:
@@ -269,21 +412,88 @@ def _merge_short(sentences: list[str], min_words: int = MIN_UNIT_WORDS) -> list[
     pending: str | None = None
     for sentence in sentences:
         if pending:
-            sentence = f"{pending.rstrip('।.!?').rstrip()}, {sentence}"
+            # Join with a SPACE, keeping the fragment's own punctuation. This used
+            # to strip the ender and insert ", ", which turned ordinary short
+            # sentences ("ढप्प. तो घाबरला. सगळे हसले.") into exactly the comma run
+            # that breaks generation. Training units were sentence-PACKED with
+            # their punctuation intact, so preserving it matches the corpus.
+            sentence = f"{pending} {sentence}"
             pending = None
         if len(sentence.split()) < min_words:
             if merged:
-                merged[-1] = f"{merged[-1].rstrip('।.!?').rstrip()}, {sentence}"
+                # Keep the previous sentence's own ending punctuation and join with
+                # a SPACE. Stripping the ender and inserting ", " turned ordinary
+                # short sentences into the comma run that measurably breaks
+                # generation — and children's stories are full of short sentences,
+                # so this fired constantly. Training units were sentence-PACKED
+                # with punctuation intact, which is exactly what this now produces.
+                merged[-1] = f"{merged[-1]} {sentence}"
             else:
                 pending = sentence
         else:
             merged.append(sentence)
     if pending:
         if merged:
-            merged[-1] = f"{merged[-1].rstrip('।.!?').rstrip()}, {pending}"
+            merged[-1] = f"{merged[-1]} {pending}"
         else:
             merged.append(pending)  # whole input was one short fragment
     return merged
+
+
+# Clause conjunctions used as fallback break points when a long sentence has no
+# comma. These carry the same prosodic role a comma does — a natural pause the
+# narrator would take — so breaking BEFORE one yields two units that each stand
+# alone as speech, instead of the mid-clause cut a blind word-count split gives.
+#
+# DELIBERATELY EXCLUDES पर and तो, which are ambiguous in Hindi: पर is far more
+# often the postposition "on" (नक्शे पर = "on the map") than the conjunction
+# "but", and तो is usually emphatic rather than clausal. Including पर was tried
+# on 2026-09-02 and split "...फटे हुए नक्शे | पर लग गया..." straight through a
+# noun phrase. When in doubt leave a word out: a missed split falls through to
+# the hard-split warning path, whereas a wrong split is silently unnatural.
+CLAUSE_CONJUNCTIONS = ("और", "लेकिन", "क्योंकि", "जब", "तब", "फिर", "या", "इसलिए")
+# Both sides of a conjunction break must be at least this many words, so we never
+# strand a 1-2 word fragment (which _merge_short would then fold back anyway).
+CONJ_MIN_SIDE_WORDS = 4
+
+
+def _split_at_conjunction(text: str, hard_cap: int, _depth: int = 0) -> list[str] | None:
+    """Break `text` before a clause conjunction, nearest the midpoint.
+
+    Returns None when there is no usable conjunction, so the caller can fall
+    back to a hard word split. Recurses (bounded) so a very long sentence with
+    several conjunctions is reduced until every piece fits under hard_cap.
+
+    The left piece is closed with the SOURCE sentence's own terminal punctuation,
+    never a hardcoded one. An earlier version appended a Devanagari danda "।"
+    unconditionally, which is right for Hindi (1422 of 1511 training units end in
+    one) but WRONG for Marathi: the danda occurs ZERO times in all 1772 Marathi
+    training units, which end in a plain period. That fed the model a character it
+    had never seen in training, on exactly the path meant to make long sentences
+    safer. Reusing the writer's own ender cannot drift out of distribution.
+    """
+    words = text.split()
+    candidates = [
+        i for i, w in enumerate(words)
+        if w in CLAUSE_CONJUNCTIONS
+        and CONJ_MIN_SIDE_WORDS <= i <= len(words) - CONJ_MIN_SIDE_WORDS
+    ]
+    if not candidates:
+        return None
+    i = min(candidates, key=lambda i: abs(i - len(words) / 2))
+    ender = text.rstrip()[-1] if text.rstrip()[-1:] in "।.!?" else "."
+    left = " ".join(words[:i]).rstrip("।.!?,").rstrip() + ender
+    right = " ".join(words[i:])
+
+    out: list[str] = []
+    for piece in (left, right):
+        if len(piece.split()) > hard_cap and _depth < 3:
+            deeper = _split_at_conjunction(piece, hard_cap, _depth + 1)
+            if deeper is not None:
+                out.extend(deeper)
+                continue
+        out.append(piece)
+    return out
 
 
 def _split_overlong(sentence: str, hard_cap: int) -> list[str]:
@@ -317,9 +527,14 @@ def _split_overlong(sentence: str, hard_cap: int) -> list[str]:
         if len(piece_words) <= hard_cap:
             out.append(piece)
             continue
+        conj = _split_at_conjunction(piece, hard_cap)
+        if conj is not None:
+            out.extend(conj)
+            continue
         log.warning(
-            "Sentence fragment of %d words has no comma to break on — hard-splitting "
-            "at %d words, which may land mid-clause.", len(piece_words), hard_cap,
+            "Sentence fragment of %d words has no comma or clause conjunction to break "
+            "on — hard-splitting at %d words, which may land mid-clause.",
+            len(piece_words), hard_cap,
         )
         out.extend(
             " ".join(piece_words[i : i + hard_cap]) for i in range(0, len(piece_words), hard_cap)
@@ -374,11 +589,113 @@ def pack_sentences(
     return units
 
 
-def _max_new_tokens_for(word_count: int, sr: int, hop_length: int) -> int:
+# --- Trailing-stall detection ------------------------------------------------
+# The failure the token cap CANNOT see. A unit whose last word decays into a held
+# vowel ("...फट गया" -> "gayaaaaa", "the moon" -> "moonnnnnn", "locking" ->
+# "lockinggggg") adds only ~1-2s, far inside MAX_DURATION_MULTIPLIER, so it never
+# trips the runaway check. clean_edges() also leaves it alone by design: the vowel
+# is VOICED and sits above its energy floor ("a tail as loud as real speech won't
+# be caught by this").
+#
+# MEASURED 2026-09-02, same text and seed, 50ms RMS envelope over the last ~1.3s
+# of signal:
+#     stalled tail : flux 0.016, 21/25 frames decaying monotonically
+#     clean speech : flux 0.184, 13/25
+# an 11x separation. Real speech alternates rapidly between phonemes and silence;
+# a held vowel is a smooth monotonic fade. Flux (mean absolute frame-to-frame
+# change) is what tells them apart, and it is independent of total duration, which
+# is why it catches what every duration-based guard misses.
+#
+# OBSERVED 2026-09-03 in all three languages (mr/hi/en) and almost always on the
+# FINAL word of a sentence — i.e. the model failing to emit a clean EOS.
+TAIL_ANALYSIS_SEC = 1.3      # how much of the end to score
+TAIL_FRAME_SEC = 0.05        # RMS frame size the threshold was measured with
+# CALIBRATED BY LISTENING 2026-09-03. Every clip to hand, scored by ear:
+#     0.017  STALLED  ("...gayaaaa", confirmed)
+#     0.043  clean    <- 0.06 flagged this one; listening says it lands cleanly
+#     0.096  clean
+#     0.121  clean
+#     0.163  clean    (confirmed)
+#     0.168  clean
+# 0.03 sits between the one confirmed stall and the lowest confirmed-clean take,
+# and classifies all six correctly. Deliberately biased toward KEEPING audio: a
+# false positive forces a reseeded retry, and a seed change alters the voice
+# realisation for that unit alone — an audible prosody jump against its
+# neighbours (see the retry note below). A missed stall is only as bad as today.
+#
+# THIN CALIBRATION: one confirmed stalled sample. Re-tune as more are collected —
+# `stalled_tail` in the per-unit metadata makes them easy to gather from logs.
+TAIL_FLUX_SUSPECT = 0.03
+MIN_SEC_FOR_TAIL_CHECK = 2.0 # shorter units have too little tail to score
+
+
+def _tail_flux(wav: np.ndarray, sr: int) -> float | None:
+    """Mean absolute frame-to-frame change of the RMS envelope over the unit's
+    final TAIL_ANALYSIS_SEC of NON-SILENT audio.
+
+    Returns None when the unit is too short to judge. Trailing near-silence is
+    skipped first so the score reflects the last of the *speech*, not the pad.
+    """
+    if wav.size < int(sr * MIN_SEC_FOR_TAIL_CHECK):
+        return None
+    hop = max(1, int(sr * TAIL_FRAME_SEC))
+    frames = np.array([
+        float(np.sqrt(np.mean(np.square(wav[i:i + hop]))))
+        for i in range(0, wav.size - hop, hop)
+    ])
+    if frames.size < 4:
+        return None
+    peak = float(frames.max())
+    if peak <= 0:
+        return None
+    norm = frames / peak
+    voiced = np.flatnonzero(norm >= 0.02)      # drop the trailing pad
+    if voiced.size < 4:
+        return None
+    end = int(voiced[-1]) + 1
+    start = max(0, end - int(TAIL_ANALYSIS_SEC / TAIL_FRAME_SEC))
+    tail = norm[start:end]
+    if tail.size < 4:
+        return None
+    return float(np.mean(np.abs(np.diff(tail))))
+
+
+def _expected_sec_for(word_count: int, language: str) -> float:
+    """How long `word_count` words SHOULD take to speak in `language`."""
+    rate = WORDS_PER_SEC_BY_LANG.get(language, EXPECTED_WORDS_PER_SEC)
+    return max(word_count, 1) / rate
+
+
+def _max_new_tokens_for(word_count: int, sr: int, hop_length: int, language: str = "mr") -> int:
     """Token budget for one unit: MAX_DURATION_MULTIPLIER x its expected length."""
-    expected_sec = max(word_count, 1) / EXPECTED_WORDS_PER_SEC
+    expected_sec = _expected_sec_for(word_count, language)
     tokens = expected_sec * MAX_DURATION_MULTIPLIER * sr / hop_length
     return int(min(MAX_TOKENS_CEILING, max(MAX_TOKENS_FLOOR, tokens)))
+
+
+# TRIED AND REJECTED 2026-09-04: a `min_new_tokens` FLOOR (forbid EOS before ~0.6x
+# the unit's expected duration), intended to stop the model dropping a unit's last
+# words. Rejected for two reasons, both from measurement:
+#
+#   1. IT WOULD MANUFACTURE THE OPPOSITE DEFECT. A floor forces generation to
+#      continue past a genuine ending. _merge_short normally keeps units at
+#      MIN_UNIT_WORDS or more, but a hard-split fragment or a direct API call can
+#      still produce a 2-3 word unit, and forcing those to keep generating is
+#      precisely how a trailing hallucination is created. Trading a skip for a
+#      stall is not a fix.
+#   2. THE CALIBRATION WAS UNSAFE FOR ENGLISH. Production logs (2026-09-04, 75
+#      units) show English narrates at ~2.08 words/sec against the 1.75 assumed by
+#      EXPECTED_WORDS_PER_SEC, so normal English lands at 0.68-0.84x "expected".
+#      A 0.6 floor leaves ~12% headroom on legitimate fast English.
+#
+# It also would not have caught the reported cases: dropping the final 2 of 11
+# words still yields 82% of expected duration, far above any floor safe enough to
+# ship. The floor only caught severe truncation (one unit lost 78% of its text).
+#
+# The real finding from that log is separate and still open: EXPECTED_WORDS_PER_SEC
+# is MARATHI-calibrated, so the English token CEILING is ~40% too generous — which
+# is why English runaways reached 15.8s and 27.4s before the cap stopped them.
+# Making that rate language-aware is the change worth making here.
 
 
 def match_loudness(units: list[np.ndarray], max_gain_db: float = LOUDNESS_MAX_GAIN_DB) -> list[np.ndarray]:
@@ -452,10 +769,16 @@ def _warmup(bundle: dict) -> None:
     start = time.time()
     lang = next(iter(bundle["desc_ids_by_lang"]))
     desc_ids = bundle["desc_ids_by_lang"][lang]
-    prompt_ids = bundle["prompt_tok"]("नमस्ते", return_tensors="pt").input_ids.to(bundle["device"])
+    desc_mask = bundle["desc_mask_by_lang"][lang]
+    # Mirror the real generate() signature exactly: this call exists to pay the
+    # kernel-compile tax on cold start, and a different signature can compile a
+    # different path, leaving the tax for the first real request after all.
+    prompt_enc = bundle["prompt_tok"]("नमस्ते", return_tensors="pt").to(bundle["device"])
     with torch.no_grad():
         bundle["model"].generate(
-            input_ids=desc_ids, prompt_input_ids=prompt_ids,
+            input_ids=desc_ids, attention_mask=desc_mask,
+            prompt_input_ids=prompt_enc.input_ids,
+            prompt_attention_mask=prompt_enc.attention_mask,
             max_new_tokens=32, do_sample=True, temperature=0.7,
         )
     log.info("Warmup generation (lang=%s) done in %.1fs", lang, time.time() - start)
@@ -485,10 +808,21 @@ def load_bundle(model_name: str = DEFAULT_MODEL) -> dict:
     # caption byte-for-byte); for "base" it is simply a good description in the
     # style the Indic Parler model card recommends, kept identical so an A/B
     # between the two isolates the fine-tuning rather than the prompt.
-    desc_ids_by_lang = {
-        lang: desc_tok(CAPTION_TEMPLATE.format(name=name), return_tensors="pt").input_ids.to(device)
+    # Tokenize once per language and keep the ATTENTION MASK too. Every unit is
+    # a single unpadded sequence, so the mask is all-ones and passing it changes
+    # nothing numerically today — but HF cannot INFER that (pad_token == eos_token
+    # here, which is what the "attention mask is not set" warning is about), so it
+    # falls back to a default and warns on every generate. Passing it explicitly
+    # silences that and, more importantly, makes the call correct by construction
+    # if units are ever batched again: batching pads, and an inferred mask over
+    # pad-that-equals-eos is exactly how padded sequences produced the audible
+    # trailing buzz that got batching rolled back on 2026-08-29.
+    desc_enc_by_lang = {
+        lang: desc_tok(CAPTION_TEMPLATE.format(name=name), return_tensors="pt").to(device)
         for lang, name in spec["speakers"].items()
     }
+    desc_ids_by_lang = {lang: enc.input_ids for lang, enc in desc_enc_by_lang.items()}
+    desc_mask_by_lang = {lang: enc.attention_mask for lang, enc in desc_enc_by_lang.items()}
     # Samples of audio per DAC token. Used to convert an audio length back into
     # a token count, so we can tell whether generation stopped on EOS or was cut
     # off at the max_new_tokens ceiling (see TOKEN_CAP_SUSPECT_RATIO).
@@ -500,6 +834,7 @@ def load_bundle(model_name: str = DEFAULT_MODEL) -> dict:
         "model": model,
         "prompt_tok": prompt_tok,
         "desc_ids_by_lang": desc_ids_by_lang,
+        "desc_mask_by_lang": desc_mask_by_lang,
         "speakers": spec["speakers"],
         "sr": model.config.sampling_rate,
         "device": device,
@@ -537,6 +872,7 @@ def build_gen_kwargs(
     top_p: float | None = -1.0,
     repetition_penalty: float | None = -1.0,
     no_repeat_ngram_size: float | None = -1.0,
+    do_sample: bool | None = None,
 ) -> dict:
     """Assemble generate() kwargs, letting a caller override any sampling knob.
 
@@ -549,10 +885,23 @@ def build_gen_kwargs(
     repetition_penalty = DEFAULT_REPETITION_PENALTY if repetition_penalty == -1.0 else repetition_penalty
     no_repeat_ngram_size = DEFAULT_NO_REPEAT_NGRAM if no_repeat_ngram_size == -1.0 else no_repeat_ngram_size
 
-    kwargs: dict = {
-        "do_sample": True,
-        "temperature": temperature if temperature is not None else DEFAULT_TEMPERATURE,
-    }
+    # GREEDY (do_sample=False) exists to test the dropped-word defect at its
+    # mechanism. The model stops when it emits an end-of-audio token, and with
+    # sampling on, that token only needs a small probability to be drawn early —
+    # which is why the SAME sentence drops words at one seed and reads cleanly at
+    # another. Greedy takes the argmax instead, so an early stop can only happen
+    # if it is genuinely the most likely continuation. Output becomes fully
+    # deterministic: seed and temperature stop having any effect.
+    #
+    # Not a free win — expect flatter prosody, which matters for children's
+    # narration. It is a trade to measure, not a fix to assume.
+    sampling = True if do_sample is None else bool(do_sample)
+    kwargs: dict = {"do_sample": sampling}
+    if not sampling:
+        # temperature/top_p are sampling-only; passing them with greedy decoding
+        # makes transformers warn about unused generation flags on every call.
+        return kwargs
+    kwargs["temperature"] = temperature if temperature is not None else DEFAULT_TEMPERATURE
     if top_p is not None:
         kwargs["top_p"] = float(top_p)
     if repetition_penalty is not None:
@@ -567,7 +916,7 @@ def synthesize(
     text: str,
     language: str = "mr",
     temperature: float | None = None,
-    seed: int = 42,
+    seed: int = DEFAULT_SEED,
     gap_ms: int = 350,
     gen_overrides: dict | None = None,
     pack_words: int = PACK_TARGET_WORDS,
@@ -600,7 +949,7 @@ def synthesize(
             f"model '{bundle.get('name', '?')}' supports {list(speakers)}, not '{language}'"
         )
 
-    sentences = split_sentences(normalize_digits(text, language))
+    sentences = split_sentences(normalize_enumerations(normalize_digits(text, language)))
     if not sentences:
         raise ValueError("no speakable text after cleaning")
     chunks = pack_sentences(sentences, target_words=pack_words)
@@ -611,6 +960,7 @@ def synthesize(
     sr = bundle["sr"]
     hop_length = bundle["hop_length"]
     desc_ids = bundle["desc_ids_by_lang"][language]
+    desc_mask = bundle["desc_mask_by_lang"][language]
 
     gen_kwargs = build_gen_kwargs(temperature=temperature, **(gen_overrides or {}))
     log.info(
@@ -622,12 +972,14 @@ def synthesize(
 
     def generate_one(chunk: str, chunk_seed: int, max_new_tokens: int) -> tuple[np.ndarray | None, float]:
         set_seed(chunk_seed)
-        prompt_ids = prompt_tok(chunk, return_tensors="pt").input_ids.to(device)
+        prompt_enc = prompt_tok(chunk, return_tensors="pt").to(device)
         started = time.time()
         with torch.no_grad():
             audio = model.generate(
                 input_ids=desc_ids,
-                prompt_input_ids=prompt_ids,
+                attention_mask=desc_mask,
+                prompt_input_ids=prompt_enc.input_ids,
+                prompt_attention_mask=prompt_enc.attention_mask,
                 max_new_tokens=max_new_tokens,
                 **gen_kwargs,
             )
@@ -650,7 +1002,11 @@ def synthesize(
         # Scaled to THIS unit's expected length rather than one flat ceiling,
         # so a 4-word unit can't quietly run for 14s and a 34-word unit isn't
         # truncated mid-sentence. See _max_new_tokens_for.
-        max_new_tokens = _max_new_tokens_for(word_count, sr, hop_length)
+        max_new_tokens = _max_new_tokens_for(word_count, sr, hop_length, language)
+        # The SOFT limit: suspect-but-not-truncated. Sits below the token cap,
+        # so it catches the stretched takes the cap structurally cannot see.
+        expected_sec = _expected_sec_for(word_count, language)
+        soft_limit_sec = expected_sec * SOFT_DURATION_MULTIPLIER
         best: np.ndarray | None = None
         best_info: dict = {}
         total_gen_sec = 0.0
@@ -674,26 +1030,56 @@ def synthesize(
             # stopped AT the boundary rather than detected after the fact.
             hit_cap = tokens >= int(max_new_tokens * TOKEN_CAP_SUSPECT_RATIO)
             duration_sec = wav.size / sr
-            suspect = hit_cap
+            flux = _tail_flux(wav, sr)
+            stalled_tail = flux is not None and flux < TAIL_FLUX_SUSPECT
+            # Overlong WITHOUT hitting the cap: generation did emit EOS, just far
+            # too late. A held vowel short enough to stay under the cap, a repeated
+            # phrase, or a sung tail all land here — and none of them move tail
+            # flux if the very end of the clip happens to decay normally.
+            overlong = duration_sec > soft_limit_sec
+            suspect = hit_cap or stalled_tail or overlong
 
-            best = wav
-            best_info = {
-                "tokens": tokens,
-                "max_tokens": max_new_tokens,
-                "hit_token_cap": hit_cap,
-                "audio_sec": round(duration_sec, 2),
-                "gen_sec": round(elapsed, 2),
-                "rtf": round(elapsed / duration_sec, 2) if duration_sec > 0 else None,
-                "attempts": attempt + 1,
-                "seed": chunk_seed,
-                "suspect": suspect,
-            }
+            # Keep the best attempt rather than simply the last one: if every
+            # attempt is suspect we still have to ship something. Rank CLEAN above
+            # suspect first — with overlong now a suspect reason, ranking on flux
+            # alone would happily keep a 2.2x-length take over a clean one, since a
+            # stretched clip can still end on a normal-looking decay. Within the
+            # same class, the highest-flux take is the one closest to real speech.
+            # (None scores as -1 so a scoreable take always beats an unscoreable one.)
+            score = (0 if suspect else 1, flux if flux is not None else -1.0)
+            prev_score = (
+                0 if best_info.get("suspect", True) else 1,
+                best_info.get("tail_flux") if best_info.get("tail_flux") is not None else -1.0,
+            )
+            better = best is None or score > prev_score
+            if better:
+                best = wav
+                best_info = {
+                    "tokens": tokens,
+                    "max_tokens": max_new_tokens,
+                    "hit_token_cap": hit_cap,
+                    "tail_flux": flux,
+                    "stalled_tail": stalled_tail,
+                    "overlong": overlong,
+                    "expected_sec": round(expected_sec, 2),
+                    "length_ratio": round(duration_sec / expected_sec, 2) if expected_sec else None,
+                    "audio_sec": round(duration_sec, 2),
+                    "gen_sec": round(elapsed, 2),
+                    "rtf": round(elapsed / duration_sec, 2) if duration_sec > 0 else None,
+                    "attempts": attempt + 1,
+                    "seed": chunk_seed,
+                    "suspect": suspect,
+                }
+            # rtf/ratio describe THIS attempt: best_info may hold an earlier one
+            # now that a clean take outranks a later suspect take.
             log.info(
                 "  [%d/%d] attempt %d seed=%d | %d words -> %.2fs audio in %.2fs "
-                "(rtf %.2f, %d tokens%s) | %s",
+                "(rtf %.2f, %.2fx expected, %d tokens%s%s) | %s",
                 i, len(chunks), attempt + 1, chunk_seed, word_count, duration_sec, elapsed,
-                best_info["rtf"] or 0.0, tokens,
+                elapsed / duration_sec if duration_sec > 0 else 0.0,
+                duration_sec / expected_sec if expected_sec else 0.0, tokens,
                 ", HIT TOKEN CAP" if hit_cap else "",
+                ", OVERLONG" if overlong and not hit_cap else "",
                 chunk[:60],
             )
             if not suspect:
@@ -702,9 +1088,19 @@ def synthesize(
             # realisation for this unit only — an audible prosody jump against
             # its neighbours. "attempts > 1" in the metadata is therefore also
             # a marker for where drift was self-inflicted.
+            if hit_cap:
+                reason = "hit max_new_tokens (%d) without EOS" % max_new_tokens
+            elif stalled_tail:
+                reason = ("trailing stall (tail flux %.3f < %.3f — a held vowel, not speech)"
+                          % (flux if flux is not None else -1.0, TAIL_FLUX_SUSPECT))
+            else:
+                reason = ("overlong (%.2fs = %.2fx the %.2fs this text should take in %s, "
+                          "limit %.1fx) — EOS came far too late"
+                          % (duration_sec, duration_sec / expected_sec, expected_sec,
+                             language, SOFT_DURATION_MULTIPLIER))
             log.warning(
-                "  [%d/%d] attempt %d hit max_new_tokens (%d) without EOS — retrying with a different seed",
-                i, len(chunks), attempt + 1, max_new_tokens,
+                "  [%d/%d] attempt %d %s — retrying with a different seed",
+                i, len(chunks), attempt + 1, reason,
             )
 
         if best is None:

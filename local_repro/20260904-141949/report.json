@@ -1,0 +1,514 @@
+{
+  "when": "20260904-141949",
+  "model": "betacraft",
+  "runs": 10,
+  "temperature": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "रोहनला स्वतःहून हळूहळू चालत जायला आवडेल का?",
+        "words": 7,
+        "expected_sec": 4.0,
+        "generations": 10,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.2
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.77,
+          "ratio": 1.19,
+          "short": false,
+          "tail_flux": 0.1241,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 51.0,
+          "attempts": 1
+        },
+        {
+          "seed": 143,
+          "audio_sec": 4.59,
+          "ratio": 1.15,
+          "short": false,
+          "tail_flux": 0.1392,
+          "stalled": false,
+          "wav": "c0_mr_s143.wav",
+          "gen_sec": 44.1,
+          "attempts": 1
+        },
+        {
+          "seed": 244,
+          "audio_sec": 5.38,
+          "ratio": 1.34,
+          "short": false,
+          "tail_flux": 0.1371,
+          "stalled": false,
+          "wav": "c0_mr_s244.wav",
+          "gen_sec": 50.0,
+          "attempts": 1
+        },
+        {
+          "seed": 345,
+          "audio_sec": 4.74,
+          "ratio": 1.19,
+          "short": false,
+          "tail_flux": 0.1242,
+          "stalled": false,
+          "wav": "c0_mr_s345.wav",
+          "gen_sec": 55.3,
+          "attempts": 1
+        },
+        {
+          "seed": 446,
+          "audio_sec": 5.27,
+          "ratio": 1.32,
+          "short": false,
+          "tail_flux": 0.0977,
+          "stalled": false,
+          "wav": "c0_mr_s446.wav",
+          "gen_sec": 57.2,
+          "attempts": 1
+        },
+        {
+          "seed": 547,
+          "audio_sec": 4.48,
+          "ratio": 1.12,
+          "short": false,
+          "tail_flux": 0.2467,
+          "stalled": false,
+          "wav": "c0_mr_s547.wav",
+          "gen_sec": 66.1,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 4.0,
+          "ratio": 1.0,
+          "short": false,
+          "tail_flux": 0.1643,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 49.3,
+          "attempts": 1
+        },
+        {
+          "seed": 749,
+          "audio_sec": 4.83,
+          "ratio": 1.21,
+          "short": false,
+          "tail_flux": 0.1828,
+          "stalled": false,
+          "wav": "c0_mr_s749.wav",
+          "gen_sec": 60.4,
+          "attempts": 1
+        },
+        {
+          "seed": 850,
+          "audio_sec": 4.85,
+          "ratio": 1.21,
+          "short": false,
+          "tail_flux": 0.1267,
+          "stalled": false,
+          "wav": "c0_mr_s850.wav",
+          "gen_sec": 51.9,
+          "attempts": 1
+        },
+        {
+          "seed": 951,
+          "audio_sec": 4.83,
+          "ratio": 1.21,
+          "short": false,
+          "tail_flux": 0.2079,
+          "stalled": false,
+          "wav": "c0_mr_s951.wav",
+          "gen_sec": 48.2,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "आरवला खिडकीतून पृथ्वी एका छोट्या निळ्या चेंडूसारखी दिसू लागली.",
+        "words": 9,
+        "expected_sec": 5.14,
+        "generations": 10,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.2
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 6.19,
+          "ratio": 1.2,
+          "short": false,
+          "tail_flux": 0.2731,
+          "stalled": false,
+          "wav": "c1_mr_s42.wav",
+          "gen_sec": 52.6,
+          "attempts": 1
+        },
+        {
+          "seed": 143,
+          "audio_sec": 5.65,
+          "ratio": 1.1,
+          "short": false,
+          "tail_flux": 0.2553,
+          "stalled": false,
+          "wav": "c1_mr_s143.wav",
+          "gen_sec": 56.0,
+          "attempts": 1
+        },
+        {
+          "seed": 244,
+          "audio_sec": 5.72,
+          "ratio": 1.11,
+          "short": false,
+          "tail_flux": 0.1848,
+          "stalled": false,
+          "wav": "c1_mr_s244.wav",
+          "gen_sec": 58.8,
+          "attempts": 1
+        },
+        {
+          "seed": 345,
+          "audio_sec": 7.02,
+          "ratio": 1.36,
+          "short": false,
+          "tail_flux": 0.2143,
+          "stalled": false,
+          "wav": "c1_mr_s345.wav",
+          "gen_sec": 76.0,
+          "attempts": 1
+        },
+        {
+          "seed": 446,
+          "audio_sec": 5.53,
+          "ratio": 1.08,
+          "short": false,
+          "tail_flux": 0.2241,
+          "stalled": false,
+          "wav": "c1_mr_s446.wav",
+          "gen_sec": 90.9,
+          "attempts": 1
+        },
+        {
+          "seed": 547,
+          "audio_sec": 5.95,
+          "ratio": 1.16,
+          "short": false,
+          "tail_flux": 0.1209,
+          "stalled": false,
+          "wav": "c1_mr_s547.wav",
+          "gen_sec": 69.7,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 6.15,
+          "ratio": 1.2,
+          "short": false,
+          "tail_flux": 0.2497,
+          "stalled": false,
+          "wav": "c1_mr_s648.wav",
+          "gen_sec": 68.0,
+          "attempts": 1
+        },
+        {
+          "seed": 749,
+          "audio_sec": 6.64,
+          "ratio": 1.29,
+          "short": false,
+          "tail_flux": 0.253,
+          "stalled": false,
+          "wav": "c1_mr_s749.wav",
+          "gen_sec": 69.6,
+          "attempts": 1
+        },
+        {
+          "seed": 850,
+          "audio_sec": 6.4,
+          "ratio": 1.24,
+          "short": false,
+          "tail_flux": 0.2239,
+          "stalled": false,
+          "wav": "c1_mr_s850.wav",
+          "gen_sec": 68.8,
+          "attempts": 1
+        },
+        {
+          "seed": 951,
+          "audio_sec": 6.58,
+          "ratio": 1.28,
+          "short": false,
+          "tail_flux": 0.1889,
+          "stalled": false,
+          "wav": "c1_mr_s951.wav",
+          "gen_sec": 70.0,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "hi",
+        "text": "और उसे लगा कि अकेले जाने में उतना मज़ा नहीं है।",
+        "words": 11,
+        "expected_sec": 6.29,
+        "generations": 10,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.76
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.17,
+          "ratio": 0.82,
+          "short": false,
+          "tail_flux": 0.1815,
+          "stalled": false,
+          "wav": "c2_hi_s42.wav",
+          "gen_sec": 53.8,
+          "attempts": 1
+        },
+        {
+          "seed": 143,
+          "audio_sec": 4.26,
+          "ratio": 0.68,
+          "short": false,
+          "tail_flux": 0.2259,
+          "stalled": false,
+          "wav": "c2_hi_s143.wav",
+          "gen_sec": 49.8,
+          "attempts": 1
+        },
+        {
+          "seed": 244,
+          "audio_sec": 4.43,
+          "ratio": 0.7,
+          "short": false,
+          "tail_flux": 0.2267,
+          "stalled": false,
+          "wav": "c2_hi_s244.wav",
+          "gen_sec": 204.5,
+          "attempts": 2
+        },
+        {
+          "seed": 345,
+          "audio_sec": 5.18,
+          "ratio": 0.82,
+          "short": false,
+          "tail_flux": 0.2021,
+          "stalled": false,
+          "wav": "c2_hi_s345.wav",
+          "gen_sec": 73.8,
+          "attempts": 1
+        },
+        {
+          "seed": 446,
+          "audio_sec": 4.29,
+          "ratio": 0.68,
+          "short": false,
+          "tail_flux": 0.2257,
+          "stalled": false,
+          "wav": "c2_hi_s446.wav",
+          "gen_sec": 59.7,
+          "attempts": 1
+        },
+        {
+          "seed": 547,
+          "audio_sec": 4.71,
+          "ratio": 0.75,
+          "short": false,
+          "tail_flux": 0.2071,
+          "stalled": false,
+          "wav": "c2_hi_s547.wav",
+          "gen_sec": 64.1,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 4.31,
+          "ratio": 0.69,
+          "short": false,
+          "tail_flux": 0.2189,
+          "stalled": false,
+          "wav": "c2_hi_s648.wav",
+          "gen_sec": 53.2,
+          "attempts": 1
+        },
+        {
+          "seed": 749,
+          "audio_sec": 5.24,
+          "ratio": 0.83,
+          "short": false,
+          "tail_flux": 0.1758,
+          "stalled": false,
+          "wav": "c2_hi_s749.wav",
+          "gen_sec": 72.0,
+          "attempts": 1
+        },
+        {
+          "seed": 850,
+          "audio_sec": 4.83,
+          "ratio": 0.77,
+          "short": false,
+          "tail_flux": 0.2142,
+          "stalled": false,
+          "wav": "c2_hi_s850.wav",
+          "gen_sec": 64.9,
+          "attempts": 1
+        },
+        {
+          "seed": 951,
+          "audio_sec": 4.84,
+          "ratio": 0.77,
+          "short": false,
+          "tail_flux": 0.1895,
+          "stalled": false,
+          "wav": "c2_hi_s951.wav",
+          "gen_sec": 53.2,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "The berries look so juicy and yummy to eat right now.",
+        "words": 11,
+        "expected_sec": 6.29,
+        "generations": 10,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.85
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.25,
+          "ratio": 0.68,
+          "short": false,
+          "tail_flux": 0.1906,
+          "stalled": false,
+          "wav": "c3_en_s42.wav",
+          "gen_sec": 276.3,
+          "attempts": 2
+        },
+        {
+          "seed": 143,
+          "audio_sec": 9.82,
+          "ratio": 1.56,
+          "short": false,
+          "tail_flux": 0.0844,
+          "stalled": false,
+          "wav": "c3_en_s143.wav",
+          "gen_sec": 117.3,
+          "attempts": 1
+        },
+        {
+          "seed": 244,
+          "audio_sec": 5.13,
+          "ratio": 0.82,
+          "short": false,
+          "tail_flux": 0.1297,
+          "stalled": false,
+          "wav": "c3_en_s244.wav",
+          "gen_sec": 341.7,
+          "attempts": 2
+        },
+        {
+          "seed": 345,
+          "audio_sec": 6.37,
+          "ratio": 1.01,
+          "short": false,
+          "tail_flux": 0.0818,
+          "stalled": false,
+          "wav": "c3_en_s345.wav",
+          "gen_sec": 84.0,
+          "attempts": 1
+        },
+        {
+          "seed": 446,
+          "audio_sec": 5.34,
+          "ratio": 0.85,
+          "short": false,
+          "tail_flux": 0.12,
+          "stalled": false,
+          "wav": "c3_en_s446.wav",
+          "gen_sec": 69.5,
+          "attempts": 1
+        },
+        {
+          "seed": 547,
+          "audio_sec": 6.74,
+          "ratio": 1.07,
+          "short": false,
+          "tail_flux": 0.1621,
+          "stalled": false,
+          "wav": "c3_en_s547.wav",
+          "gen_sec": 80.2,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 5.25,
+          "ratio": 0.84,
+          "short": false,
+          "tail_flux": 0.1322,
+          "stalled": false,
+          "wav": "c3_en_s648.wav",
+          "gen_sec": 74.3,
+          "attempts": 1
+        },
+        {
+          "seed": 749,
+          "audio_sec": 3.82,
+          "ratio": 0.61,
+          "short": false,
+          "tail_flux": 0.2215,
+          "stalled": false,
+          "wav": "c3_en_s749.wav",
+          "gen_sec": 445.0,
+          "attempts": 2
+        },
+        {
+          "seed": 850,
+          "audio_sec": 6.97,
+          "ratio": 1.11,
+          "short": false,
+          "tail_flux": 0.1505,
+          "stalled": false,
+          "wav": "c3_en_s850.wav",
+          "gen_sec": 333.1,
+          "attempts": 2
+        },
+        {
+          "seed": 951,
+          "audio_sec": 5.36,
+          "ratio": 0.85,
+          "short": false,
+          "tail_flux": 0.1818,
+          "stalled": false,
+          "wav": "c3_en_s951.wav",
+          "gen_sec": 79.4,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}

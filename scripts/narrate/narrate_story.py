@@ -66,7 +66,13 @@ def clean_text_for_tts(s: str) -> str:
     s = re.sub(r"[*_`#>~]+", "", s)                 # markdown emphasis/heading/quote
     s = re.sub(r"^\s*[-•]\s+", "", s)                # leading list bullets
     s = s.replace("–", ", ").replace("—", ", ")      # en/em dash -> pause
-    s = re.sub(r"[|<>\[\]{}\"]", " ", s)             # stray brackets/pipes/quotes
+    # Single quotes are stripped alongside double: the story model likes to wrap
+    # sound words ("...लाटांचा 'झूम' असा आवाज..."), but a single quote appears in
+    # exactly 1 of 1772 Marathi training units (0.06%) vs 146 for the double
+    # quote. Feeding it one is off-distribution, and it was observed 2026-09-03
+    # producing a buzz followed by 3-4 skipped words before the model resumed at
+    # the next sentence. Curly quotes included — the model never saw those either.
+    s = re.sub(r"[|<>\[\]{}\"'\u2018\u2019\u201c\u201d]", " ", s)
     s = re.sub(r"[ \t]+", " ", s)
     return s.strip(" ,")
 
@@ -75,7 +81,13 @@ def split_sentences(text: str) -> list[str]:
     """Split on Devanagari danda / western sentence enders and blank lines, then
     clean each chunk of non-speakable markup."""
     # normalise newlines into sentence breaks, then split on enders
-    rough = re.split(r"(?<=[।.!?])\s+|\n+", text.strip())
+    # (?<!\.\.) keeps an ELLIPSIS intact. Without it the final dot of "..." reads
+    # as a sentence ender, so "केली... तीन... दोन..." split into 5 sentences and
+    # _merge_short then rejoined them with COMMAS — turning text written the way
+    # the training corpus writes a countdown ("एक... दोन... तीन...", 9 units) into
+    # the comma-run form that appears 0 times in 3,283 training units and that
+    # measurably breaks generation (local_repro/20260908-163739 vs -164351).
+    rough = re.split(r"(?<!\.\.)(?<=[।.!?])\s+|\n+", text.strip())
     cleaned = (clean_text_for_tts(s) for s in rough)
     return [s for s in cleaned if s and s.strip()]
 
@@ -156,7 +168,7 @@ def parse_args() -> argparse.Namespace:
     # drift chunk-to-chunk. Re-seeding with the SAME seed before every chunk gives each
     # one the same RNG start -> steadier voice across the whole story. Lower temperature
     # (or --greedy) further tames dramatic character-voice jumps (e.g. the "crow" shift).
-    ap.add_argument("--seed", type=int, default=42,
+    ap.add_argument("--seed", type=int, default=648,
                     help="reset before EACH chunk for cross-sentence voice consistency")
     ap.add_argument("--no-seed", action="store_true",
                     help="do NOT reset the RNG per chunk — pure Parler default (fresh randomness "

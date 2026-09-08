@@ -1,0 +1,136 @@
+{
+  "when": "20260904-134624",
+  "model": "betacraft",
+  "runs": 10,
+  "temperature": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "रोहनला स्वतःहून हळूहळू चालत जायला आवडेल का?",
+        "words": 7,
+        "expected_sec": 4.0,
+        "generations": 10,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.2
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.77,
+          "ratio": 1.19,
+          "short": false,
+          "tail_flux": 0.1241,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 91.7,
+          "attempts": 1
+        },
+        {
+          "seed": 143,
+          "audio_sec": 4.59,
+          "ratio": 1.15,
+          "short": false,
+          "tail_flux": 0.1392,
+          "stalled": false,
+          "wav": "c0_mr_s143.wav",
+          "gen_sec": 50.3,
+          "attempts": 1
+        },
+        {
+          "seed": 244,
+          "audio_sec": 5.38,
+          "ratio": 1.34,
+          "short": false,
+          "tail_flux": 0.1371,
+          "stalled": false,
+          "wav": "c0_mr_s244.wav",
+          "gen_sec": 48.5,
+          "attempts": 1
+        },
+        {
+          "seed": 345,
+          "audio_sec": 4.74,
+          "ratio": 1.19,
+          "short": false,
+          "tail_flux": 0.1242,
+          "stalled": false,
+          "wav": "c0_mr_s345.wav",
+          "gen_sec": 52.5,
+          "attempts": 1
+        },
+        {
+          "seed": 446,
+          "audio_sec": 5.27,
+          "ratio": 1.32,
+          "short": false,
+          "tail_flux": 0.0977,
+          "stalled": false,
+          "wav": "c0_mr_s446.wav",
+          "gen_sec": 50.0,
+          "attempts": 1
+        },
+        {
+          "seed": 547,
+          "audio_sec": 4.48,
+          "ratio": 1.12,
+          "short": false,
+          "tail_flux": 0.2467,
+          "stalled": false,
+          "wav": "c0_mr_s547.wav",
+          "gen_sec": 61.6,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 4.0,
+          "ratio": 1.0,
+          "short": false,
+          "tail_flux": 0.1643,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 50.8,
+          "attempts": 1
+        },
+        {
+          "seed": 749,
+          "audio_sec": 4.83,
+          "ratio": 1.21,
+          "short": false,
+          "tail_flux": 0.1828,
+          "stalled": false,
+          "wav": "c0_mr_s749.wav",
+          "gen_sec": 56.5,
+          "attempts": 1
+        },
+        {
+          "seed": 850,
+          "audio_sec": 4.85,
+          "ratio": 1.21,
+          "short": false,
+          "tail_flux": 0.1267,
+          "stalled": false,
+          "wav": "c0_mr_s850.wav",
+          "gen_sec": 50.3,
+          "attempts": 1
+        },
+        {
+          "seed": 951,
+          "audio_sec": 4.83,
+          "ratio": 1.21,
+          "short": false,
+          "tail_flux": 0.2079,
+          "stalled": false,
+          "wav": "c0_mr_s951.wav",
+          "gen_sec": 57.3,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}

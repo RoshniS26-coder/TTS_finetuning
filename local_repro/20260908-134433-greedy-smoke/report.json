@@ -1,0 +1,42 @@
+{
+  "when": "20260908-134433",
+  "model": "betacraft",
+  "runs": 1,
+  "seeds": [
+    42
+  ],
+  "temperature": null,
+  "decoding": "greedy",
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प, तो डबा जमिनीवर पडला.",
+        "words": 5,
+        "expected_sec": 2.86,
+        "generations": 1,
+        "short": 1,
+        "stalled": 0,
+        "short_rate": 1.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.25
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 0.71,
+          "ratio": 0.25,
+          "short": true,
+          "tail_flux": null,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 179.3,
+          "attempts": 1
+        }
+      ]
+    }
+  ],
+  "note": "GREEDY smoke test, 1 sentence. do_sample=False never emitted a stop token: all 3 attempts identical (621 tokens, HIT TOKEN CAP), 7.13s generated collapsing to 0.71s after edge-trim. Greedy also makes the reseed-retry ladder useless, since output is deterministic. Negative result — greedy was not run on the full probe set."
+}

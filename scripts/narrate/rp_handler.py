@@ -23,7 +23,7 @@ Request:
                "model": "betacraft",       # betacraft (fine-tune) | base (indic-parler-tts)
                "language": "mr",           # mr | hi | en
                "temperature": 0.65,
-               "seed": 42,
+               "seed": 648,
                "gap_ms": 350,
                "pack_words": 24,                   # 0 = one unit per sentence
                "match_loudness_db": 3.0,           # 0 = no level matching
@@ -54,6 +54,7 @@ import runpod  # noqa: E402
 
 from betacraft_core import (  # noqa: E402
     DEFAULT_MODEL,
+    DEFAULT_SEED,
     LOUDNESS_MAX_GAIN_DB,
     MODELS,
     PACK_TARGET_WORDS,
@@ -134,7 +135,7 @@ def handler(job):
             text=text,
             language=language,
             temperature=payload.get("temperature"),
-            seed=int(payload.get("seed", 42)),
+            seed=int(payload.get("seed", DEFAULT_SEED)),
             gap_ms=int(payload.get("gap_ms", 350)),
             # pack_words=0 disables sentence packing (one unit per sentence) —
             # the pre-2026-08-31 behaviour, kept reachable for A/B.

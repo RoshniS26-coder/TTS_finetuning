@@ -1,0 +1,46 @@
+{
+  "when": "20260908-174912",
+  "model": "betacraft",
+  "runs": 1,
+  "seeds": [
+    648
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": false,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प. तो डबा जमिनीवर पडला. तो घाबरला. सगळे हसले.",
+        "words": 9,
+        "expected_sec": 5.14,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.29
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 6.62,
+          "ratio": 1.29,
+          "short": false,
+          "tail_flux": 0.1494,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 62.7,
+          "attempts": 1,
+          "verdict": "good",
+          "note": "POST-FIX: full stops preserved through the pipeline. Correct by ear. Confirms the fix is behaviour-preserving; it does not by itself demonstrate an improvement."
+        }
+      ]
+    }
+  ],
+  "unit_sent_to_model": "…पडला. तो घाबरला. सगळे हसले."
+}

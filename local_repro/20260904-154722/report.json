@@ -1,0 +1,40 @@
+{
+  "when": "20260904-154722",
+  "model": "betacraft",
+  "runs": 1,
+  "seeds": [
+    648
+  ],
+  "temperature": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "तेवढ्यात त्यांचा छोटा चुलत भाऊ, चिन्मय, तिथे आला.",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.0
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 4.59,
+          "ratio": 1.0,
+          "short": false,
+          "tail_flux": 0.1547,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 13202.7,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}

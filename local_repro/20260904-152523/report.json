@@ -1,0 +1,751 @@
+{
+  "when": "20260904-152523",
+  "model": "betacraft",
+  "runs": 2,
+  "seeds": [
+    42,
+    1042
+  ],
+  "temperature": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प, तो डबा जमिनीवर पडला.",
+        "words": 5,
+        "expected_sec": 2.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.46
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.9,
+          "ratio": 1.72,
+          "short": false,
+          "tail_flux": 0.1051,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 69.2,
+          "attempts": 1,
+          "verdict": "bad",
+          "note": "DROPPED the last word",
+          "severity": "content"
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 3.39,
+          "ratio": 1.19,
+          "short": false,
+          "tail_flux": 0.2364,
+          "stalled": false,
+          "wav": "c0_mr_s1042.wav",
+          "gen_sec": 46.5,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "रोहन चिन्मयवर खूप रागावला आणि त्याने त्याचा लाल कपडा पटकन ओढून घेतला.",
+        "words": 12,
+        "expected_sec": 6.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.17
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 7.88,
+          "ratio": 1.15,
+          "short": false,
+          "tail_flux": 0.1795,
+          "stalled": false,
+          "wav": "c1_mr_s42.wav",
+          "gen_sec": 78.5,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 8.1,
+          "ratio": 1.18,
+          "short": false,
+          "tail_flux": 0.1565,
+          "stalled": false,
+          "wav": "c1_mr_s1042.wav",
+          "gen_sec": 104.4,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "तेवढ्यात त्यांचा छोटा चुलत भाऊ, चिन्मय, तिथे आला.",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.47
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.74,
+          "ratio": 1.26,
+          "short": false,
+          "tail_flux": 0.1281,
+          "stalled": false,
+          "wav": "c2_mr_s42.wav",
+          "gen_sec": 74.0,
+          "attempts": 1,
+          "verdict": "bad",
+          "note": "trailing on भाऊ — present but milder than the GPU take of the same seed",
+          "severity": "artifact"
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 7.67,
+          "ratio": 1.68,
+          "short": false,
+          "tail_flux": 0.1146,
+          "stalled": false,
+          "wav": "c2_mr_s1042.wav",
+          "gen_sec": 86.3,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "त्याने डोळे मिटले आणि जोरात मोजायला सुरुवात केली, तीन, दोन, एक, झूम!",
+        "words": 12,
+        "expected_sec": 6.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.9
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.14,
+          "ratio": 0.6,
+          "short": false,
+          "tail_flux": 0.1677,
+          "stalled": false,
+          "wav": "c3_mr_s42.wav",
+          "gen_sec": 510.2,
+          "attempts": 2,
+          "severity": "content",
+          "verdict": "bad",
+          "note": "DROPPED the countdown — तीन, दोन, एक, झूम not said; ends mid-sentence. The seed-1042 take of the same sentence said it correctly."
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 8.18,
+          "ratio": 1.19,
+          "short": false,
+          "tail_flux": 0.1097,
+          "stalled": false,
+          "wav": "c3_mr_s1042.wav",
+          "gen_sec": 88.9,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "गरमागरम पोळ्यांचा खमंग वास सगळीकडे दरवळत होता.",
+        "words": 7,
+        "expected_sec": 4.0,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.33
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.4,
+          "ratio": 1.35,
+          "short": false,
+          "tail_flux": 0.1959,
+          "stalled": false,
+          "wav": "c4_mr_s42.wav",
+          "gen_sec": 70.1,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 5.22,
+          "ratio": 1.3,
+          "short": false,
+          "tail_flux": 0.2242,
+          "stalled": false,
+          "wav": "c4_mr_s1042.wav",
+          "gen_sec": 58.0,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "चंद्राच्या पांढऱ्या शुभ्र जमिनीवर आरव आपल्या मोठ्या रॉकेटमधून उतरला.",
+        "words": 9,
+        "expected_sec": 5.14,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.29
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 6.59,
+          "ratio": 1.28,
+          "short": false,
+          "tail_flux": 0.281,
+          "stalled": false,
+          "wav": "c5_mr_s42.wav",
+          "gen_sec": 13829.5,
+          "attempts": 2
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 6.66,
+          "ratio": 1.29,
+          "short": false,
+          "tail_flux": 0.2968,
+          "stalled": false,
+          "wav": "c5_mr_s1042.wav",
+          "gen_sec": 59.1,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "आरवच्या हातात एक मोठी आणि गोड चॉकलेटची पट्टी होती.",
+        "words": 9,
+        "expected_sec": 5.14,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.11
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 6.35,
+          "ratio": 1.23,
+          "short": false,
+          "tail_flux": 0.2839,
+          "stalled": false,
+          "wav": "c6_mr_s42.wav",
+          "gen_sec": 49.0,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 5.16,
+          "ratio": 1.0,
+          "short": false,
+          "tail_flux": 0.2969,
+          "stalled": false,
+          "wav": "c6_mr_s1042.wav",
+          "gen_sec": 39.2,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "सानिकाने सांगितल्याप्रमाणे रोहनने तिच्यासोबत मिळून स्वच्छता करावी का?",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.52
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 6.92,
+          "ratio": 1.51,
+          "short": false,
+          "tail_flux": 0.229,
+          "stalled": false,
+          "wav": "c7_mr_s42.wav",
+          "gen_sec": 54.2,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 7.05,
+          "ratio": 1.54,
+          "short": false,
+          "tail_flux": 0.2884,
+          "stalled": false,
+          "wav": "c7_mr_s1042.wav",
+          "gen_sec": 51.7,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "hi",
+        "text": "इसी हड़बड़ाहट में आरव का हाथ कछुए के फटे हुए नक्शे पर लग गया.",
+        "words": 14,
+        "expected_sec": 8.0,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.97
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 9.62,
+          "ratio": 1.2,
+          "short": false,
+          "tail_flux": 0.2275,
+          "stalled": false,
+          "wav": "c8_hi_s42.wav",
+          "gen_sec": 60.5,
+          "attempts": 1,
+          "verdict": "bad",
+          "note": "INSERTED SOUND — a spurious 'से' after 'इसी हड़बड़ाहट में'. No restart, no repetition, nothing missing: the rest of the sentence is correct. Audible artifact, content intact.",
+          "severity": "artifact"
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 6.0,
+          "ratio": 0.75,
+          "short": false,
+          "tail_flux": 0.2191,
+          "stalled": false,
+          "wav": "c8_hi_s1042.wav",
+          "gen_sec": 52.8,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "hi",
+        "text": "ठंडी हवा चल रही थी और आसमान में सफेद चाँद चमक रहा था।",
+        "words": 13,
+        "expected_sec": 7.43,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.78
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.69,
+          "ratio": 0.77,
+          "short": false,
+          "tail_flux": 0.1735,
+          "stalled": false,
+          "wav": "c9_hi_s42.wav",
+          "gen_sec": 40.8,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 5.82,
+          "ratio": 0.78,
+          "short": false,
+          "tail_flux": 0.1829,
+          "stalled": false,
+          "wav": "c9_hi_s1042.wav",
+          "gen_sec": 42.1,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "hi",
+        "text": "तभी आरव ने देखा कि चाँद पर एक छोटा और प्यारा सा खरगोश बैठा है।",
+        "words": 15,
+        "expected_sec": 8.57,
+        "generations": 2,
+        "short": 1,
+        "stalled": 0,
+        "short_rate": 0.5,
+        "stall_rate": 0.0,
+        "median_ratio": 0.58
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.53,
+          "ratio": 0.65,
+          "short": false,
+          "tail_flux": 0.1785,
+          "stalled": false,
+          "wav": "c10_hi_s42.wav",
+          "gen_sec": 40.8,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 4.4,
+          "ratio": 0.51,
+          "short": true,
+          "tail_flux": 0.2187,
+          "stalled": false,
+          "wav": "c10_hi_s1042.wav",
+          "gen_sec": 204.9,
+          "attempts": 1,
+          "verdict": "bad",
+          "note": "DROPPED the last 4 words — sentence half said",
+          "severity": "content"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "hi",
+        "text": "आरव ने अपने दोस्त का हाथ पकड़ा और रंगीन गुब्बारे को छोड़ दिया।",
+        "words": 13,
+        "expected_sec": 7.43,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.79
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.56,
+          "ratio": 0.75,
+          "short": false,
+          "tail_flux": 0.1831,
+          "stalled": false,
+          "wav": "c11_hi_s42.wav",
+          "gen_sec": 58.1,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 6.23,
+          "ratio": 0.84,
+          "short": false,
+          "tail_flux": 0.238,
+          "stalled": false,
+          "wav": "c11_hi_s1042.wav",
+          "gen_sec": 40.4,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "hi",
+        "text": "खरगोश के पास एक टोकरी थी जिसमें बहुत सारे चमकते पत्थर थे।",
+        "words": 12,
+        "expected_sec": 6.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.85
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.98,
+          "ratio": 0.87,
+          "short": false,
+          "tail_flux": 0.1553,
+          "stalled": false,
+          "wav": "c12_hi_s42.wav",
+          "gen_sec": 35.4,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 5.72,
+          "ratio": 0.83,
+          "short": false,
+          "tail_flux": 0.1937,
+          "stalled": false,
+          "wav": "c12_hi_s1042.wav",
+          "gen_sec": 41.3,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "hi",
+        "text": "नन्हा कछुआ यह देखकर थोड़ा दुखी हो गया।",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.93
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.13,
+          "ratio": 0.9,
+          "short": false,
+          "tail_flux": 0.2137,
+          "stalled": false,
+          "wav": "c13_hi_s42.wav",
+          "gen_sec": 29.4,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 4.36,
+          "ratio": 0.95,
+          "short": false,
+          "tail_flux": 0.2213,
+          "stalled": false,
+          "wav": "c13_hi_s1042.wav",
+          "gen_sec": 28.4,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "The moon was big and round in the dark blue sky that night.",
+        "words": 13,
+        "expected_sec": 7.43,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.73
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.24,
+          "ratio": 0.71,
+          "short": false,
+          "tail_flux": 0.1468,
+          "stalled": false,
+          "wav": "c14_en_s42.wav",
+          "gen_sec": 32.3,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 5.57,
+          "ratio": 0.75,
+          "short": false,
+          "tail_flux": 0.1134,
+          "stalled": false,
+          "wav": "c14_en_s1042.wav",
+          "gen_sec": 34.9,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "Aarav put on his blue cap and picked up a small bag.",
+        "words": 12,
+        "expected_sec": 6.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.67
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.5,
+          "ratio": 0.66,
+          "short": false,
+          "tail_flux": 0.1875,
+          "stalled": false,
+          "wav": "c15_en_s42.wav",
+          "gen_sec": 28.6,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 4.6,
+          "ratio": 0.67,
+          "short": false,
+          "tail_flux": 0.2091,
+          "stalled": false,
+          "wav": "c15_en_s1042.wav",
+          "gen_sec": 29.3,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "He counted slowly, three, two, one, and closed his eyes.",
+        "words": 10,
+        "expected_sec": 5.71,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.15
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 7.39,
+          "ratio": 1.29,
+          "short": false,
+          "tail_flux": 0.1518,
+          "stalled": false,
+          "wav": "c16_en_s42.wav",
+          "gen_sec": 49.7,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 5.78,
+          "ratio": 1.01,
+          "short": false,
+          "tail_flux": 0.2001,
+          "stalled": false,
+          "wav": "c16_en_s1042.wav",
+          "gen_sec": 154.8,
+          "attempts": 2
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "Everywhere on the moon there was soft white and grey dust.",
+        "words": 11,
+        "expected_sec": 6.29,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.78
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.06,
+          "ratio": 0.8,
+          "short": false,
+          "tail_flux": 0.1569,
+          "stalled": false,
+          "wav": "c17_en_s42.wav",
+          "gen_sec": 44.7,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 4.69,
+          "ratio": 0.75,
+          "short": false,
+          "tail_flux": 0.1733,
+          "stalled": false,
+          "wav": "c17_en_s1042.wav",
+          "gen_sec": 39.1,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "Should Aarav share his chocolate with his friend?",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.0
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 5.01,
+          "ratio": 1.1,
+          "short": false,
+          "tail_flux": 0.2071,
+          "stalled": false,
+          "wav": "c18_en_s42.wav",
+          "gen_sec": 40.3,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 4.05,
+          "ratio": 0.89,
+          "short": false,
+          "tail_flux": 0.1873,
+          "stalled": false,
+          "wav": "c18_en_s1042.wav",
+          "gen_sec": 37.4,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}
