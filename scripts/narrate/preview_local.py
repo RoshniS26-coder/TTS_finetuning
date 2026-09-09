@@ -112,11 +112,17 @@ def build_units(text, cap, ns, use_sfx):
     return units
 
 # --- audio via the CURRENT endpoint -----------------------------------------
-def tts(text, lang, key, ep, seed=648):
+def tts(text, lang, key, ep, seed=648, temperature=None):
     base, hdr = f"https://api.runpod.ai/v2/{ep}", {
         "Content-Type": "application/json", "Authorization": f"Bearer {key}"}
+    payload = {"text": text, "language": lang, "seed": seed}
+    # Sent only when given. The handler falls back to its own configured default
+    # when the field is ABSENT, so omitting it is how you test the endpoint's own
+    # setting; sending it overrides that for this one request.
+    if temperature is not None:
+        payload["temperature"] = temperature
     r = urllib.request.Request(base + "/run", headers=hdr, data=json.dumps(
-        {"input": {"text": text, "language": lang, "seed": seed}}).encode())
+        {"input": payload}).encode())
     jid = json.load(urllib.request.urlopen(r, timeout=60))["id"]
     t0 = time.time()
     while time.time() - t0 < 600:
@@ -142,6 +148,15 @@ def main():
     ap.add_argument("--lang", default="mr"); ap.add_argument("--sfx", action="store_true")
     ap.add_argument("--audio"); ap.add_argument("--gap-ms", type=int, default=350)
     ap.add_argument("--endpoint", default="5tk0794i74t8lh")
+    # Per-request sampling knobs. Nothing restarts to change these: the handler
+    # reads them off the payload, so a warm worker answers the next call in
+    # seconds. Changing the RunPod endpoint's env vars instead would recycle the
+    # workers and cost a 3-4 min cold start per experiment.
+    ap.add_argument("--seed", type=int, default=648,
+                    help="per-request seed (default 648)")
+    ap.add_argument("--temperature", type=float,
+                    help="per-request temperature; omitted entirely when unset, so the "
+                         "endpoint's own default applies")
     a = ap.parse_args()
     text = a.text or Path(a.file).read_text(encoding="utf-8")
     ns = load_splitters()
@@ -164,7 +179,7 @@ def main():
             out.append(render_sfx(k, sr)); out.append(np.zeros(int(sr * .12), np.float32))
         if not u: continue
         print(f"  synth {i}: {len(u.split())}w …")
-        w, sr = tts(u, a.lang, key, a.endpoint)
+        w, sr = tts(u, a.lang, key, a.endpoint, a.seed, a.temperature)
         if w is not None:
             out.append(w); out.append(np.zeros(int(sr * a.gap_ms / 1000), np.float32))
     y = np.concatenate(out)

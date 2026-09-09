@@ -170,7 +170,11 @@ PACK_TARGET_WORDS = 0
 # MIRRORED CLIENT-SIDE in jaanteho-fresh lib/text-segments.ts (MAX_SENTENCE_WORDS,
 # also 18). Whichever splits FIRST wins, so the client value governs app traffic
 # and this one is the backstop for direct callers (ab_test.sh, curl). Keep in sync.
-PACK_HARD_CAP_WORDS = 18
+# Env-tunable so the cap can be A/B'd without an image rebuild. Its 18 rests on
+# a SINGLE Hindi A/B that changed two things at once (shorter units AND an added
+# sentence boundary), and it sits BELOW the training median: 67% of Marathi
+# units and 52% of Hindi units exceed 18 words, the modal bucket being 18-23.
+PACK_HARD_CAP_WORDS = int(os.environ.get("BETACRAFT_PACK_HARD_CAP") or 18)
 
 # Bound the cost of a runaway generation. This used to be one flat number
 # (1200 tokens, ~14s), which no longer works once units vary from 4 to 34

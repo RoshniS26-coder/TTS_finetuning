@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import wave
@@ -94,6 +95,11 @@ def main() -> None:
                          "fragments (countdowns, comma-fenced names) are what triggers the dropping "
                          "and trailing defects — commas do NOT affect unit splitting, so this is a "
                          "single-variable A/B against the same sentence with commas.")
+    ap.add_argument("--hard-cap", type=int,
+                    help="override PACK_HARD_CAP_WORDS. A unit longer than this is split into "
+                         "separate generations. Set high (e.g. 99) to keep long sentences WHOLE.")
+    ap.add_argument("--texts-file", type=Path,
+                    help="TSV of 'lang<TAB>text', one case per line.")
     ap.add_argument("--ellipsis", action="store_true",
                     help="replace commas with '...' — the form the training corpus actually uses "
                          "for counting (9 Marathi units, all ellipsis, 0 with commas). Keeps the "
@@ -108,8 +114,12 @@ def main() -> None:
     ap.add_argument("--out-dir", type=Path, default=ROOT / "local_repro")
     a = ap.parse_args()
 
-    if not a.text and not a.known_failures and not a.probes and not a.failing_from:
-        ap.error("give --text, --known-failures, --probes or --failing-from")
+    if not (a.text or a.known_failures or a.probes or a.failing_from or a.texts_file):
+        ap.error("give --text, --known-failures, --probes, --failing-from or --texts-file")
+    # MUST precede the betacraft_core import: pack_sentences binds hard_cap as a
+    # default argument, which Python evaluates once at def time.
+    if a.hard_cap:
+        os.environ["BETACRAFT_PACK_HARD_CAP"] = str(a.hard_cap)
     # --probes reproduces the RunPod run's exact seeds so the two sets pair up.
     seeds = ([int(x) for x in a.seeds.split(",")] if a.seeds
              else ([42, 1042] if a.probes else [42 + i * 101 for i in range(a.runs)]))
@@ -123,6 +133,9 @@ def main() -> None:
         from score_quality import PROBES
         cases = [(lang, text, what) for lang in ("mr", "hi", "en")
                  for text, what in PROBES[lang]]
+    elif a.texts_file:
+        cases = [(ln.split("\t")[0].strip(), ln.split("\t")[1].strip(), None)
+                 for ln in a.texts_file.read_text(encoding="utf-8").splitlines() if "\t" in ln]
     elif a.known_failures:
         cases = KNOWN_FAILURES
     else:
@@ -166,6 +179,7 @@ def main() -> None:
                     "decoding": "greedy" if a.greedy else "sampling",
                     "commas_stripped": bool(a.strip_commas),
                     "commas_to_ellipsis": bool(a.ellipsis),
+                    "hard_cap": a.hard_cap,
                     "device": str(bundle["device"]),
                     "short_ratio_threshold": SHORT_RATIO, "cases": []}
 
