@@ -1,0 +1,96 @@
+{
+  "when": "20260910-112658",
+  "model": "betacraft",
+  "runs": 1,
+  "seeds": [
+    648
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": false,
+  "hard_cap": null,
+  "pack_words": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "तेवढ्यात त्यांचा छोटा चुलत भाऊ, चिन्मय, तिथे आला.",
+        "words": 8,
+        "expected_sec": 4.57,
+        "generations": 0,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": null,
+        "stall_rate": null,
+        "median_ratio": null
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "error": "MPS backend out of memory (MPS allocated: 7.97 GiB, other allocations: 240.33 MiB, max allowed: 9.07 GiB). Tried to allocate 486.00 MiB on shared pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure)."
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "त्याने डोळे मिटले आणि जोरात मोजायला सुरुवात केली, तीन, दोन, एक, झूम!",
+        "words": 12,
+        "expected_sec": 6.86,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.01
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 6.95,
+          "ratio": 1.01,
+          "short": false,
+          "tail_flux": 0.1313,
+          "stalled": false,
+          "wav": "c1_mr_s648.wav",
+          "gen_sec": 291.4,
+          "attempts": 2,
+          "verdict": "good"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "He counted slowly, three, two, one, and closed his eyes.",
+        "words": 10,
+        "expected_sec": 4.81,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.82
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 3.92,
+          "ratio": 0.82,
+          "short": false,
+          "tail_flux": 0.2014,
+          "stalled": false,
+          "wav": "c2_en_s648.wav",
+          "gen_sec": 49.2,
+          "attempts": 1,
+          "verdict": "good"
+        }
+      ]
+    }
+  ],
+  "ear_scored": "both completed clips correct by ear (user, 2026-09-10)",
+  "conclusion": "NO-CAP TEST (BETACRAFT_MAX_DURATION_MULT=99, every unit gets ~29.8s, ~the model's own max_length 2610). 3 sentences that hit the 2.5x cap earlier the same day; 1 died on MPS OOM.\nRESULT: no bad audio shipped, but NOT because the runaway stopped happening. The Marathi countdown still ran away on attempt 1 — it was caught by the TAIL-FLUX detector instead (flux 0.018 < 0.030, a held vowel), reseeded, and came back at 1.01x. English with Mary was clean first attempt.\nREADING: the cap does not CAUSE the defect, it bounds the cost of it. Without the cap the bad attempt ran ~195s instead of ~131s — roughly 50% more GPU per failure. Tail flux is a genuine backstop but only for held-vowel endings; a runaway ending in noise has high flux and would slip past it. The two detectors are complementary, not redundant."
+}

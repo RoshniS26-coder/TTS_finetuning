@@ -1,0 +1,165 @@
+{
+  "when": "20260910-104135",
+  "model": "betacraft",
+  "runs": 1,
+  "seeds": [
+    648
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": false,
+  "hard_cap": null,
+  "pack_words": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "en",
+        "text": "The moon was big and round in the dark blue sky that night.",
+        "words": 13,
+        "expected_sec": 6.25,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.75
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 4.67,
+          "ratio": 0.75,
+          "short": false,
+          "tail_flux": 0.1435,
+          "stalled": false,
+          "wav": "c0_en_s648.wav",
+          "gen_sec": 42.7,
+          "attempts": 1,
+          "verdict": "good",
+          "speaker": "Mary"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "Aarav put on his blue cap and picked up a small bag.",
+        "words": 12,
+        "expected_sec": 5.77,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.7
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 4.02,
+          "ratio": 0.7,
+          "short": false,
+          "tail_flux": 0.2034,
+          "stalled": false,
+          "wav": "c1_en_s648.wav",
+          "gen_sec": 40.0,
+          "attempts": 1,
+          "verdict": "good",
+          "speaker": "Mary"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "He counted slowly, three, two, one, and closed his eyes.",
+        "words": 10,
+        "expected_sec": 4.81,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.82
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 3.92,
+          "ratio": 0.82,
+          "short": false,
+          "tail_flux": 0.2014,
+          "stalled": false,
+          "wav": "c2_en_s648.wav",
+          "gen_sec": 40.4,
+          "attempts": 1,
+          "verdict": "good",
+          "speaker": "Mary"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "Everywhere on the moon there was soft white and grey dust.",
+        "words": 11,
+        "expected_sec": 5.29,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.87
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 4.59,
+          "ratio": 0.87,
+          "short": false,
+          "tail_flux": 0.1851,
+          "stalled": false,
+          "wav": "c3_en_s648.wav",
+          "gen_sec": 55.2,
+          "attempts": 1,
+          "verdict": "good",
+          "speaker": "Mary"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "en",
+        "text": "Should Aarav share his chocolate with his friend?",
+        "words": 8,
+        "expected_sec": 3.85,
+        "generations": 1,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.86
+      },
+      "runs": [
+        {
+          "seed": 648,
+          "audio_sec": 3.31,
+          "ratio": 0.86,
+          "short": false,
+          "tail_flux": 0.2523,
+          "stalled": false,
+          "wav": "c4_en_s648.wav",
+          "gen_sec": 42.1,
+          "attempts": 1,
+          "verdict": "good",
+          "speaker": "Mary"
+        }
+      ]
+    }
+  ],
+  "ear_scored": "all 5 English clips correct by ear (user, 2026-09-10)",
+  "conclusion": "SPEAKER A/B: English with 'Mary' vs 'Sunita', same seed 648, same caption wording, same text. Mary = 5/5 correct by ear and 5/5 on FIRST attempt (zero retries); Sunita needed a reseed on the countdown, which first produced 'three o one'. Mary also narrates ~20% faster (median ratio 0.82 vs 1.01), implying ~2.5 w/s against the 2.08 currently configured — that 2.08 was measured on Sunita-English, so it now describes the wrong speaker. DECISION: keep Mary. Matches the model card, which lists Sunita for Marathi only."
+}

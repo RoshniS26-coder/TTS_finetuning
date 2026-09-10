@@ -76,7 +76,16 @@ CAPTION_TEMPLATE = (
 MODELS = {
     "betacraft": {
         "dir": MODEL_DIR,
-        "speakers": {"mr": "Sunita", "hi": "Divya", "en": "Sunita"},
+        # en: "Mary" UNDER TEST from 2026-09-10, was "Sunita". The Indic-Parler
+        # model card lists Sunita for MARATHI ONLY; its English speakers are
+        # Thoma and Mary. So English was asking a Marathi-only speaker name to
+        # narrate English — off-distribution on top of a fine-tune that contains
+        # no English at all. The caption is name-parameterised, so this changes
+        # the name and nothing else. UNVERIFIED: the fine-tune saw only Marathi
+        # and Hindi, so whether it still responds to "Mary" is exactly what the
+        # A/B against the seed-648 English clips is for. Revert to "Sunita" if
+        # Mary sounds worse.
+        "speakers": {"mr": "Sunita", "hi": "Divya", "en": "Mary"},
     },
     "base": {
         "dir": BASE_MODEL_DIR,
@@ -108,8 +117,25 @@ EXPECTED_WORDS_PER_SEC = 1.75
 # Confirmed by quality_runs/20260903-150327 en_02_r0: 10 words of English ran
 # 14.71s (3.06x the 4.81s it should take) and was only caught because it hit the
 # ceiling. Hindi shares Marathi's rate until it is separately measured.
-WORDS_PER_SEC_BY_LANG = {"mr": 1.75, "hi": 1.75, "en": 2.08}
-MAX_DURATION_MULTIPLIER = 2.5  # a unit running this much longer than expected is a runaway
+# HINDI RAISED 1.75 -> 2.1 on 2026-09-10. It had been borrowing Marathi's rate,
+# which is the same mistake English carried until 2026-09-07. Measured on the
+# seed-648 probe run (local_repro/20260910-100810), 6 of 6 Hindi clips came in
+# SHORT of their expected length and none was defective by ear:
+#     0.83  0.80  0.77  0.82  0.90  0.88   median 0.825
+# Systematic, not noise. 1.75 / 0.825 = 2.12, so Hindi genuinely narrates at
+# ~2.1 words/sec. Under the old rate every Hindi token budget was ~17% too
+# generous, giving a runaway that much extra room before the cap stopped it.
+#
+# English 2.08 was measured on SUNITA's English. English now uses Mary, who
+# narrates ~2.5 w/s (5 clips, median ratio 0.82). Left at 2.08 deliberately:
+# raising it TIGHTENS the cap, and five samples is too thin to risk truncating
+# legitimate speech. Extra headroom is harmless; re-measure with more clips.
+WORDS_PER_SEC_BY_LANG = {"mr": 1.75, "hi": 2.1, "en": 2.08}
+# A unit running this much longer than expected is a runaway. Env-tunable so the
+# cap can be loosened, or effectively removed, without a rebuild: set it high
+# (e.g. 99) and every unit clamps to MAX_TOKENS_CEILING (~29.8s), which is
+# essentially the model's own generation_config default of max_length 2610.
+MAX_DURATION_MULTIPLIER = float(os.environ.get("BETACRAFT_MAX_DURATION_MULT") or 2.5)
 MAX_CHUNK_ATTEMPTS = 3  # original attempt + up to 2 retries with a different seed
 
 # --- Unit packing -----------------------------------------------------------

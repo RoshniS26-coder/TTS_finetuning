@@ -33,5 +33,7 @@
         }
       ]
     }
-  ]
+  ],
+  "superseded_by": "20260904-141949",
+  "conclusion": "SUPERSEDED by 20260904-141949. Single sentence at seed 42 only — the first smoke test. Seed only, no other variable."
 }

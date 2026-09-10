@@ -1,0 +1,132 @@
+{
+  "when": "20260909-143158",
+  "model": "betacraft",
+  "runs": 2,
+  "seeds": [
+    42,
+    648
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": false,
+  "hard_cap": null,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प, तो डबा जमिनीवर पडला.",
+        "words": 5,
+        "expected_sec": 2.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.38
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 4.9,
+          "ratio": 1.72,
+          "short": false,
+          "tail_flux": 0.1051,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 516.9,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 2.93,
+          "ratio": 1.03,
+          "short": false,
+          "tail_flux": 0.2839,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 106.7,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प! तो डबा जमिनीवर पडला.",
+        "words": 5,
+        "expected_sec": 2.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.36
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 3.95,
+          "ratio": 1.38,
+          "short": false,
+          "tail_flux": 0.2581,
+          "stalled": false,
+          "wav": "c1_mr_s42.wav",
+          "gen_sec": 387.6,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 3.85,
+          "ratio": 1.35,
+          "short": false,
+          "tail_flux": 0.2215,
+          "stalled": false,
+          "wav": "c1_mr_s648.wav",
+          "gen_sec": 397.3,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ढप्प तो डबा जमिनीवर पडला.",
+        "words": 5,
+        "expected_sec": 2.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.19
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 3.22,
+          "ratio": 1.13,
+          "short": false,
+          "tail_flux": 0.2473,
+          "stalled": false,
+          "wav": "c2_mr_s42.wav",
+          "gen_sec": 1288.7,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 3.59,
+          "ratio": 1.26,
+          "short": false,
+          "tail_flux": 0.2277,
+          "stalled": false,
+          "wav": "c2_mr_s648.wav",
+          "gen_sec": 663.8,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}

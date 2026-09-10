@@ -510,5 +510,7 @@
         }
       ]
     }
-  ]
+  ],
+  "ear_scored": "all 40 clips heard by the user, 2026-09-09",
+  "conclusion": "SEED SWEEP: 4 sentences x 10 seeds (42..951), everything else at defaults. Verdict after hearing all 40 clips: SEED 648 is the best of the ten, on both correctness and expressiveness. This is the widest seed comparison run in the project and the provenance of 648 as the chosen default. CAVEAT: Mac/fp32 only — the endpoint runs bf16 and diverges, so this ranking needs confirming on the GPU. Audio deleted after scoring (regenerable from this file: same seeds, same text, sampling at temperature 0.65)."
 }

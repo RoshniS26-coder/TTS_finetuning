@@ -95,6 +95,18 @@ def main() -> None:
                          "fragments (countdowns, comma-fenced names) are what triggers the dropping "
                          "and trailing defects — commas do NOT affect unit splitting, so this is a "
                          "single-variable A/B against the same sentence with commas.")
+    ap.add_argument("--pack-words", type=int,
+                    help="group sentences into units of ~N words (0 = one sentence per unit, the "
+                         "current default). Training clips held a MEDIAN OF 2 SENTENCES and ~20 words, "
+                         "so 0 under-fills relative to what the model saw. Packing was A/B'd on "
+                         "2026-08-31 and lost - but _merge_short was comma-joining short sentences "
+                         "then, so every packed unit carried the comma runs we have since proven cause "
+                         "hallucination. Worth re-testing now that it joins with punctuation intact.")
+    ap.add_argument("--no-cap", action="store_true",
+                    help="give every unit the model's own default budget (~29.8s) instead of a "
+                         "per-sentence one. Tests what happens with no meaningful runaway stop: the "
+                         "'hit the cap' signal is what currently triggers a reseed, so a unit that "
+                         "never emits EOS will simply run on and ship.")
     ap.add_argument("--hard-cap", type=int,
                     help="override PACK_HARD_CAP_WORDS. A unit longer than this is split into "
                          "separate generations. Set high (e.g. 99) to keep long sentences WHOLE.")
@@ -120,6 +132,9 @@ def main() -> None:
     # default argument, which Python evaluates once at def time.
     if a.hard_cap:
         os.environ["BETACRAFT_PACK_HARD_CAP"] = str(a.hard_cap)
+    if a.no_cap:
+        # Every unit then clamps to MAX_TOKENS_CEILING regardless of its length.
+        os.environ["BETACRAFT_MAX_DURATION_MULT"] = "99"
     # --probes reproduces the RunPod run's exact seeds so the two sets pair up.
     seeds = ([int(x) for x in a.seeds.split(",")] if a.seeds
              else ([42, 1042] if a.probes else [42 + i * 101 for i in range(a.runs)]))
@@ -180,6 +195,7 @@ def main() -> None:
                     "commas_stripped": bool(a.strip_commas),
                     "commas_to_ellipsis": bool(a.ellipsis),
                     "hard_cap": a.hard_cap,
+                    "pack_words": a.pack_words,
                     "device": str(bundle["device"]),
                     "short_ratio_threshold": SHORT_RATIO, "cases": []}
 
@@ -200,6 +216,7 @@ def main() -> None:
                     bundle, text=text, language=lang, seed=seed,
                     temperature=None if a.greedy else a.temperature,
                     gen_overrides={"do_sample": False} if a.greedy else None,
+                    **({"pack_words": a.pack_words} if a.pack_words is not None else {}),
                 )
             except Exception as exc:                       # noqa: BLE001
                 print(f"    run {run:2d} seed={seed:<5} FAILED: {exc}")
@@ -241,8 +258,12 @@ def main() -> None:
     print(f"{'case':5} {'lang':5} {'words':>5} {'gens':>5} {'short':>6} {'stalled':>8} {'med ratio':>10}")
     for i, c in enumerate(report["cases"]):
         s = c["summary"]
+        # median_ratio is None when every attempt for this case failed (an MPS
+        # out-of-memory, say), so it must not be format-specified as a number —
+        # otherwise one dead case takes down the summary for all the good ones.
+        med = "—" if s.get("median_ratio") is None else f"{s['median_ratio']:.2f}"
         print(f"{i:<5} {s['lang']:5} {s['words']:>5} {s['generations']:>5} "
-              f"{s['short']:>6} {s['stalled']:>8} {s['median_ratio']:>10}")
+              f"{s['short']:>6} {s['stalled']:>8} {med:>10}")
     print(f"\nwavs + report.json -> {out}")
     print("A 'SHORT' flag is a HINT, not proof — listen to those clips and confirm "
           "words are actually missing before trusting the rate.")

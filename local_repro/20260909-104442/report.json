@@ -1,0 +1,200 @@
+{
+  "when": "20260909-104442",
+  "model": "betacraft",
+  "runs": 3,
+  "seeds": [
+    42,
+    648,
+    1042
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": false,
+  "hard_cap": 99,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "माकडाने घागर पाण्यात पालथी घेतली आणि त्यावर उभे राहून माकड म्हणाले, हुप हुप करी वरचे डोंगरी मी खीर खाल्ली.",
+        "words": 19,
+        "expected_sec": 10.86,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.01
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 11.46,
+          "ratio": 1.06,
+          "short": false,
+          "tail_flux": 0.1256,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 70.7,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "error": "MPS backend out of memory (MPS allocated: 8.31 GiB, other allocations: 229.25 MiB, max allowed: 9.07 GiB). Tried to allocate 441.94 MiB on shared pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure)."
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 10.37,
+          "ratio": 0.96,
+          "short": false,
+          "tail_flux": 0.1504,
+          "stalled": false,
+          "wav": "c0_mr_s1042.wav",
+          "gen_sec": 119.1,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "एके दिवशी उंदीर मामा म्हणाला, \"आज आपण सगळे मिळून काहीतरी गोड बनवू या का?\" माकडदादा उड्या मारत म्हणाला, \"हो हो!",
+        "words": 20,
+        "expected_sec": 11.43,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.19
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "error": "MPS backend out of memory (MPS allocated: 8.77 GiB, other allocations: 235.36 MiB, max allowed: 9.07 GiB). Tried to allocate 465.38 MiB on shared pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure)."
+        },
+        {
+          "seed": 648,
+          "audio_sec": 11.44,
+          "ratio": 1.0,
+          "short": false,
+          "tail_flux": 0.107,
+          "stalled": false,
+          "wav": "c1_mr_s648.wav",
+          "gen_sec": 109.6,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 15.8,
+          "ratio": 1.38,
+          "short": false,
+          "tail_flux": 0.0364,
+          "stalled": false,
+          "wav": "c1_mr_s1042.wav",
+          "gen_sec": 133.4,
+          "attempts": 1,
+          "verdict": "bad",
+          "severity": "content",
+          "note": "hallucinated (1.38x, tail flux 0.036 — at the stall threshold)"
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ससा खाली बसला होता पण घाबरला होता आणि विचार करत होता की जर हत्तीने माझ्यावर उडी मारली तर माझे तुकडे तुकडे होतील.",
+        "words": 22,
+        "expected_sec": 12.57,
+        "generations": 3,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.85
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 11.54,
+          "ratio": 0.92,
+          "short": false,
+          "tail_flux": 0.2002,
+          "stalled": false,
+          "wav": "c2_mr_s42.wav",
+          "gen_sec": 129.5,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 10.74,
+          "ratio": 0.85,
+          "short": false,
+          "tail_flux": 0.2715,
+          "stalled": false,
+          "wav": "c2_mr_s648.wav",
+          "gen_sec": 131.8,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 10.06,
+          "ratio": 0.8,
+          "short": false,
+          "tail_flux": 0.261,
+          "stalled": false,
+          "wav": "c2_mr_s1042.wav",
+          "gen_sec": 87.2,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "तो मनातल्या मनात म्हणत होता, \"मी सुपरहिरो आहे, मी हे करू शकतो!\" हळूहळू, तो छोटा ससा खड्ड्यातून वर आला आणि थेट राजूच्या कुशीत पडला.",
+        "words": 24,
+        "expected_sec": 13.71,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.03
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "error": "MPS backend out of memory (MPS allocated: 8.24 GiB, other allocations: 240.89 MiB, max allowed: 9.07 GiB). Tried to allocate 486.00 MiB on shared pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure)."
+        },
+        {
+          "seed": 648,
+          "audio_sec": 13.86,
+          "ratio": 1.01,
+          "short": false,
+          "tail_flux": 0.2097,
+          "stalled": false,
+          "wav": "c3_mr_s648.wav",
+          "gen_sec": 136.7,
+          "attempts": 1,
+          "verdict": "bad",
+          "severity": "content",
+          "note": "DROPPED 'मी सुपरहिरो आहे' at ratio 1.01 — no duration or flux signal"
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 14.35,
+          "ratio": 1.05,
+          "short": false,
+          "tail_flux": 0.1955,
+          "stalled": false,
+          "wav": "c3_mr_s1042.wav",
+          "gen_sec": 185.7,
+          "attempts": 1
+        }
+      ]
+    }
+  ]
+}

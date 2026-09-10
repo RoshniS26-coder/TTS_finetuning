@@ -1,0 +1,213 @@
+{
+  "when": "20260909-111545",
+  "model": "betacraft",
+  "runs": 3,
+  "seeds": [
+    42,
+    648,
+    1042
+  ],
+  "temperature": null,
+  "decoding": "sampling",
+  "commas_stripped": false,
+  "commas_to_ellipsis": false,
+  "hard_cap": 18,
+  "device": "mps",
+  "short_ratio_threshold": 0.6,
+  "cases": [
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "माकडाने घागर पाण्यात पालथी घेतली आणि त्यावर उभे राहून माकड म्हणाले, हुप हुप करी वरचे डोंगरी मी खीर खाल्ली.",
+        "words": 19,
+        "expected_sec": 10.86,
+        "generations": 3,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.97
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 10.4,
+          "ratio": 0.96,
+          "short": false,
+          "tail_flux": 0.1754,
+          "stalled": false,
+          "wav": "c0_mr_s42.wav",
+          "gen_sec": 268.5,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 10.52,
+          "ratio": 0.97,
+          "short": false,
+          "tail_flux": 0.1282,
+          "stalled": false,
+          "wav": "c0_mr_s648.wav",
+          "gen_sec": 126.9,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 10.95,
+          "ratio": 1.01,
+          "short": false,
+          "tail_flux": 0.1621,
+          "stalled": false,
+          "wav": "c0_mr_s1042.wav",
+          "gen_sec": 420.2,
+          "attempts": 2
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "एके दिवशी उंदीर मामा म्हणाला, \"आज आपण सगळे मिळून काहीतरी गोड बनवू या का?\" माकडदादा उड्या मारत म्हणाला, \"हो हो!",
+        "words": 20,
+        "expected_sec": 11.43,
+        "generations": 2,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.1
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "error": "MPS backend out of memory (MPS allocated: 8.65 GiB, other allocations: 223.95 MiB, max allowed: 9.07 GiB). Tried to allocate 418.69 MiB on shared pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure)."
+        },
+        {
+          "seed": 648,
+          "audio_sec": 12.88,
+          "ratio": 1.13,
+          "short": false,
+          "tail_flux": 0.0692,
+          "stalled": false,
+          "wav": "c1_mr_s648.wav",
+          "gen_sec": 150.6,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 12.26,
+          "ratio": 1.07,
+          "short": false,
+          "tail_flux": 0.0744,
+          "stalled": false,
+          "wav": "c1_mr_s1042.wav",
+          "gen_sec": 126.5,
+          "attempts": 1,
+          "verdict": "good",
+          "note": "clean throughout; the final 'हो हो' could land better but is acceptable. The WHOLE-condition take of this same sentence+seed HALLUCINATED (1.38x, flux 0.036)."
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "ससा खाली बसला होता पण घाबरला होता आणि विचार करत होता की जर हत्तीने माझ्यावर उडी मारली तर माझे तुकडे तुकडे होतील.",
+        "words": 22,
+        "expected_sec": 12.57,
+        "generations": 3,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 0.91
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 11.42,
+          "ratio": 0.91,
+          "short": false,
+          "tail_flux": 0.19,
+          "stalled": false,
+          "wav": "c2_mr_s42.wav",
+          "gen_sec": 246.1,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 10.5,
+          "ratio": 0.84,
+          "short": false,
+          "tail_flux": 0.3101,
+          "stalled": false,
+          "wav": "c2_mr_s648.wav",
+          "gen_sec": 126.5,
+          "attempts": 1
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 15.17,
+          "ratio": 1.21,
+          "short": false,
+          "tail_flux": 0.2706,
+          "stalled": false,
+          "wav": "c2_mr_s1042.wav",
+          "gen_sec": 168.4,
+          "attempts": 1
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lang": "mr",
+        "text": "तो मनातल्या मनात म्हणत होता, \"मी सुपरहिरो आहे, मी हे करू शकतो!\" हळूहळू, तो छोटा ससा खड्ड्यातून वर आला आणि थेट राजूच्या कुशीत पडला.",
+        "words": 24,
+        "expected_sec": 13.71,
+        "generations": 3,
+        "short": 0,
+        "stalled": 0,
+        "short_rate": 0.0,
+        "stall_rate": 0.0,
+        "median_ratio": 1.17
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "audio_sec": 15.46,
+          "ratio": 1.13,
+          "short": false,
+          "tail_flux": 0.2214,
+          "stalled": false,
+          "wav": "c3_mr_s42.wav",
+          "gen_sec": 173.0,
+          "attempts": 1
+        },
+        {
+          "seed": 648,
+          "audio_sec": 17.83,
+          "ratio": 1.3,
+          "short": false,
+          "tail_flux": 0.197,
+          "stalled": false,
+          "wav": "c3_mr_s648.wav",
+          "gen_sec": 185.9,
+          "attempts": 1,
+          "verdict": "good",
+          "note": "'मी सुपरहिरो आहे' is spoken correctly. The WHOLE-condition take of this same sentence+seed DROPPED those words at a normal-looking 1.01x ratio."
+        },
+        {
+          "seed": 1042,
+          "audio_sec": 15.99,
+          "ratio": 1.17,
+          "short": false,
+          "tail_flux": 0.1968,
+          "stalled": false,
+          "wav": "c3_mr_s1042.wav",
+          "gen_sec": 409.1,
+          "attempts": 2
+        }
+      ]
+    }
+  ],
+  "conclusion": "SPLIT (hard_cap 18) fixed BOTH failures the WHOLE condition (hard_cap 99) produced, at identical seeds and temperature. Ear-scored 2026-09-09. The 18-word cap is justified on direct evidence, outweighing the corpus-distribution argument against it (67% of Marathi training units exceed 18 words)."
+}
