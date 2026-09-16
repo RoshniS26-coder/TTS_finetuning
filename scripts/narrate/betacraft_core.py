@@ -167,6 +167,20 @@ MAX_CHUNK_ATTEMPTS = 3  # original attempt + up to 2 retries with a different se
 # Kept as an option rather than deleted, because it's one request field away
 # and worth re-testing if the content model starts producing much shorter
 # sentences. But 0 is the default: generate one sentence at a time.
+#
+# RE-TESTED 2026-09-16 and CONFIRMED WORSE, this time with a reason to expect
+# the opposite. Measuring the v7 training set showed production units sit well
+# BELOW what the model was trained on (mr: median 20 words / 10.9s, p10 13
+# words; production units are 4-13), which predicted that packing toward 20
+# would help. It did not:
+#     pack_words=0    49 units, median  8 words/unit,  2 retries (4%)
+#     pack_words=20   27 units, median 15 words/unit,  9 retries (33%)
+#   Same 8 story turns, same seed (648), temperature 0.65, RunPod.
+# 4.5x the retry rate, and the only suspect unit in the set. Sentence boundaries
+# don't divide evenly, so pack_words=20 actually lands near 15 — longer than what
+# works, still short of the training median, and each unit now carries more text
+# that a single alignment slip can damage. Distribution-matching from THIS side
+# does not work; closing that gap would mean retraining with short clips.
 PACK_TARGET_WORDS = 0
 # LOWERED from 22 on 2026-09-02 after a trailing-hallucination report in Hindi.
 # A/B on the SAME text and seed (42), warm worker, via the RunPod queue endpoint:
@@ -295,7 +309,40 @@ def _env_opt_float(name: str, default: float | None) -> float | None:
 # outright they're kept reachable and switchable at runtime (env var, or a
 # per-request override) — set BETACRAFT_REPETITION_PENALTY=1.2 and
 # BETACRAFT_NO_REPEAT_NGRAM=3 to restore the old behaviour for comparison.
+# TEMPERATURE BRACKETED 2026-09-16 — 0.65 is a measured optimum, not a guess.
+# Both directions were tried on real story text and both are WORSE:
+#   1.0 (library default) — prosody varies sentence to sentence, as if the
+#                           narrator changed between units. Judged by ear.
+#   0.65                  — kept.
+#   0.5                   — LOUD BUZZING on staging, in both mr and hi, across
+#                           two story sessions. No buzz was reported at 0.65.
+#   ~0 (greedy)           — 2026-09-08 smoke test: never emitted a stop token,
+#                           621 tokens, ~90% of it stripped by clean_edges.
+# So do not "just lower it" to chase dropped words. Under-constrained sampling
+# loses voice consistency; over-constrained sampling degenerates into held
+# vowels and buzz. This value sits in the trough between the two.
 DEFAULT_TEMPERATURE = _env_opt_float("BETACRAFT_TEMPERATURE", 0.65) or 0.65
+# TOP_P: the fallback below is 0.9, but PRODUCTION RUNS 1.0 via BETACRAFT_TOP_P
+# on the RunPod endpoint. lib/tts.ts deliberately does NOT send top_p (see the
+# note above its request payload), so this env var is what actually decides it.
+#
+# MEASURED 2026-09-16 on RunPod, temperature held at 0.65:
+#   * mr, "...आवाज आला धूम!", seed 648: at 0.9 the end of the sentence was
+#     DROPPED (0.52x expected length, confirmed by ear); at 1.0, SAME seed, the
+#     whole sentence was spoken (1.10x).
+#   * hi, full 6-sentence turn, 5 seeds: worst single-unit length ratio fell
+#     from 1.46x to 1.15x — better on 5 of 5 seeds.
+#   * mr, 5 known-bad sentences x 5 seeds: better on 3, unchanged on 1, slightly
+#     worse on 1.
+# MECHANISM: 0.9 keeps only the top 90% of probability mass at each step. Where
+# this fine-tune is undertrained — short units, which sit BELOW the 10th
+# percentile of its own training clips (mr median 20 words, p10 13) — that
+# distribution is diffuse, so the trim can discard the correct continuation and
+# leave the decoder choosing among wrong ones. Heard as a held vowel, buzz, or a
+# skipped span. Same family as the temperature findings above.
+# NOT A FIX, A RATE REDUCTION: defects still occur at 1.0, just less often.
+# Raising this default to 1.0 would make a fresh endpoint safe without the env
+# var, but changes behaviour on the next rebuild — decide that deliberately.
 DEFAULT_TOP_P = _env_opt_float("BETACRAFT_TOP_P", 0.9)
 
 # Seed. set_seed() is re-applied before EVERY unit (see synthesize), so this is
@@ -325,6 +372,16 @@ DEFAULT_SEED = int(os.environ.get("BETACRAFT_SEED") or 648)
 # local_repro/20260904-152523) while catching the 2.19x case above. Env-tunable
 # because it is a calibration threshold: it will need moving once the probe set
 # is scored by ear, and that must not require an image rebuild.
+#
+# MEASURED 2026-09-16 over 113 Marathi production units (cap-hits excluded):
+# median 1.00x, p90 1.22x, MAX 1.60x. So at 1.8 this detector fired ZERO times —
+# it is switched on and catching nothing; every Marathi flag in those logs came
+# from the 2.5x hard cap instead. Lowering it would cost retries:
+#     1.8 -> 0/113 (0%)     1.37 -> 4/113 (4%)     1.24 -> 11/113 (10%)
+# 1.35 would have caught the one reported unit that ran long ("अचानक रॉकेट...",
+# 1.37x) for ~4% more retries. NOT ATTEMPTED YET — and note it only ever sees
+# units that run LONG: the other reported failure that turn was 1.07x, and the
+# khoop stall was mid-clip, which TAIL_ANALYSIS_SEC (1.3s, end only) cannot see.
 SOFT_DURATION_MULTIPLIER = _env_opt_float("BETACRAFT_SOFT_DURATION_MULT", 1.8) or 1.8
 
 DEFAULT_REPETITION_PENALTY = _env_opt_float("BETACRAFT_REPETITION_PENALTY", None)
