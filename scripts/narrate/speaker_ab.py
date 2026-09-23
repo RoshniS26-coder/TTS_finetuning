@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import os
 import sys
 from pathlib import Path
 
@@ -69,16 +70,52 @@ def main() -> int:
     ap.add_argument("--lang", default="mr", choices=["mr", "hi", "en"])
     ap.add_argument(
         "--speakers",
-        required=True,
-        help="Comma-separated caption names to compare, e.g. Sunita,Isha",
+        help="Comma-separated caption NAMES to compare, e.g. Sunita,Isha. Each is "
+             "substituted into CAPTION_TEMPLATE. Mutually exclusive with --caption.",
+    )
+    ap.add_argument(
+        "--caption",
+        action="append",
+        metavar="LABEL::TEXT",
+        help="Full description to use VERBATIM, repeatable to compare several. "
+             "Format 'label::caption text'; the label names the output wav. "
+             "Use this for --model base, which is caption-STEERABLE by design. "
+             "For the fine-tune the caption is an identity token trained "
+             "byte-identical (see betacraft_core.CAPTION_TEMPLATE), so anything "
+             "but the template moves it off-distribution — expect worse, not better.",
     )
     ap.add_argument("--seeds", default="648,42,1042", help="Comma-separated seeds")
     ap.add_argument("--model", default="betacraft", choices=["betacraft", "base"])
     ap.add_argument("--temperature", type=float, default=None)
+    ap.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        dest="top_p",
+        help="Nucleus sampling. Omit to use betacraft_core's DEFAULT_TOP_P; pass "
+             "1.0 for the library default (no truncation). NOTE: the duration "
+             "thresholds that drive the reseed-retry ladder are module constants "
+             "read from the environment at IMPORT time, so to vary them set "
+             "BETACRAFT_MAX_DURATION_MULT / BETACRAFT_SOFT_DURATION_MULT before "
+             "launching — they cannot change between arms inside one process.",
+    )
     ap.add_argument("--out", default="speaker_ab")
     args = ap.parse_args()
 
-    speakers = [s.strip() for s in args.speakers.split(",") if s.strip()]
+    if bool(args.speakers) == bool(args.caption):
+        ap.error("pass exactly one of --speakers or --caption")
+
+    # Both modes reduce to the same thing: an ordered list of (label, caption).
+    if args.caption:
+        arms = []
+        for i, raw in enumerate(args.caption, 1):
+            label, sep, text = raw.partition("::")
+            if not sep:
+                label, text = f"cap{i}", raw
+            arms.append((label.strip(), text.strip()))
+    else:
+        arms = [(n.strip(), CAPTION_TEMPLATE.format(name=n.strip()))
+                for n in args.speakers.split(",") if n.strip()]
     seeds = [int(s) for s in args.seeds.split(",") if s.strip()]
 
     out_dir = Path(args.out) / dt.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -98,13 +135,27 @@ def main() -> int:
           f"| expected ~{expected_sec:.2f}s at {rate} w/s")
     print(f"writing to {out_dir}\n")
 
+    # Record what each label actually meant, so a wav is traceable to its caption
+    # after the fact — the log line inside synthesize() prints the HARDCODED
+    # MODELS speaker name and cannot see the override applied here.
+    (out_dir / "captions.txt").write_text(
+        f"model={args.model} lang={args.lang} seeds={seeds}\n"
+        f"temperature={args.temperature if args.temperature is not None else 'DEFAULT'} "
+        f"top_p={args.top_p if args.top_p is not None else 'DEFAULT'}\n"
+        f"BETACRAFT_MAX_DURATION_MULT={os.environ.get('BETACRAFT_MAX_DURATION_MULT','unset')} "
+        f"BETACRAFT_SOFT_DURATION_MULT={os.environ.get('BETACRAFT_SOFT_DURATION_MULT','unset')}\n"
+        f"text={args.text}\n\n"
+        + "\n".join(f"{label}\n    {caption}\n" for label, caption in arms),
+        encoding="utf-8",
+    )
+
     rows = []
-    for name in speakers:
-        caption = CAPTION_TEMPLATE.format(name=name)
+    for name, caption in arms:
+        print(f"  [{name}] {caption}")
         enc = desc_tok(caption, return_tensors="pt").to(bundle["device"])
         # Swap THIS language's caption on the live bundle. Everything downstream —
         # splitting, packing, the reseed-retry ladder, edge trimming — is the real
-        # path, so the speaker name is the only variable.
+        # path, so the caption is the only variable.
         bundle["desc_ids_by_lang"][args.lang] = enc.input_ids
         bundle["desc_mask_by_lang"][args.lang] = enc.attention_mask
 
@@ -115,6 +166,8 @@ def main() -> int:
                 language=args.lang,
                 seed=seed,
                 temperature=args.temperature,
+                gen_overrides=({"top_p": args.top_p}
+                               if args.top_p is not None else None),
             )
             path = out_dir / f"{name}_s{seed}.wav"
             sf.write(path, wav, sr)
@@ -127,7 +180,7 @@ def main() -> int:
                   f"suspect={suspect}  -> {path.name}")
 
     print("\n--- summary (LISTEN before trusting any of this) ---")
-    for name in speakers:
+    for name, _caption in arms:
         mine = [r for r in rows if r[0] == name]
         if not mine:
             continue

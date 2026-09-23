@@ -1,0 +1,51 @@
+{
+  "text": "तेवढ्यात त्यांचा छोटा चुलत भाऊ, चिन्मय, तिथे आला.",
+  "text_sent_to_model": "तेवढ्यात त्यांचा छोटा चुलत भाऊ चिन्मय तिथे आला.",
+  "lang": "mr",
+  "model": "betacraft",
+  "speaker": "Sunita",
+  "when": "20260923",
+  "device": "mps/fp32 (production runs cuda/bf16 — timing not comparable)",
+  "settings": {
+    "temperature": 0.65,
+    "top_p": 1.0,
+    "pack_words": 0,
+    "BETACRAFT_MAX_DURATION_MULT": "unset (2.5)",
+    "BETACRAFT_SOFT_DURATION_MULT": "unset (1.8)"
+  },
+  "expected_sec": 4.57,
+  "note": "Re-check of quality_runs/20260903-150327 mr_02, which was ear-scored BAD at both seeds on 2026-09-08. Two changes since: normalize_enumerations (commit 64c0da5, 2026-09-08) strips the appositive commas around चिन्मय before generation, and BETACRAFT_TOP_P=1.0 was set on the RunPod endpoint. The comma passed in here on purpose, so this exercises the real production path rather than hand-cleaned input.",
+  "rows": [
+    {
+      "seed": 648,
+      "wav": "Sunita_s648.wav",
+      "audio_sec": 5.34,
+      "ratio": 1.17,
+      "attempts": 1,
+      "suspect": false,
+      "verdict": "good",
+      "note": "Production seed. Not previously tested on this sentence. Ear-scored 2026-09-23."
+    },
+    {
+      "seed": 42,
+      "wav": "Sunita_s42.wav",
+      "audio_sec": 4.46,
+      "ratio": 0.98,
+      "attempts": 1,
+      "suspect": false,
+      "verdict": "good",
+      "note": "THE BEFORE/AFTER. Same seed produced mr_02_r0.wav on 2026-09-03: DROPPED the final two words (तिथे आला) and garbled चिन्मय. Clean now — all words spoken, no stretch. Note the old clip was 4.88s = 1.07x expected, i.e. an ENTIRELY NORMAL length: no duration guard, cap or multiplier could ever have separated these two. Only the ear can. Ear-scored 2026-09-23."
+    },
+    {
+      "seed": 7,
+      "wav": "Sunita_s7.wav",
+      "audio_sec": 3.96,
+      "ratio": 0.87,
+      "attempts": 1,
+      "suspect": false,
+      "verdict": "good",
+      "note": "Ear-scored 2026-09-23."
+    }
+  ],
+  "conclusion": "3/3 clean, including the seed documented as broken. Comma-triggered failures (appositive names, countdowns, one-word fragments) appear closed. Does NOT cover drops with no comma run present — e.g. the रॉकेट turn lost words at 1.07x with no internal commas. That class remains open and is what HALLUCINATION_STRATEGY.md section 5 (the unbuilt alignment detector) was designed for."
+}

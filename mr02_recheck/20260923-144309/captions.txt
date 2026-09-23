@@ -1,0 +1,7 @@
+model=betacraft lang=mr seeds=[648, 42, 7]
+temperature=DEFAULT top_p=1.0
+BETACRAFT_MAX_DURATION_MULT=unset BETACRAFT_SOFT_DURATION_MULT=unset
+text=तेवढ्यात त्यांचा छोटा चुलत भाऊ, चिन्मय, तिथे आला.
+
+Sunita
+    Sunita narrates a children's story in an expressive, warm, animated storytelling tone with emotional variation, at a moderate pace. Very clear audio with no background noise.
